@@ -1,17 +1,4 @@
 :root {
-  --bg-0: #0b1117;
-  --bg-1: #0f1720;
-  --bg-2: #161f2b;
-  --bg-3: #232f41;
-  --accent: #B8F776;
-  --accent-2: #f2c14f;
-  --text-0: #f1f5fb;
-  --text-1: #c2cbd8;
-  --text-2: #8f9bb0;
-  --stroke: #2a3545;
-}
-
-:root:root {
   --van-primary-color: #4FA34F;
   --van-background: #141414;
   --van-background-2: #242424;
@@ -22,15 +9,16 @@
   --van-text-color: #F0F0F0;
   --van-text-color-2: #C4C4C4;
 
-  --van-button-default-color: var(--van-black);
-  --van-button-default-background: var(--van-white);
-  --van-button-primary-color: var(--van-white);
+  --van-button-default-color: var(--van-text-color);
+  --van-button-default-background: var(--van-background);
+  --van-button-default-border-color: var(--van-background-4);
+  --van-button-primary-color: var(--van-text-color);
   --van-button-primary-background: var(--van-primary-color);
 
   --van-cell-group-inset-title-padding: 8px;
   --van-cell-border-color: var(--van-background-4);
   --van-cell-active-color: var(--van-background-4);
-  
+
   --van-progress-background: var(--van-background-4);
 }
 
@@ -40,12 +28,8 @@
 
 html,
 body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
   background: var(--van-background);
-  color: var(--text-0);
+  color: var(--van-text-color);
   font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -59,11 +43,11 @@ body {
 }
 
 .popup {
-  background: #3b3b3b;
-  color: #f2f2f2;
-  padding: 14px 14px 18px;
+  background: var(--van-background-3);
+  padding: 12px;
+  padding-top: 4px;
   display: grid;
-  gap: 12px;
+  gap: 8px;
   height: 100vh;
 }
 
@@ -80,8 +64,7 @@ body {
   height: 32px;
   border-radius: 10px;
   border: 0;
-  background: transparent;
-  color: #e8e8e8;
+  background: none;
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -94,5 +77,6 @@ body {
 
 .popup-header-confirm {
   width: 80px;
-  height: 40px;
+  height: 32px;
+  font-size: 16px;
 }
