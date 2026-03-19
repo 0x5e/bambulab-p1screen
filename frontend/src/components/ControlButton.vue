@@ -26,8 +26,8 @@ const props = withDefaults(
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 8px;
+  padding: 10px;
   border-radius: 10px;
   background: var(--van-background-3);
   overflow: hidden;

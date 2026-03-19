@@ -27,6 +27,12 @@ export type DevicePrint = {
   spd_lvl?: number
   fan_gear?: number
 
+  mc_percent?: number
+  mc_remaining_time?: number
+  gcode_state?: string
+  layer_num?: number
+  total_layer_num?: number
+
   ams?: DeviceAMSInfo
   vt_tray?: DeviceTray
   lights_report?: DeviceLight[]
