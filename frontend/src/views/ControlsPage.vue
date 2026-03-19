@@ -1,46 +1,26 @@
 <template>
   <div class="controls-page">
-    <div class="control-panel">
-        <div class="control-list">
-
-          <div class="control-row" v-for="item in temps" :key="item.type" @click="openTempPopup(item.type)">
-            <div class="control-left">
-              <img class="control-icon-img" :src="item.icon" />
-            </div>
-            <div class="control-value">{{ item.current }} / {{ item.target }} ℃</div>
-          </div>
-
-          <div class="fan-row" @click="showFanSpeedPopup = true">
-            <div class="fan-card" v-for="item in fans" :key="item.type">
-              <div class="fan-name">{{ item.name }}</div>
-              <img class="fan-icon" :src="WSService.getInstance().getFanSpeed(item.type) !== 0 ? fanOnIcon : fanOffIcon" />
-              <div class="fan-percent">{{ (WSService.getInstance().getFanSpeed(item.type) / 255 * 100).toFixed(0) }}%</div>
-            </div>
-          </div>
-
-          <div class="control-split">
-            <div class="control-row" @click="showPrintSpeedPopup = true">
-              <div class="control-left">
-                <img class="control-icon-img" :src="speedIcon" />
-              </div>
-              <div class="control-value">
-                <span>{{ getPrintSpeed }}%</span>
-              </div>
-            </div>
-            <div class="control-row" @click="toggleLight">
-              <div class="control-left">
-                <img class="control-icon-img" :src="lightState ? lightOnIcon : lightOffIcon" />
-              </div>
-              <div class="control-value">
-                <span>照明</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
+    <div class="control-list">
+      <ControlButton v-for="item in temps" :key="item.type"
+        :icon="item.icon"
+        :label="`${item.current.value} / ${item.target.value} ℃`"
+        @click="openTempPopup(item.type)"
+      />
+      <div class="control-row three">
+        <ControlButton v-for="item in fans" :key="item.type"
+          :icon="WSService.getInstance().getFanSpeed(item.type) !== 0 ? fanOnIcon : fanOffIcon"
+          :label="`${item.name}\n${(WSService.getInstance().getFanSpeed(item.type) / 255 * 100).toFixed(0)}%`"
+          font-size="12px"
+          @click="showFanSpeedPopup = true"
+        />
+      </div>
+      <div class="control-row two">
+        <ControlButton :icon="speedIcon" :label="`${getPrintSpeed}%`" @click="showPrintSpeedPopup = true" />
+        <ControlButton :icon="lightState ? lightOnIcon : lightOffIcon" :label="'照明'" @click="toggleLight" />
+      </div>
     </div>
 
-    <div class="xyz-motion">
+    <div class="motion-list">
       <XYMotion @move="handleMove" />
       <ZMotion @move="handleMove" />
     </div>
@@ -88,6 +68,7 @@ import fanOnIcon from '../assets/images/monitor_fan_on.svg'
 import fanOffIcon from '../assets/images/monitor_fan_off.svg'
 import lightOnIcon from '../assets/images/monitor_lamp_on.svg'
 import lightOffIcon from '../assets/images/monitor_lamp_off.svg'
+import ControlButton from '../components/ControlButton.vue'
 
 // ------------------------------
 // Temperature
@@ -172,119 +153,43 @@ const handleMove = (axis: 'home' | 'x' | 'y' | 'z' | 'e', step: -10 | -1 | 0| 1 
   color: var(--van-text-color);
 }
 
-.control-panel {
+.control-list {
   background: var(--van-background-2);
   border-radius: 12px;
   padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 0;
   height: 100%;
-}
-
-.control-list {
+  gap: 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   flex: 1;
 }
 
+.control-list > .control-button {
+  flex-direction: row;
+}
+
 .control-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: var(--van-background-3);
-  font-size: 14px;
-  overflow: hidden;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.control-row:active {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.control-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.control-icon-img {
-  width: 18px;
-  height: 18px;
-}
-
-.control-value {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.control-split .control-row {
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-}
-
-.control-split .control-left {
-  flex-direction: column;
-  gap: 6px;
-}
-
-.control-split .control-value {
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.control-split {
   display: grid;
+  gap: 8px;
+}
+
+.control-row.two {
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
 }
 
-.fan-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+.control-row.three {
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
-.fan-card {
-  background: var(--van-background-3);
-  border-radius: 10px;
-  padding: 8px 6px;
-  display: grid;
-  justify-items: center;
-  gap: 6px;
+.control-row.three span {
   font-size: 12px;
 }
 
-.fan-name {
-  color: var(--van-text-color-2);
-}
-
-.fan-percent {
-  font-weight: 600;
-}
-
-.xyz-motion {
+.motion-list {
   display: grid;
   grid-template-rows: 1fr auto;
   gap: 4px;
   height: 100%;
   min-height: 0;
 }
-
 </style>
