@@ -119,7 +119,7 @@ const handleConfirm = () => {
 }
 
 .temp-unit {
-  color: #cfcfcf;
+  color: var(--van-text-color-2);
 }
 
 .temp-keypad {

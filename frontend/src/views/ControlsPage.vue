@@ -96,7 +96,7 @@ const openTempPopup = (type: 'bed' | 'nozzle' | 'chamber') => {
 
 const handleTempConfirm = (type: 'bed' | 'nozzle' | 'chamber' | undefined, value: number) => {
   console.log('[Controls] temp confirm', type, value)
-  // TODO
+  // TODO set temperature
 }
 
 // ------------------------------
@@ -138,7 +138,7 @@ const toggleLight = () => {
 
 const handleMove = (axis: 'home' | 'x' | 'y' | 'z' | 'e', step: -10 | -1 | 0| 1 | 10) => {
   console.log('[XYMotion] move', axis, step)
-  // TODO
+  // TODO move x/y/z/e
 }
 
 </script>

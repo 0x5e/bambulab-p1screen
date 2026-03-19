@@ -20,6 +20,7 @@
           <van-progress :percentage="getPrintPercent" :show-pivot="false" />
           <span class="progress-status">{{ getPrintStateLabel }}</span>
         </div>
+        <ControlButton :icon="skipIcon" label="跳过" @click="handleSkip" />
         <ControlButton v-if="!isPaused" :icon="pauseIcon" label="暂停" @click="togglePause" />
         <ControlButton v-if="isPaused" :icon="resumeIcon" label="继续" @click="togglePause" />
         <ControlButton :icon="stopIcon" label="停止" @click="handleStop" />
@@ -38,6 +39,7 @@ import ControlButton from '../components/ControlButton.vue'
 
 import lightOnIcon from '../assets/images/monitor_lamp_on.svg'
 import lightOffIcon from '../assets/images/monitor_lamp_off.svg'
+import skipIcon from '../assets/images/print_control_partskip.svg'
 import pauseIcon from '../assets/images/print_control_pause.svg'
 import resumeIcon from '../assets/images/print_control_resume.svg'
 import stopIcon from '../assets/images/print_control_stop.svg'
@@ -65,6 +67,10 @@ const getPrintInfo = computed(() => {
 })
 
 const isPaused = computed(() => device.print?.gcode_state === 'PAUSED')
+
+const handleSkip = () => {
+  console.log('[Controls] skip')
+}
 
 const togglePause = () => {
   if (isPaused.value) {
@@ -155,7 +161,7 @@ const toggleLight = () => {
 
 .progress-card {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   font-size: 12px;
   gap: 8px;
   padding: 8px;
@@ -171,6 +177,10 @@ const toggleLight = () => {
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
+}
+
+.van-progress {
+  margin: 4px 0;
 }
 
 .progress-status {
