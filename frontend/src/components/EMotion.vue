@@ -28,7 +28,7 @@ const emitMove = (axis: 'e', step: -1 | 1) => {
 .extruder-card {
   background: var(--van-background-2);
   border-radius: 12px;
-  padding: 10px;
+  padding: 8px;
   display: grid;
   grid-template-rows: auto 1fr auto;
   align-items: center;

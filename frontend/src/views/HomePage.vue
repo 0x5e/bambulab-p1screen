@@ -195,7 +195,6 @@ const toggleLight = () => {
 .light-button {
   width: 66px;
   height: 82px;
-  padding: 18px 10px;
 }
 
 </style>

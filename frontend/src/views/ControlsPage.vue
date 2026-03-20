@@ -156,7 +156,7 @@ const handleMove = (axis: 'home' | 'x' | 'y' | 'z' | 'e', step: -10 | -1 | 0| 1 
 .control-list {
   background: var(--van-background-2);
   border-radius: 12px;
-  padding: 10px;
+  padding: 8px;
   height: 100%;
   gap: 8px;
   display: flex;
@@ -165,6 +165,7 @@ const handleMove = (axis: 'home' | 'x' | 'y' | 'z' | 'e', step: -10 | -1 | 0| 1 
 }
 
 .control-list > .control-button {
+  justify-content: space-between;
   flex-direction: row;
 }
 

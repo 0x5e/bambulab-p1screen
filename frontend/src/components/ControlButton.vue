@@ -25,12 +25,10 @@ const props = withDefaults(
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
-  padding: 10px;
+  padding: 8px;
   border-radius: 10px;
   background: var(--van-background-3);
-  overflow: hidden;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   cursor: pointer;
