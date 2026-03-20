@@ -37,6 +37,11 @@
       </van-cell-group>
     </template>
 
+    <template v-if="isDev">
+      <van-cell-group inset title="调试">
+        <van-cell title="重连WebSocket" is-link @click="WSService.getInstance().connect()"/>
+      </van-cell-group>
+    </template>
   </div>
 </template>
 
@@ -44,6 +49,8 @@
 import { computed } from 'vue'
 import { device } from '../store/device'
 import { WSService } from '../store/ws'
+
+const isDev = import.meta.env.DEV
 
 const onBaseClick = (key: 'ip' | 'serial' | 'accessCode') => {
   console.log('[Settings] base click', key)

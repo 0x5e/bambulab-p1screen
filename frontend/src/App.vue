@@ -16,9 +16,6 @@
         <RouterLink class="nav-item" to="/files">
           <span class="material-symbols-rounded">folder</span>
         </RouterLink>
-        <RouterLink class="nav-item" to="/debug">
-          <span class="material-symbols-rounded">bug_report</span>
-        </RouterLink>
     </aside>
 
     <main class="main">
