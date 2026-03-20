@@ -1,8 +1,8 @@
 <template>
   <div class="tray">
-    <div class="filament" :style="{ backgroundColor: color }" @click="onClick"></div>
+    <div class="filament" :style="{ backgroundColor: bgColor }" @click="onClick"></div>
     <span class="name" :style="{ color: textColor }">{{ name }}</span>
-    <span class="material" :style="{ color: textColor }">{{ material }}</span>
+    <span class="material" :style="{ color: textColor }">{{ material.length > 0 ? material : '?' }}</span>
     <span class="icon" :style="{ backgroundColor: textColor}"></span>
   </div>
 </template>
@@ -22,8 +22,15 @@ const props = withDefaults(
   }
 )
 
+const bgColor = computed(() => {
+  // fix vt_tray wrong alpha
+  const bgColor = colord(props.color)
+  bgColor.rgba.a = 1
+  return bgColor.toRgbString()
+})
+
 const textColor = computed(() => {
-  const bgColor = colord(props.color);
+  const bgColor = colord(props.color)
   return bgColor.brightness() > 0.5 ? 'black' : 'white'
 })
 

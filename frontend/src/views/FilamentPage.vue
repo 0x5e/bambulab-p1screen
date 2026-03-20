@@ -1,26 +1,31 @@
 <template>
   <div class="filament-page">
     <div class="ext-card">
-      <Tray />
+      <Tray name="Ext" :material="extTray ? extTray.tray_type : '?'" :color="extTray ? `#${extTray.tray_color}` : ''" />
     </div>
     <div class="ams-cards">
-      <AMS ams-id="0" />
-      <!-- <AMS ams-id="0" /> -->
+      <AMS v-for="ams in amsList" :ams-id="ams.id ?? '0'" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import AMS from '../components/AMS.vue'
 import Tray from '../components/Tray.vue'
+import { device } from '../store/device';
+
+const amsList = computed(() => device.print?.ams?.ams ?? [{} as any])
+const extTray = computed(() => device.print?.vt_tray)
 </script>
 
 <style scoped>
 .filament-page {
   height: 100%;
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
   align-items: center;
+  justify-content: center;
 }
 .ext-card {
   padding: 60px 20px;
@@ -31,11 +36,9 @@ import Tray from '../components/Tray.vue'
   top: -8px;
 }
 .ams-cards {
-  flex: 1;
-  width: auto;
   height: 100%;
   display: grid;
   align-items: center;
-  padding: 20px 16px;
+  padding: 28px;
 }
 </style>

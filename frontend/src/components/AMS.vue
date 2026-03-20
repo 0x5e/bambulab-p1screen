@@ -30,7 +30,7 @@ const props = withDefaults(
   }
 )
 
-const amsPrefix = ref(String.fromCharCode('A'.charCodeAt(0) + Number(props.amsId)))
+const amsPrefix = ref(String.fromCharCode('A'.charCodeAt(0) + Number(props.amsId ?? '0')))
 const ams = computed(() => device.print?.ams?.ams?.find(item => item.id === props.amsId))
 const trayList = computed(() => {
   return ams.value?.tray.sort((a, b) => Number(a.id) - Number(b.id))
@@ -46,6 +46,7 @@ const humIcon = computed(() => {
 <style scoped>
 .ams-card {
   width: calc(64px * 4 + 8px);
+  background-color: var(--van-background-2);
 }
 .ams-card-container {
   display: grid;
