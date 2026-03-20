@@ -71,17 +71,17 @@ wss.on('connection', (socket, req) => {
 
   socket.on('message', (raw) => {
     if (!mqttClient) {
-      console.error(`[mqtt][${remote}] mqtt not initialized`)
+      console.error(`[ws][${remote}] mqtt not initialized`)
       return
     }
     
     let data = (typeof raw == 'string') ? raw : raw.toString('utf8')
-    console.error(`[mqtt][${remote}] send message, topic = ${commandTopic}, payload = ${data}`)
+    console.error(`[ws][${remote}] send message, topic = ${commandTopic}, payload = ${data}`)
     mqttClient.publish(commandTopic, data)
   })
 
   socket.on('close', () => {
-    console.error(`[socket][${remote}] closed`)
+    console.error(`[ws][${remote}] closed`)
     mqttClient.end(true)
   })
 })
