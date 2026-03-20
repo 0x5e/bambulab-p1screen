@@ -1,7 +1,7 @@
-import mqtt, { MqttClient } from 'mqtt'
+import mqtt from 'mqtt'
 import { WebSocketServer } from 'ws'
-import http from 'node:http'
 import express from 'express'
+import http from 'node:http'
 import path from 'node:path'
 
 const WEB_PORT = 8889
