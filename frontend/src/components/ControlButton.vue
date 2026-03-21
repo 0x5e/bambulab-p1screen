@@ -12,6 +12,7 @@ const props = withDefaults(
     icon: string
     label: string
     fontSize?: string
+    disabled?: boolean
     onClick?: () => void
   }>(),
   {
@@ -38,7 +39,7 @@ const props = withDefaults(
 }
 
 .control-button:active {
-  background: rgba(255, 255, 255, 0.06);
+  filter: brightness(0.9);
 }
 
 .control-button > img {

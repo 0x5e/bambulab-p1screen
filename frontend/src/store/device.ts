@@ -36,6 +36,7 @@ export type DevicePrint = {
   layer_num?: number
   total_layer_num?: number
   subtask_name?: string
+  url?: string
 
   ams?: DeviceAMSInfo
   vt_tray?: DeviceTray

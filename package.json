@@ -18,6 +18,7 @@
     "humanize-duration": "^3.33.2",
     "material-symbols": "^0.32.0",
     "mqtt": "^5.10.1",
+    "unzip": "^0.1.11",
     "vant": "^4.9.13",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5",

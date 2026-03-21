@@ -222,4 +222,14 @@ export class WSService {
       }
     })
   }
+
+  setStop() {
+    this.publishCommand({
+      "print": {
+        "sequence_id": "0",
+        "command": "stop",
+        "param": "",
+      }
+    })
+  }
 }

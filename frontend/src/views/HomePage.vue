@@ -20,10 +20,12 @@
           <van-progress :percentage="getPrintPercent" :show-pivot="false" />
           <span class="progress-status">{{ getPrintStateLabel }}</span>
         </div>
-        <!-- <ControlButton :icon="skipIcon" label="跳过" @click="handleSkip" /> -->
-        <ControlButton v-if="!isPaused" :icon="pauseIcon" label="暂停" @click="togglePause" />
-        <ControlButton v-if="isPaused" :icon="resumeIcon" label="继续" @click="togglePause" />
-        <ControlButton :icon="stopIcon" label="停止" @click="handleStop" />
+        <template v-if="!['IDLE', 'FINISH'].includes(device.print.gcode_state ?? '')">
+          <!-- <ControlButton :icon="skipIcon" label="跳过" @click="handleSkip" /> -->
+          <ControlButton v-if="!isPaused" :icon="pauseIcon" label="暂停" @click="handlePause" />
+          <ControlButton v-if="isPaused" :icon="resumeIcon" label="继续" @click="handleResume" />
+          <ControlButton :icon="stopIcon" label="停止" @click="handleStop" />
+        </template>
       </div>
       <ControlButton class="light-button" :icon="lightState ? lightOnIcon : lightOffIcon" label="照明" @click="toggleLight" />
     </div>
@@ -86,18 +88,19 @@ const handleSkip = () => {
   console.log('[Controls] skip')
 }
 
-const togglePause = () => {
-  if (isPaused.value) {
-    console.log('[Controls] resume')
-    WSService.getInstance().setResume()
-  } else {
-    console.log('[Controls] pause')
-    WSService.getInstance().setPause()
-  }
+const handleResume = () => {
+  console.log('[Controls] resume')
+  WSService.getInstance().setResume()
+}
+
+const handlePause = () => {
+  console.log('[Controls] resume')
+  WSService.getInstance().setPause()
 }
 
 const handleStop = () => {
   console.log('[Controls] stop')
+  WSService.getInstance().setStop()
 }
 
 const lightState = computed(() => device.print.lights_report?.find(item => item.node === 'chamber_light')?.mode === 'on')
@@ -203,6 +206,7 @@ const toggleLight = () => {
 
 .progress-status {
   font-size: 14px;
+  height: 22px;
 }
 
 .progress-card > .control-button {
