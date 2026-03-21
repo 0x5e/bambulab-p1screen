@@ -54,5 +54,4 @@ MQTT协议文档：https://github.com/Doridian/OpenBambuAPI/
 - 控制页gcode操作：X、Y、Z、E、Home
 - 耗材页：耗材编辑、进退料、UI优化
 - 文件页：ftp获取文件列表、预览图
-- ws重连
 - apk构建

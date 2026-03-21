@@ -6,6 +6,10 @@ export class WSService {
   private ws: WebSocket | null = null
   private connecting = false
   private readyState = ref<number | null>(null)
+  private shouldReconnect = true
+  private reconnectAttempt = 0
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null
+  private readonly maxReconnectDelay = 30
 
   static getInstance() {
     if (!WSService.instance) {
@@ -16,6 +20,7 @@ export class WSService {
 
   connect() {
     if (typeof window === 'undefined') return null
+    this.shouldReconnect = true
 
     const params = new URLSearchParams(location.search)
     const ip = params.get('ip') ?? ''
@@ -37,6 +42,7 @@ export class WSService {
       return this.ws
     }
 
+    this.clearReconnectTimer()
     this.connecting = true
     this.readyState.value = WebSocket.CONNECTING
     try {
@@ -50,22 +56,32 @@ export class WSService {
     } catch (error) {
       this.connecting = false
       console.error('[WebSocket] connect failed:', error)
+      this.scheduleReconnect()
       return null
     }
   }
 
   disconnect() {
+    this.stopConnection()
+  }
+
+  stopConnection() {
+    this.shouldReconnect = false
+    this.reconnectAttempt = 0
+    this.clearReconnectTimer()
     if (this.ws) {
       this.ws.close()
       this.ws = null
-      this.connecting = false
-      this.readyState.value = WebSocket.CLOSED
     }
+    this.connecting = false
+    this.readyState.value = WebSocket.CLOSED
   }
 
   onOpen(event: Event) {
     console.log('[WebSocket] connected')
     this.connecting = false
+    this.reconnectAttempt = 0
+    this.clearReconnectTimer()
     this.readyState.value = this.ws?.readyState ?? null
     this.updateAllData()
   }
@@ -73,13 +89,41 @@ export class WSService {
   onClose(event: Event) {
     console.log('[WebSocket] closed')
     this.connecting = false
-    this.readyState.value = this.ws?.readyState ?? null
+    this.readyState.value = WebSocket.CLOSED
+    this.ws = null
+    this.scheduleReconnect()
   }
 
   onError(event: Event) {
     console.error('[WebSocket] error:', event)
     this.connecting = false
     this.readyState.value = this.ws?.readyState ?? null
+    this.scheduleReconnect()
+  }
+
+  private scheduleReconnect() {
+    if (!this.shouldReconnect || this.connecting || this.reconnectTimer) {
+      return
+    }
+
+    const delaySeconds = Math.min(2 ** this.reconnectAttempt, this.maxReconnectDelay)
+    this.reconnectAttempt += 1
+    console.warn(`[WebSocket] reconnecting in ${delaySeconds}s`)
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null
+      if (!this.shouldReconnect) {
+        return
+      }
+      this.connect()
+    }, delaySeconds * 1000)
+  }
+
+  private clearReconnectTimer() {
+    if (!this.reconnectTimer) {
+      return
+    }
+    clearTimeout(this.reconnectTimer)
+    this.reconnectTimer = null
   }
 
   onMessage(event: MessageEvent<any>) {
