@@ -9,8 +9,8 @@
 
     <div class="popup-fan-speed-card" v-for:="item in fans" :key="item.type">
       <div>
-        <img class="popup-fan-speed-icon" :src="WSService.getInstance().getFanSpeed(item.type) !== 0 ? fanOnIcon : fanOffIcon" />
-        <span class="popup-fan-speed-name">{{ item.name }} {{ (WSService.getInstance().getFanSpeed(item.type) / 255 * 100).toFixed(0) }}%</span>
+        <img class="popup-fan-speed-icon" :src="client.getFanSpeed(item.type) !== 0 ? fanOnIcon : fanOffIcon" />
+        <span class="popup-fan-speed-name">{{ item.name }} {{ (client.getFanSpeed(item.type) / 255 * 100).toFixed(0) }}%</span>
       </div>
       <van-slider v-model="fanSpeeds[item.type].value" @change="(value) => onChange(item.type, value)"/>
     </div>
@@ -18,16 +18,19 @@
 </template>
 
 <script setup lang="ts">
-import { fans } from '../store/device'
-import { WSService } from '../store/ws'
+import { fans } from '../constant'
+import { FanType } from '../services/device'
+import { PrinterClient } from '../services/PrinterClient'
 import fanOnIcon from '../assets/images/monitor_fan_on.svg'
 import fanOffIcon from '../assets/images/monitor_fan_off.svg'
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 
-const fanSpeeds = {
-  part: ref(WSService.getInstance().getFanSpeed('part')),
-  aux: ref(WSService.getInstance().getFanSpeed('aux')),
-  chamber: ref(WSService.getInstance().getFanSpeed('chamber'))
+const client = PrinterClient.getInstance()
+
+const fanSpeeds: Record<FanType, Ref<number>> = {
+  [FanType.Part]: ref(client.getFanSpeed(FanType.Part)),
+  [FanType.Aux]: ref(client.getFanSpeed(FanType.Aux)),
+  [FanType.Chamber]: ref(client.getFanSpeed(FanType.Chamber))
 }
 
 const props = withDefaults(
@@ -46,10 +49,10 @@ const handleClose = () => {
   emit('update:show', false)
 }
 
-const onChange = (type: 'part' | 'aux' | 'chamber', value: number) => {
+const onChange = (type: FanType, value: number) => {
   let speed = Math.floor(Number(value) / 100 * 255)
   console.log(`[Controls] setFanSpeed: type=${type}, speed=${speed}`)
-  WSService.getInstance().setFanSpeed(type, speed)
+  client.setFanSpeed(type, speed)
 }
 
 </script>

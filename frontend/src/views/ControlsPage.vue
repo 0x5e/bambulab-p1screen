@@ -8,8 +8,8 @@
       />
       <div class="control-row three">
         <ControlButton v-for="item in fans" :key="item.type"
-          :icon="WSService.getInstance().getFanSpeed(item.type) !== 0 ? fanOnIcon : fanOffIcon"
-          :label="`${item.name}\n${(WSService.getInstance().getFanSpeed(item.type) / 255 * 100).toFixed(0)}%`"
+          :icon="client.getFanSpeed(item.type) !== 0 ? fanOnIcon : fanOffIcon"
+          :label="`${item.name}\n${(client.getFanSpeed(item.type) / 255 * 100).toFixed(0)}%`"
           font-size="12px"
           @click="showFanSpeedPopup = true"
         />
@@ -55,8 +55,9 @@ import EMotion from '../components/EMotion.vue'
 import TempKeypadPopup from '../components/TempKeypadPopup.vue'
 import FanSpeedPopup from '../components/FanSpeedPopup.vue'
 import PrintSpeedPopup from '../components/PrintSpeedPopup.vue'
-import { device, fans } from '../store/device'
-import { WSService } from '../store/ws'
+import { fans } from '../constant'
+import { TemperatureType } from '../services/device'
+import { PrinterClient } from '../services/PrinterClient'
 
 import nozzleTempIcon from '../assets/images/monitor_nozzle_temp.svg'
 import nozzleTempActiveIcon from '../assets/images/monitor_nozzle_temp_active.svg'
@@ -71,34 +72,37 @@ import lightOnIcon from '../assets/images/monitor_lamp_on.svg'
 import lightOffIcon from '../assets/images/monitor_lamp_off.svg'
 import ControlButton from '../components/ControlButton.vue'
 
+const client = PrinterClient.getInstance()
+const device = client.device
+
 // ------------------------------
 // Temperature
 const showTempPopup = ref(false)
-const tempPopupType = ref<'nozzle' | 'heatbed' | 'chamber' | undefined>(undefined)
-const temps: { type: 'nozzle' | 'heatbed' | 'chamber', icon: ComputedRef<string>, current: any, target: any }[] = [{
-  type: 'nozzle',
+const tempPopupType = ref<TemperatureType | undefined>(undefined)
+const temps: { type: TemperatureType, icon: ComputedRef<string>, current: any, target: any }[] = [{
+  type: TemperatureType.Nozzle,
   icon: computed(() => (Math.floor(Number(device.print.nozzle_target_temper ?? '0')) - Math.floor(Number(device.print.nozzle_temper ?? '0')) > 2) ? nozzleTempActiveIcon : nozzleTempIcon),
   current: computed(() => Math.floor(Number(device.print.nozzle_temper ?? '0'))),
   target: computed(() => Math.floor(Number(device.print.nozzle_target_temper ?? '0'))),
 }, {
-  type: 'heatbed',
+  type: TemperatureType.Heatbed,
   icon: computed(() => (Math.floor(Number(device.print.bed_target_temper ?? '0')) - Math.floor(Number(device.print.bed_temper ?? '0')) > 2) ? bedTempActiveIcon : bedTempIcon),
   current: computed(() => Math.floor(Number(device.print.bed_temper ?? '0'))),
   target: computed(() => Math.floor(Number(device.print.bed_target_temper ?? '0'))),
 }]
 
-const openTempPopup = (type: 'nozzle' | 'heatbed' | 'chamber') => {
+const openTempPopup = (type: TemperatureType) => {
   tempPopupType.value = type
   showTempPopup.value = true
 }
 
-const handleTempConfirm = (type: 'nozzle' | 'heatbed' | 'chamber' | undefined, value: number) => {
-  if (type === 'chamber' || type === undefined) {
+const handleTempConfirm = (type: TemperatureType | undefined, value: number) => {
+  if (!type) {
     return
   }
 
   console.log('[Controls] set temperature', type, value)
-  WSService.getInstance().setTemperature(type, value)
+  client.setTemperature(type, value)
 }
 
 // ------------------------------
@@ -119,7 +123,7 @@ const handlePrintSpeedConfirm = (speedLevel: number) => {
   if (device.print.gcode_state === 'IDLE') {
     showDialog({ message: '空闲状态下调整打印速度不生效。' })
   }
-  WSService.getInstance().setPrintSpeedLevel(speedLevel)
+  client.setPrintSpeedLevel(speedLevel)
 }
 
 // ------------------------------
@@ -132,7 +136,7 @@ const lightState = computed(() => {
 
 const toggleLight = () => {
   console.log(`[Controls] setLight: on=${!lightState.value}`)
-  WSService.getInstance().setLight(!lightState.value)
+  client.setLight(!lightState.value)
 }
 
 // ------------------------------

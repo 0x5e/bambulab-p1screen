@@ -36,8 +36,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import humanizeDuration from 'humanize-duration'
-import { device } from '../store/device'
-import { WSService } from '../store/ws'
+import { PrinterClient } from '../services/PrinterClient'
 import ControlButton from '../components/ControlButton.vue'
 
 import lightOnIcon from '../assets/images/monitor_lamp_on.svg'
@@ -53,12 +52,15 @@ import signalWeakIcon from '../assets/images/monitor_signal_weak.svg'
 import signalMiddleIcon from '../assets/images/monitor_signal_middle.svg'
 import signalStrongIcon from '../assets/images/monitor_signal_strong.svg'
 
+const client = PrinterClient.getInstance()
+const device = client.device
+
 const getWifiSignalIcon = computed(() => {
-  if (WSService.getInstance().getReadyStateRef().value !== WebSocket.OPEN) {
+  if (client.readyState.value !== WebSocket.OPEN) {
     return signalNoIcon
   }
 
-  const percent = WSService.getInstance().getWifiSignalPercentage()
+  const percent = client.getWifiSignalPercentage()
   if (percent >= 75) {
     return signalStrongIcon
   } else if (percent >= 50) {
@@ -112,24 +114,24 @@ const handleSkip = () => {
 
 const handleResume = () => {
   console.log('[Controls] resume')
-  WSService.getInstance().setResume()
+  client.setResume()
 }
 
 const handlePause = () => {
   console.log('[Controls] resume')
-  WSService.getInstance().setPause()
+  client.setPause()
 }
 
 const handleStop = () => {
   console.log('[Controls] stop')
-  WSService.getInstance().setStop()
+  client.setStop()
 }
 
 const lightState = computed(() => device.print.lights_report?.find(item => item.node === 'chamber_light')?.mode === 'on')
 
 const toggleLight = () => {
   console.log(`[Controls] setLight: on=${!lightState.value}`)
-  WSService.getInstance().setLight(!lightState.value)
+  client.setLight(!lightState.value)
 }
 
 </script>

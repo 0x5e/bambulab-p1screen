@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import Tray from '../components/Tray.vue'
-import { device } from '../store/device';
+import { PrinterClient } from '../services/PrinterClient'
 import humLevelIcon from '../assets/images/hum_level1_no_num_dark.svg'
 import humLevel1Icon from '../assets/images/hum_level1_dark.svg'
 import humLevel2Icon from '../assets/images/hum_level2_dark.svg'
@@ -30,8 +30,9 @@ const props = withDefaults(
   }
 )
 
+const client = PrinterClient.getInstance()
 const amsPrefix = ref(String.fromCharCode('A'.charCodeAt(0) + Number(props.amsId ?? '0')))
-const ams = computed(() => device.print.ams?.ams?.find(item => item.id === props.amsId))
+const ams = computed(() => client.device.print.ams?.ams?.find(item => item.id === props.amsId))
 const trayList = computed(() => {
   return ams.value?.tray.sort((a, b) => Number(a.id) - Number(b.id))
 })

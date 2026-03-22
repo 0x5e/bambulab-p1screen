@@ -13,7 +13,10 @@
 import { computed } from 'vue';
 import AMS from '../components/AMS.vue'
 import Tray from '../components/Tray.vue'
-import { device } from '../store/device';
+import { PrinterClient } from '../services/PrinterClient'
+
+const client = PrinterClient.getInstance()
+const device = client.device
 
 const amsList = computed(() => device.print.ams?.ams ?? [{} as any])
 const extTray = computed(() => device.print.vt_tray)

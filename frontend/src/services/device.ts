@@ -1,6 +1,16 @@
-import { reactive } from 'vue'
+export enum FanType {
+  Part = 'part',
+  Aux = 'aux',
+  Chamber = 'chamber',
+}
 
-type DeviceModule = {
+export enum TemperatureType {
+  Nozzle = 'nozzle',
+  Heatbed = 'heatbed',
+  Chamber = 'chamber',
+}
+
+export type DeviceModule = {
   name: string
   sw_ver: string
   hw_ver: string
@@ -72,21 +82,7 @@ type DeviceLight = {
   mode: 'on' | 'off'
 }
 
-export const device = reactive<{
+export type DeviceState = {
   module: DeviceModule[]
   print: DevicePrint
-}>({
-  module: [],
-  print: {},
-})
-
-export const fans: { type: 'part' | 'aux' | 'chamber', name: string }[] = [{
-  type: 'part',
-  name: '部件'
-}, {
-  type: 'aux',
-  name: '辅助'
-}, {
-  type: 'chamber',
-  name: '机箱'
-}]
+}

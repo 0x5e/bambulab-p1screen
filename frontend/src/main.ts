@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { Button, Slider, Progress, Popup, Dialog, Cell, CellGroup } from 'vant'
 import App from './App.vue'
-import { WSService } from './store/ws'
+import { PrinterClient } from './services/PrinterClient'
 import HomePage from './views/HomePage.vue'
 import ControlsPage from './views/ControlsPage.vue'
 import FilamentPage from './views/FilamentPage.vue'
@@ -39,4 +39,9 @@ window.addEventListener('contextmenu', (event) => {
   event.preventDefault()
 })
 
-WSService.getInstance().connect()
+const params = new URLSearchParams(location.search)
+const ip = params.get('ip') ?? ''
+const serial = params.get('serial') ?? ''
+const code = params.get('code') ?? ''
+const client = PrinterClient.getInstance()
+client.connect(ip, serial, code)

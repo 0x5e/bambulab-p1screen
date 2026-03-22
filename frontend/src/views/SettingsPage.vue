@@ -22,7 +22,7 @@
 
     <template v-if="isDev">
       <van-cell-group inset title="调试">
-        <van-cell title="重新连接" is-link @click="WSService.getInstance().connect()"/>
+        <van-cell title="重新连接" is-link @click="client.connect(ip, serial, code)"/>
       </van-cell-group>
     </template>
   </div>
@@ -30,12 +30,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { device } from '../store/device'
-import { WSService } from '../store/ws'
+import { PrinterClient } from '../services/PrinterClient'
 
 const isDev = import.meta.env.DEV
+const client = PrinterClient.getInstance()
+const device = client.device
 const params = new URLSearchParams(location.search)
 const ip = params.get('ip') ?? ''
+const serial = params.get('serial') ?? ''
+const code = params.get('code') ?? ''
 
 const deviceInfo = computed(() => {
   if (!device.module) return null
@@ -48,7 +51,7 @@ const modules = computed(() => {
 })
 
 const statusLabel = computed(() => {
-  const state = WSService.getInstance().getReadyStateRef().value
+  const state = client.readyState.value
   if (state === null) return '未连接'
   switch (state) {
     case WebSocket.CONNECTING:

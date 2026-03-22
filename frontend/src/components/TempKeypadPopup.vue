@@ -27,12 +27,13 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { TemperatureType } from '../services/device'
 
 const props = withDefaults(
   defineProps<{
     show: boolean
     value?: number
-    type?: 'nozzle' | 'heatbed' | 'chamber'
+    type?: TemperatureType
   }>(),
   {
     value: undefined
@@ -41,11 +42,11 @@ const props = withDefaults(
 
 const title = computed(() => {
   switch (props.type) {
-    case 'nozzle':
+    case TemperatureType.Nozzle:
       return '喷嘴温度'
-    case 'heatbed':
+    case TemperatureType.Heatbed:
       return '热床温度'
-    case 'chamber':
+    case TemperatureType.Chamber:
       return '机箱温度'
     default:
       return '温度'
@@ -54,7 +55,7 @@ const title = computed(() => {
 
 const emit = defineEmits<{
   (event: 'update:show', value: boolean): void
-  (event: 'confirm', type: 'nozzle' | 'heatbed' | 'chamber' | undefined, value: number): void
+  (event: 'confirm', type: TemperatureType | undefined, value: number): void
 }>()
 
 const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
