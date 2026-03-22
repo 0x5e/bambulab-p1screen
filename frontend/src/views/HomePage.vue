@@ -55,8 +55,9 @@ import signalStrongIcon from '../assets/images/monitor_signal_strong.svg'
 
 const client = PrinterClient.getInstance()
 const device = client.device
+const project = client.project
 
-const taskName = computed(() => device.print.subtask_name || '')
+const taskName = computed(() => project?.subtask_name || '')
 const nozzleTemp = computed(() => Math.floor(Number(device.print.nozzle_temper ?? '0')))
 const heatbedTemp = computed(() => Math.floor(Number(device.print.bed_temper ?? '0')))
 
@@ -75,7 +76,7 @@ const getWifiSignalIcon = computed(() => {
   }
 })
 
-const getPrintThumbnail = computed(() => device.print.url ? `/api/getThumbnail?url=${encodeURIComponent(device.print.url)}&plate_idx=${device.print.plate_idx}` : sdcardThumbnail)
+const getPrintThumbnail = computed(() => project ? project.thumbnail_url : sdcardThumbnail)
 
 const getPrintPercent = computed(() => {
   if (device.print.gcode_state === GcodeState.Prepare) {

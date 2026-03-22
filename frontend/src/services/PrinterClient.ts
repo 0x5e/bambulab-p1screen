@@ -4,6 +4,7 @@ import {
   FanType,
   TemperatureType
 } from './device'
+import { Project } from './project'
 import { FAN_PROFILE } from '../const'
 
 type ConnectionParams = {
@@ -38,6 +39,7 @@ export class PrinterClient {
     module: [],
     print: {},
   })
+  project?: reactive<Project> = null
 
   /**
    * Returns the singleton PrinterClient instance.
@@ -171,82 +173,102 @@ export class PrinterClient {
 
   private onMessage(event: MessageEvent<any>) {
     let data = JSON.parse(event.data) ?? {}
-    const printData = data.print
-    const infoData = data.info
-    const systemData = data.system
-    if (this.handlePrintMessage(printData)) return
-    if (this.handleInfoMessage(infoData)) return
-    if (this.handleSystemMessage(systemData)) return
+    if (data.print) {
+      this.handlePrintMessage(data.print)
+      return
+    }
+
+    if (data.info) {
+      this.handleInfoMessage(data.info)
+      return
+    }
+
+    if (data.system) {
+      this.handleSystemMessage(data.system)
+      return
+    }
+
     if (data.liveview) return
+
     console.warn('[PrintClient] unhandled message:', data)
   }
 
   private handlePrintMessage(printData: any) {
     const command = printData?.command
-    if (!command) {
-      return false
-    }
+    if (!command) return
 
     if (command === 'push_status') {
-      this.applyPrintData(printData, 'push_status')
-      return true
+      this.handlePushStatus(printData)
+      return
     }
 
     if (command === 'print_speed') {
       console.debug(`[PrintClient][print_speed] update print_speed_level = ${JSON.stringify(printData.param)}`)
       this.device.print.spd_lvl = Number(printData.param)
       this.device.print.spd_mag = PRINT_SPEED_MAGNITUDES[this.device.print.spd_lvl - 1]
-      return true
+      return
     }
 
     if (command === 'gcode_line') {
       this.handleGcodeLine(printData.param as string)
-      return true
+      return
     }
 
     if (command === 'project_file') {
-      this.applyPrintData(printData, 'project_file')
-      return true
+      this.handleProjectFile(printData)
+      return
     }
-
-    return false
   }
 
   private handleInfoMessage(infoData: any) {
-    if (infoData?.command !== 'get_version') {
-      return false
-    }
+    if (infoData?.command !== 'get_version') return
     console.debug('[PrintClient][get_version]', infoData.module)
     this.device.module = infoData.module
-    return true
   }
 
   private handleSystemMessage(systemData: any) {
-    if (!systemData?.led_mode) {
-      return false
-    }
+    if (!systemData?.led_mode) return
     const chamberLight = this.device.print.lights_report?.find(item => item.node === 'chamber_light')
     if (chamberLight) {
       chamberLight.mode = systemData.led_mode
     }
     console.debug('[PrintClient][led_mode]', systemData.led_mode)
-    return true
   }
 
-  private applyPrintData(printData: any, logTag: 'push_status' | 'project_file') {
+  private handlePushStatus(printData: any) {
     delete printData.command
     delete printData.msg
     delete printData.sequence_id
-    console.debug(`[PrintClient][${logTag}]`, printData)
+    console.debug(`[PrintClient][push_status]`, printData)
     for (const key in printData) {
       (this.device.print as any)[key] = printData[key]
     }
   }
 
+  private handleProjectFile(projectData: any) {
+    delete projectData.command
+    delete projectData.msg
+    delete projectData.sequence_id
+    projectData.thumbnail
+    console.debug(`[PrintClient][project_file]`, projectData)
+    this.project = reactive<Project>({
+      project_id: projectData.project_id,
+      subtask_name: projectData.subtask_name,
+      plate_idx: projectData.plate_idx,
+      timestamp: projectData.timestamp,
+      url: projectData.url,
+      thumbnail_url: `/api/getThumbnail?url=${encodeURIComponent(projectData.url)}&plate_idx=${projectData.plate_idx}`,
+    })
+  }
+
   private handleGcodeLine(param: string) {
-    if (!param.startsWith('M106')) { // fan speed
+    if (param.startsWith('M106')) { // fan speed
+      this.handleFanSpeed(param)
       return
     }
+  }
+
+  private handleFanSpeed(param: string) {
     const items = param.trim().split(' ')
     if (items.length !== 3) {
       return

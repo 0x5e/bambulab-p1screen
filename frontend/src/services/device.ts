@@ -54,13 +54,9 @@ export type DevicePrint = {
   gcode_file_prepare_percent?: string
   layer_num?: number
   total_layer_num?: number
-  subtask_name?: string
   
   stg_cur?: number
   print_type?: string
-
-  url?: string
-  plate_idx?: string
 
   ams?: DeviceAMSInfo
   vt_tray?: DeviceTray
