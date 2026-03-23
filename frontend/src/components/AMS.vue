@@ -1,6 +1,6 @@
 <template>
-  <div class="ams-card">
-    <div class="ams-card-container">
+  <div>
+    <div class="ams-card">
       <Tray
         v-for="tray in displayTrays"
         :key="tray.slot"
@@ -12,6 +12,7 @@
     </div>
     <img class="ams-hum" :src="humIcon"/>
   </div>
+
 </template>
 
 <script setup lang="ts">
@@ -62,8 +63,6 @@ const humIcon = computed(() => {
 .ams-card {
   width: calc(64px * 4 + 8px);
   background-color: var(--van-background-2);
-}
-.ams-card-container {
   display: grid;
   grid-template-columns: repeat(4, 60px);
   padding: 8px;
