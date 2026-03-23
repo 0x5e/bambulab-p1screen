@@ -2,7 +2,8 @@ import { reactive, ref } from 'vue'
 import {
   type DeviceState,
   FanType,
-  TemperatureType
+  TemperatureType,
+  LightType,
 } from './device'
 import { Project } from './project'
 import { FAN_PROFILE } from '../const'
@@ -228,7 +229,7 @@ export class PrinterClient {
 
   private handleSystemMessage(systemData: any) {
     if (!systemData?.led_mode) return
-    const chamberLight = this.device.print.lights_report?.find(item => item.node === 'chamber_light')
+    const chamberLight = this.device.print.lights_report?.find(item => item.node === LightType.Chamber)
     if (chamberLight) {
       chamberLight.mode = systemData.led_mode
     }

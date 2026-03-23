@@ -2,20 +2,22 @@
   <div class="ext-tray-card">
     <Tray
       name="Ext"
-      :material="computed(() => vt_tray?.tray_type ?? '?')"
-      :color="computed(() => vt_tray?.tray_color ? `#${vt_tray.tray_color}` : '')"
+      :material="extTrayMaterial"
+      :color="extTrayColor"
     />
     <span class="name" >外挂料盘</span>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue'
 import Tray from '../components/Tray.vue'
 import { PrinterClient } from '../services/PrinterClient'
 
 const client = PrinterClient.getInstance()
-const vt_tray = client.device.vt_tray
+const extTray = computed(() => client.device.print.vt_tray)
+const extTrayMaterial = computed(() => extTray.value?.tray_type ?? '?')
+const extTrayColor = computed(() => extTray.value?.tray_color ? `#${extTray.value.tray_color}` : '')
 </script>
 
 <style scoped>

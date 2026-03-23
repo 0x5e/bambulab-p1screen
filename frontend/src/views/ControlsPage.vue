@@ -55,7 +55,7 @@ import EMotion from '../components/EMotion.vue'
 import TempKeypadPopup from '../components/TempKeypadPopup.vue'
 import FanSpeedPopup from '../components/FanSpeedPopup.vue'
 import PrintSpeedPopup from '../components/PrintSpeedPopup.vue'
-import { FanType, GcodeState, TemperatureType } from '../services/device'
+import { FanType, TemperatureType, LightType, GcodeState } from '../services/device'
 import { PrinterClient } from '../services/PrinterClient'
 
 import nozzleTempIcon from '../assets/images/monitor_nozzle_temp.svg'
@@ -145,7 +145,7 @@ const handlePrintSpeedConfirm = (speedLevel: number) => {
 
 const lightState = computed(() => {
   if (!device.print) return false
-  return device.print.lights_report?.find(item => item.node === 'chamber_light')?.mode === 'on'
+  return device.print.lights_report?.find(item => item.node === LightType.Chamber)?.mode === 'on'
 })
 
 const toggleLight = () => {

@@ -37,7 +37,7 @@
 import { computed } from 'vue'
 import humanizeDuration from 'humanize-duration'
 import { PrinterClient } from '../services/PrinterClient'
-import { GcodeState } from '../services/device'
+import { LightType, GcodeState } from '../services/device'
 import ControlButton from '../components/ControlButton.vue'
 
 import lightOnIcon from '../assets/images/monitor_lamp_on.svg'
@@ -106,13 +106,9 @@ const getPrintStateLabel = computed(() => {
 const getPrintSubStateLabel = computed(() => [null, null, '加热中', null, '换料中'][Number(device.print.mc_print_sub_stage ?? 0)]) || ''
 
 const getPrintInfo = computed(() => {
-  let remainingTime = (device.print.mc_remaining_time || 0) * 60 * 1000
-  let remainingTimeText = ''
-  if (remainingTime === 0 && device.print.mc_print_stage !== '1') { // less than 1min
-    remainingTimeText += '< '
-    remainingTime = 60 * 1000
-  }
-  remainingTimeText += humanizeDuration(remainingTime, {
+  if (device.print.gcode_state === GcodeState.Finish) return ''
+
+  const remainingTimeText = humanizeDuration((device.print.mc_remaining_time || 0) * 60 * 1000, {
     units: ['h', 'm'],
     round: true,
     language: 'zh_CN'
@@ -142,7 +138,7 @@ const handleStop = () => {
   client.setStop()
 }
 
-const lightState = computed(() => device.print.lights_report?.find(item => item.node === 'chamber_light')?.mode === 'on')
+const lightState = computed(() => device.print.lights_report?.find(item => item.node === LightType.Chamber)?.mode === 'on')
 
 const toggleLight = () => {
   console.log(`[Controls] setLight: on=${!lightState.value}`)

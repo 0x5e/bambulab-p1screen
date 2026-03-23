@@ -10,6 +10,10 @@ export enum TemperatureType {
   Chamber = 'chamber',
 }
 
+export enum LightType {
+  Chamber = 'chamber_light'
+}
+
 export enum GcodeState {
   Idle = 'IDLE',
   Prepare = 'PREPARE',
