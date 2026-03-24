@@ -12,9 +12,13 @@
 
 目前：开发中
 
-# 预览图
+## 预览图
+<img src="./screenshoot/home.png" alt="主页" width="30%" />
+<img src="./screenshoot/controls.png" alt="控制页" width="30%" />
+<img src="./screenshoot/filament.png" alt="耗材页" width="30%" />
+<img src="./screenshoot/settings.png" alt="设置页" width="30%" />
 
-# 功能列表
+## 功能列表
 - 主页
   - 打印进度
 - 控制
@@ -39,18 +43,18 @@
 - 文件夹
   - 文件列表
 
-# 特性
+## 特性
 - 分辨率最低适配到 568x320（iPhone 5 尺寸）
 - 性能开销低（相对 Home Assistant 网页端 & App 端），支持老旧设备（红米 2 可流畅运行）
 
-# 其他可选方案
+## 其他可选方案
 - Bambu Handy：官方应用不支持横屏，老旧设备运行流畅度未测试。
 - 3D Apollo：功能完善，老旧设备运行良好。UI 整体风格为白黄色，与打印机整体风格不是很搭。
 - Home Assistant 网页版 & App 版：性能开销大（不知何故），红米 2 无法正常使用，卡到死机很多次。
 
-# 使用步骤
-## Web 版
-### 1. 部署后端服务
+## 使用步骤
+### Web 版
+#### 1. 部署后端服务
 在打印机局域网内任意设备部署后端服务（主要负责 MQTT 转发）：
 
 ```bash
@@ -59,7 +63,7 @@ npm run build
 npm run start
 ```
 
-### 2. 移动端添加浏览器桌面书签
+#### 2. 移动端添加浏览器桌面书签
 访问地址：
 
 `http://后端服务地址:端口/?ip=打印机地址&serial=序列号&code=访问码`
@@ -71,14 +75,14 @@ npm run start
 
 只要有办法让网页全屏运行即可，其他方案欢迎共同探索。
 
-## Android 版
+### Android 版
 待开发
 
-# 硬件部分
+## 硬件部分
 - [P1S 屏幕改装 - 红米2直供电版](https://makerworld.com.cn/zh/models/2134336)
 - [P1S 屏幕改装 - iPhone7/Plus版](https://makerworld.com.cn/zh/models/1945893)
 
-# TODOs
+## TODOs
 - 主页
   - 打印任务数据（项目 id、url、预览图）持久化
 - 控制页
@@ -93,7 +97,7 @@ npm run start
   - `stg_cur`: `CURRENT_STAGE_IDS`
   - `print_type`: `GCODE_STATE_OPTIONS`
 
-# 参考内容
+## 参考内容
 - [P1 系列屏幕操作指南](https://wiki.bambulab.com/en/p1/manual/screen-operation)
 - [P2S 屏幕操作指南](https://wiki.bambulab.com/en/p2s/manual/screen-operation)
 - [局域网控制协议文档（OpenBambuAPI）](https://github.com/Doridian/OpenBambuAPI/)

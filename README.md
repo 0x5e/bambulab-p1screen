@@ -12,9 +12,13 @@ Control screen software for the Bambu Lab P1 series upgrade kit.
 
 Status: In development
 
-# Screenshots
+## Screenshots
+<img src="./screenshoot/home.png" alt="Home" width="30%" />
+<img src="./screenshoot/controls.png" alt="Controls" width="30%" />
+<img src="./screenshoot/filament.png" alt="Filament" width="30%" />
+<img src="./screenshoot/settings.png" alt="Settings" width="30%" />
 
-# Feature List
+## Feature List
 - Home
   - Print progress
 - Controls
@@ -39,18 +43,18 @@ Status: In development
 - Files
   - File list
 
-# Highlights
+## Highlights
 - Minimum supported resolution: 568x320 (iPhone 5 size)
 - Lower runtime overhead (compared to Home Assistant Web/App), suitable for older devices (Redmi 2 runs smoothly)
 
-# Other Options
+## Other Options
 - Bambu Handy: Official app does not support landscape well; performance on older devices is untested.
 - 3D Apollo: Feature-rich and works well on older devices. Overall UI style (white/yellow) does not match the printer style very well.
 - Home Assistant Web/App: High performance overhead (for unknown reasons). Redmi 2 is unusable and may freeze.
 
-# Usage
-## Web
-### 1. Deploy backend service
+## Usage
+### Web
+#### 1. Deploy backend service
 Deploy the backend service (mainly MQTT forwarding) on any device in the same LAN as the printer:
 
 ```bash
@@ -59,7 +63,7 @@ npm run build
 npm run start
 ```
 
-### 2. Add a home screen shortcut on mobile
+#### 2. Add a home screen shortcut on mobile
 Access URL:
 
 `http://<server-address>:<port>/?ip=<printer-ip>&serial=<serial>&code=<access-code>`
@@ -71,14 +75,14 @@ Default port: `8888`
 
 Any full-screen web launch method is acceptable. More ideas are welcome.
 
-## Android App
+### Android App
 Planned
 
-# Hardware
+## Hardware
 - [P1S Screen Mod - Redmi 2 Direct Power Version](https://makerworld.com.cn/zh/models/2134336)
 - [P1S Screen Mod - iPhone 7/Plus Version](https://makerworld.com.cn/zh/models/1945893)
 
-# TODOs
+## TODOs
 - Home
   - Persist print task data (project id, url, preview image)
 - Controls
@@ -93,7 +97,7 @@ Planned
   - `stg_cur`: `CURRENT_STAGE_IDS`
   - `print_type`: `GCODE_STATE_OPTIONS`
 
-# References
+## References
 - [P1 Screen Operation Guide](https://wiki.bambulab.com/en/p1/manual/screen-operation)
 - [P2S Screen Operation Guide](https://wiki.bambulab.com/en/p2s/manual/screen-operation)
 - [LAN Control Protocol Docs (OpenBambuAPI)](https://github.com/Doridian/OpenBambuAPI/)
