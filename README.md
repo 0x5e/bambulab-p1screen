@@ -13,10 +13,10 @@ Control screen software for the Bambu Lab P1 series upgrade kit.
 Status: In development
 
 ## Screenshots
-<img src="./screenshoot/home.png" alt="Home" width="30%" />
-<img src="./screenshoot/controls.png" alt="Controls" width="30%" />
-<img src="./screenshoot/filament.png" alt="Filament" width="30%" />
-<img src="./screenshoot/settings.png" alt="Settings" width="30%" />
+<img src="./screenshoot/home.png" alt="Home" width="50%" />
+<img src="./screenshoot/controls.png" alt="Controls" width="50%" />
+<img src="./screenshoot/filament.png" alt="Filament" width="50%" />
+<img src="./screenshoot/settings.png" alt="Settings" width="50%" />
 
 ## Feature List
 - Home

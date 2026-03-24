@@ -13,10 +13,10 @@
 目前：开发中
 
 ## 预览图
-<img src="./screenshoot/home.png" alt="主页" width="30%" />
-<img src="./screenshoot/controls.png" alt="控制页" width="30%" />
-<img src="./screenshoot/filament.png" alt="耗材页" width="30%" />
-<img src="./screenshoot/settings.png" alt="设置页" width="30%" />
+<img src="./screenshoot/home.png" alt="主页" width="50%" />
+<img src="./screenshoot/controls.png" alt="控制页" width="50%" />
+<img src="./screenshoot/filament.png" alt="耗材页" width="50%" />
+<img src="./screenshoot/settings.png" alt="设置页" width="50%" />
 
 ## 功能列表
 - 主页
