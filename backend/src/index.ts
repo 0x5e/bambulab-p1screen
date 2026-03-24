@@ -5,7 +5,7 @@ import http from 'node:http'
 import path from 'node:path'
 import { unzipSync } from 'fflate'
 
-const WEB_PORT = 8889
+const WEB_PORT = Number(process.env.PORT ?? (process.env.NODE_ENV === 'production' ? '8888' : '8889'))
 const WEB_ROOT = path.resolve(process.cwd(), 'dist/web')
 
 
