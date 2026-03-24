@@ -1,4 +1,5 @@
-# Introduction
+# bambulab-p1screen
+
 [English](./README.md) | [简体中文](./README.zh.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
