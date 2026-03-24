@@ -25,7 +25,7 @@
       <ZMotion @move="handleMove" />
     </div>
 
-    <EMotion @move="handleMove" />
+    <EMotion class="motion-extruder" @move="handleMove" />
 
     <TempKeypadPopup
       v-model:show="showTempPopup"
@@ -212,5 +212,33 @@ const handleMove = (axis: 'home' | 'x' | 'y' | 'z' | 'e', step: -10 | -1 | 0| 1 
   gap: 4px;
   height: 100%;
   min-height: 0;
+}
+
+@media (orientation: portrait) {
+  .controls-page {
+    grid-template-columns: minmax(0, 1fr) 70px;
+    grid-template-rows: auto auto;
+    align-items: stretch;
+    height: auto;
+    padding-bottom: 4px;
+  }
+
+  .control-list {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    height: auto;
+  }
+
+  .motion-list {
+    grid-column: 1;
+    grid-row: 2;
+    height: auto;
+  }
+
+  .motion-extruder {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: stretch;
+  }
 }
 </style>
