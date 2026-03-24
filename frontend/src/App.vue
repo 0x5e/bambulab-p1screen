@@ -85,6 +85,7 @@
     justify-content: space-between;
     justify-items: center;
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    border-top: var(--van-background-3) 1px solid;
   }
 
   .nav-item {

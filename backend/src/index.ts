@@ -122,9 +122,9 @@ wss.on('connection', (socket, req) => {
 
 const start = async () => {
   server.listen(WEB_PORT, () => {
-    console.log(`[ws] listening on ${WEB_PORT}`)
+    console.log(`[server] listening on ${WEB_PORT}`)
     if (process.env.NODE_ENV === 'production') {
-      console.log(`[prod] serving ${WEB_ROOT}`)
+      console.log(`[server] WEB_ROOT=${WEB_ROOT}`)
     }
   })
 }
