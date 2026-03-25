@@ -58,6 +58,10 @@
 #### 1. 部署后端服务
 在打印机局域网内任意设备部署（主要负责 MQTT 转发）：
 
+注：打印机在TLS握手阶段会对请求来源IP进行校验，若非同一个网段，请求将无法成功建立。因此，Docker 或 Docker Compose 方式运行后端服务具有以下限制：
+1. network 必须以 host 模式运行
+2. 宿主机必须为 Linux 设备，macOS 实测无法连接。
+
 ##### 方式 1：npm
 
 ```bash
@@ -67,10 +71,9 @@ npm run start
 ```
 
 ##### 方式 2：Docker
-使用已发布镜像：
 
 ```bash
-docker run -d --name bambulab-p1screen ghcr.io/0x5e/bambulab-p1screen:latest
+docker run -d --name bambulab-p1screen --network host ghcr.io/0x5e/bambulab-p1screen:latest
 ```
 
 ##### 方式 3：Docker Compose

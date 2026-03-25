@@ -58,6 +58,10 @@ Status: In development
 #### 1. Deploy backend service
 Deploy the backend service on any device in the same LAN as the printer (mainly MQTT forwarding):
 
+Note: The printer validates the source IP during the TLS handshake. If the source is not in the same subnet, the connection cannot be established. Therefore, running the backend with Docker or Docker Compose has the following requirements:
+1. Network mode must be `host`
+2. The host machine must be Linux; macOS cannot connect in real-world testing.
+
 ##### Option 1: npm
 
 ```bash
@@ -67,10 +71,8 @@ npm run start
 ```
 
 ##### Option 2: Docker
-Use published image:
-
 ```bash
-docker run -d --name bambulab-p1screen ghcr.io/0x5e/bambulab-p1screen:latest
+docker run -d --name bambulab-p1screen --network host ghcr.io/0x5e/bambulab-p1screen:latest
 ```
 
 ##### Option 3: Docker Compose
