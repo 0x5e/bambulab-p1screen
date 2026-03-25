@@ -55,12 +55,28 @@
 ## 使用步骤
 ### Web 版
 #### 1. 部署后端服务
-在打印机局域网内任意设备部署后端服务（主要负责 MQTT 转发）：
+在打印机局域网内任意设备部署（主要负责 MQTT 转发）：
+
+##### 方式 1：npm
 
 ```bash
 npm install
 npm run build
 npm run start
+```
+
+##### 方式 2：Docker
+使用已发布镜像：
+
+```bash
+docker run -d --name bambulab-p1screen ghcr.io/0x5e/bambulab-p1screen:latest
+```
+
+##### 方式 3：Docker Compose
+使用仓库内的 [docker-compose.yml](./docker-compose.yml)：
+
+```bash
+docker compose up -d
 ```
 
 #### 2. 移动端添加浏览器桌面书签

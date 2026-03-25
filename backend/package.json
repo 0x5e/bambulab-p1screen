@@ -1,0 +1,11 @@
+{
+  "name": "@bambulab-p1screen/backend",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "express": "^4.19.2",
+    "fflate": "^0.8.2",
+    "mqtt": "^5.10.1",
+    "ws": "^8.18.0"
+  }
+}

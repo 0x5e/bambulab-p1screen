@@ -55,12 +55,28 @@ Status: In development
 ## Usage
 ### Web
 #### 1. Deploy backend service
-Deploy the backend service (mainly MQTT forwarding) on any device in the same LAN as the printer:
+Deploy the backend service on any device in the same LAN as the printer (mainly MQTT forwarding):
+
+##### Option 1: npm
 
 ```bash
 npm install
 npm run build
 npm run start
+```
+
+##### Option 2: Docker
+Use published image:
+
+```bash
+docker run -d --name bambulab-p1screen ghcr.io/0x5e/bambulab-p1screen:latest
+```
+
+##### Option 3: Docker Compose
+Use the provided [docker-compose.yml](./docker-compose.yml):
+
+```bash
+docker compose up -d
 ```
 
 #### 2. Add a home screen shortcut on mobile

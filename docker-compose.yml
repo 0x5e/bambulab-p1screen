@@ -1,0 +1,7 @@
+services:
+  p1screen:
+    image: ghcr.io/0x5e/bambulab-p1screen:latest
+    container_name: bambulab-p1screen
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
