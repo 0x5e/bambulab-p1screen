@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import BasePopup from './BasePopup.vue'
-import { PrintSpeedLevel } from '../services/device'
+import { PrintSpeedLevel } from '../api/enums'
 
 type SpeedButton = {
   label: string

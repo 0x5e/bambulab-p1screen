@@ -14,7 +14,7 @@
 import { computed } from 'vue';
 import AMS from '../components/AMS.vue'
 import ExtTray from '../components/ExtTray.vue'
-import { PrinterClient } from '../services/PrinterClient'
+import { PrinterClient } from '../api/PrinterClient'
 
 const client = PrinterClient.getInstance()
 const device = client.device

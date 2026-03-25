@@ -23,7 +23,7 @@
 import { colord } from 'colord'
 import { computed, toRaw, ref } from 'vue'
 import type { PopoverAction } from 'vant'
-import type { DeviceTray } from '../services/device'
+import type { DeviceTray } from '../api/models'
 
 const props = withDefaults(
   defineProps<{

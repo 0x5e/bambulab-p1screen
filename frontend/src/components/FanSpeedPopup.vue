@@ -15,8 +15,8 @@
 </template>
 
 <script setup lang="ts">
-import { FanType } from '../services/device'
-import { PrinterClient } from '../services/PrinterClient'
+import { FanType } from '../api/enums'
+import { PrinterClient } from '../api/PrinterClient'
 import fanOnIcon from '../assets/images/monitor_fan_on.svg'
 import fanOffIcon from '../assets/images/monitor_fan_off.svg'
 import { ref, type Ref } from 'vue'

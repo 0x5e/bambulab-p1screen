@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Tray from '../components/Tray.vue'
-import { PrinterClient } from '../services/PrinterClient'
+import { PrinterClient } from '../api/PrinterClient'
 
 const client = PrinterClient.getInstance()
 const extTray = computed(() => client.device.print.vt_tray)

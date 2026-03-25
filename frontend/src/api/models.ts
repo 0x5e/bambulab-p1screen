@@ -1,40 +1,9 @@
-export enum FanType {
-  Part = 1,
-  Aux = 2,
-  Chamber = 3,
-}
-
-export enum TemperatureType {
-  Nozzle = 'nozzle',
-  Heatbed = 'heatbed',
-  Chamber = 'chamber',
-}
-
-export enum LightType {
-  Chamber = 'chamber_light',
-}
-
-export enum LightMode {
-  On = 'on',
-  Off = 'off',
-}
-
-export enum GcodeState {
-  Idle = 'IDLE',
-  Prepare = 'PREPARE',
-  Running = 'RUNNING',
-  Pause = 'PAUSE',
-  Finish = 'FINISH',
-  Failed = 'FAILED',
-  Unknown = 'UNKNOWN',
-}
-
-export enum PrintSpeedLevel {
-  Silent = 1,
-  Standard = 2,
-  Sport = 3,
-  Ludicrous = 4,
-}
+import type {
+  GcodeState,
+  LightMode,
+  LightType,
+  PrintSpeedLevel,
+} from './enums'
 
 export type DeviceModule = {
   name: string
@@ -120,4 +89,13 @@ export type DeviceLight = {
 export type DeviceState = {
   module: DeviceModule[]
   print: DevicePrint
+}
+
+export type Project = {
+  project_id: string
+  subtask_name: string
+  plate_idx: string
+  timestamp: string
+  url: string
+  thumbnail_url: string
 }

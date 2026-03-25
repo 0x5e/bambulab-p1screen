@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import Tray from '../components/Tray.vue'
-import { PrinterClient } from '../services/PrinterClient'
+import { PrinterClient } from '../api/PrinterClient'
 import humLevelIcon from '../assets/images/hum_level1_no_num_dark.svg'
 import humLevel1Icon from '../assets/images/hum_level1_dark.svg'
 import humLevel2Icon from '../assets/images/hum_level2_dark.svg'

@@ -30,8 +30,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import humanizeDuration from 'humanize-duration'
-import { PrinterClient } from '../services/PrinterClient'
-import { LightType, GcodeState } from '../services/device'
+import { PrinterClient } from '../api/PrinterClient'
+import { LightType, GcodeState } from '../api/enums'
 import ControlButton from '../components/ControlButton.vue'
 
 import lightOnIcon from '../assets/images/monitor_lamp_on.svg'

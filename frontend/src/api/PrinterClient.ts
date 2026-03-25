@@ -1,12 +1,14 @@
 import { reactive, ref } from 'vue'
 import {
   type DeviceState,
+  type Project,
+} from './models'
+import {
   FanType,
   TemperatureType,
   LightType,
   PrintSpeedLevel,
-} from './device'
-import { Project } from './project'
+} from './enums'
 
 type ConnectionParams = {
   ip: string

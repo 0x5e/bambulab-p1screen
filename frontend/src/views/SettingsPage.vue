@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { PrinterClient } from '../services/PrinterClient'
+import { PrinterClient } from '../api/PrinterClient'
 
 const isDev = import.meta.env.DEV
 const client = PrinterClient.getInstance()
