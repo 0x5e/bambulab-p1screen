@@ -23,5 +23,6 @@ RUN npm ci --omit=dev --workspace backend --include-workspace-root=false \
 
 COPY --from=builder /app/dist ./dist
 
+ENV PORT=8888
 EXPOSE 8888
 CMD ["node", "dist/server/index.js"]

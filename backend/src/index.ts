@@ -5,9 +5,8 @@ import http from 'node:http'
 import path from 'node:path'
 import { unzipSync } from 'fflate'
 
-const WEB_PORT = Number(process.env.PORT ?? (process.env.NODE_ENV === 'production' ? '8888' : '8889'))
+const WEB_PORT = Number(process.env.PORT ?? '8889')
 const WEB_ROOT = path.resolve(process.cwd(), 'dist/web')
-
 
 const app = express()
 
@@ -67,18 +66,19 @@ wss.on('connection', (socket, req) => {
   const brokerUrl = `mqtts://${ip}:8883`
   console.info(`[mqtt][${remote}] connecting to ${brokerUrl}`)
   let mqttClient = mqtt.connect(brokerUrl, {
+    protocol: 'mqtts',
     clientId: `p1screen_${remote}`,
     username: 'bblp',
     password: code,
     protocolVersion: 4,
     port: 8883,
-    rejectUnauthorized: false
+    rejectUnauthorized: false,
   })
 
   mqttClient.on('connect', () => {
     console.info(`[mqtt][${remote}] connected`)
     mqttClient.subscribe(reportTopic, (err) => {
-      console.info(`[mqtt][${remote}] subscribe topic: ${reportTopic}, err = ${err?.message}`)
+      console.info(`[mqtt][${remote}] subscribe topic: ${reportTopic}, err = ${err}`)
     })
   })
 
