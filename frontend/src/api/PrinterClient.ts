@@ -31,7 +31,6 @@ export class PrinterClient {
     module: [],
     print: {},
   })
-  project: Project | null = null
 
   /**
    * Returns the singleton PrinterClient instance.
@@ -240,16 +239,49 @@ export class PrinterClient {
     delete projectData.command
     delete projectData.msg
     delete projectData.sequence_id
-    projectData.thumbnail
+    delete projectData.reason
+    delete projectData.result
     console.debug(`[PrintClient][project_file]`, projectData)
-    this.project = reactive<Project>({
-      project_id: projectData.project_id,
-      subtask_name: projectData.subtask_name,
-      plate_idx: projectData.plate_idx,
-      timestamp: projectData.timestamp,
-      url: projectData.url,
-      thumbnail_url: `/api/getThumbnail?url=${encodeURIComponent(projectData.url)}&plate_idx=${projectData.plate_idx}`,
-    })
+    const project = reactive<Project>(projectData as Project)
+    project.thumbnail_url = `/api/getThumbnail?url=${encodeURIComponent(project.url)}&plate_idx=${project.plate_idx}`
+    this.saveProject(project)
+  }
+
+  private saveProject(project: Project) {
+    if (typeof window === 'undefined') return
+
+    const projects = this.getProjectsFromStorage()
+    projects.push(project)
+    localStorage.setItem('projects', JSON.stringify(projects))
+  }
+
+  private getProjectsFromStorage() {
+    try {
+      const rawProjects = localStorage.getItem('projects')
+      if (!rawProjects) {
+        return [] as Project[]
+      }
+      const parsedProjects = JSON.parse(rawProjects)
+      return Array.isArray(parsedProjects) ? parsedProjects as Project[] : []
+    } catch (error) {
+      console.warn('[PrintClient] failed to parse projects from localStorage:', error)
+      return [] as Project[]
+    }
+  }
+
+  getCurrentProject() {
+    if (typeof window === 'undefined') return null
+
+    const taskId = String(this.device.print.task_id ?? '')
+    const subtaskId = String(this.device.print.subtask_id ?? '')
+    if (!taskId || !subtaskId) {
+      return null
+    }
+
+    const projects = this.getProjectsFromStorage()
+    return projects.find(project => (
+      String(project.task_id) === taskId && String(project.subtask_id) === subtaskId
+    )) ?? null
   }
 
   private handleGcodeLine(param: string) {

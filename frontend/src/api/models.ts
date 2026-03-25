@@ -1,4 +1,5 @@
 import type {
+  CURRENT_STAGE_IDS,
   GcodeState,
   LightMode,
   LightType,
@@ -47,7 +48,7 @@ export type DevicePrint = {
   vt_tray?: DeviceTray
   
   // print state
-  stg_cur?: number
+  stg_cur?: CURRENT_STAGE_IDS
   gcode_state?: GcodeState
   gcode_file_prepare_percent?: string
   mc_percent?: number
@@ -56,6 +57,9 @@ export type DevicePrint = {
   mc_print_sub_stage?: number // 0:无,1:?,2:加热,4:换料中
   layer_num?: number
   total_layer_num?: number
+  task_id?: string
+  subtask_id?: string
+  subtask_name?: string
 }
 
 export type DeviceAMSInfo = {
@@ -92,10 +96,35 @@ export type DeviceState = {
 }
 
 export type Project = {
+  param: string
   project_id: string
-  subtask_name: string
+  design_id: string
+  model_id: string
+  profile_id: string
   plate_idx: string
-  timestamp: string
+  task_id: string
+  subtask_id: string
+  subtask_name: string
+  job_id: number
   url: string
-  thumbnail_url: string
+  thumbnail_url?: string
+  md5: string
+  timelapse: boolean
+  bed_leveling: boolean
+  flow_cali: boolean
+  vibration_cali: boolean
+  layer_inspect: boolean
+  ams_mapping: number[]
+  skip_objects: any
+  timestamp: number
+  dev_id: string
+  job_type: number
+  use_ams: boolean
+  bed_temp: number
+  auto_bed_leveling: number
+  extrude_cali_flag: number
+  nozzle_offset_cali: number
+  ams_mapping2: any[]
+  cfg: string
+  extrude_cali_manual_mode: number
 }

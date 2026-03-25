@@ -31,7 +31,7 @@
 import { computed } from 'vue'
 import humanizeDuration from 'humanize-duration'
 import { PrinterClient } from '../api/PrinterClient'
-import { LightType, GcodeState } from '../api/enums'
+import { LightType, GcodeState, CURRENT_STAGE_IDS } from '../api/enums'
 import ControlButton from '../components/ControlButton.vue'
 
 import lightOnIcon from '../assets/images/monitor_lamp_on.svg'
@@ -48,9 +48,8 @@ import signalStrongIcon from '../assets/images/monitor_signal_strong.svg'
 
 const client = PrinterClient.getInstance()
 const device = client.device
-const project = client.project
 
-const taskName = computed(() => project?.subtask_name || '')
+const taskName = computed(() => device.print.subtask_name || '')
 const nozzleTemp = computed(() => Math.floor(Number(device.print.nozzle_temper ?? '0')))
 const heatbedTemp = computed(() => Math.floor(Number(device.print.bed_temper ?? '0')))
 
@@ -69,7 +68,7 @@ const getWifiSignalIcon = computed(() => {
   }
 })
 
-const getPrintThumbnail = computed(() => project ? project.thumbnail_url : sdcardThumbnail)
+const getPrintThumbnail = computed(() => client.getCurrentProject()?.thumbnail_url || sdcardThumbnail)
 
 const getPrintPercent = computed(() => {
   if (device.print.gcode_state === GcodeState.Prepare) {
@@ -79,14 +78,14 @@ const getPrintPercent = computed(() => {
 })
 
 const getPrintStateLabel = computed(() => {
-  const state = device.print.gcode_state
-  switch (state) {
+  switch (device.print.gcode_state) {
     case GcodeState.Idle:
       return '空闲'
     case GcodeState.Prepare:
       return `下载中(${device.print.gcode_file_prepare_percent}%)`
     case GcodeState.Running:
-      return '打印中'
+      return getPrintSubStateLabel
+      // return '打印中'
     case GcodeState.Pause:
       return '已暂停'
     case GcodeState.Finish:
@@ -96,7 +95,22 @@ const getPrintStateLabel = computed(() => {
   }
 })
 
-// const getPrintSubStateLabel = computed(() => [null, null, '加热中', null, '换料中'][Number(device.print.mc_print_sub_stage ?? 0)]) || ''
+const getPrintSubStateLabel = computed(() => {
+  switch (device.print.stg_cur) {
+    case CURRENT_STAGE_IDS.PRINTING:
+      return '打印中'
+    case CURRENT_STAGE_IDS.HEATBED_PREHEATING:
+      return '预加热热床'
+    case CURRENT_STAGE_IDS.CHANGING_FILAMENT:
+      return '换料中'
+    case CURRENT_STAGE_IDS.HOMING_TOOLHEAD:
+      return '工具头回中'
+    case CURRENT_STAGE_IDS.CLEANING_NOZZLE_TIP:
+      return '清理喷嘴头'
+    default:
+      return ''
+  }
+})
 
 const getPrintInfo = computed(() => {
   if (device.print.gcode_state === GcodeState.Finish) return ''
@@ -266,8 +280,9 @@ const toggleLight = () => {
 }
 
 .progress-status {
-  font-size: 14px;
+  font-size: 12px;
   height: 22px;
+  color: var(--van-text-color-2);
 }
 
 .progress-card-buttons > .control-button {
