@@ -44,6 +44,8 @@ export type DevicePrint = {
   lights_report?: DeviceLight[]
 
   // filament
+  ams_status?: number
+  ams_rfid_status?: number
   ams?: DeviceAMSInfo
   vt_tray?: DeviceTray
   
@@ -64,6 +66,9 @@ export type DevicePrint = {
 
 export type DeviceAMSInfo = {
   ams: DeviceAMS[]
+  tray_tar?: string
+  tray_now?: string
+  tray_pre?: string
 }
 
 export type DeviceAMS = {
