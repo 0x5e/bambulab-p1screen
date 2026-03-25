@@ -194,7 +194,7 @@ const toggleLight = () => {
   height: auto;
   max-width: 100%;
   max-height: 100%;
-  background-color: var(--van-background-5);
+  /* background-color: var(--van-background-5); */
 }
 
 .task-name {
