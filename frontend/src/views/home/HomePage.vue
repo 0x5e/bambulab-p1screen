@@ -1,13 +1,48 @@
 <template>
-  <div class="homepage">
-    <div class="task-card" ref="taskCardRef" :style="{ width : `${taskCardWidth}px` }">
+  <!-- idle -->
+  <div v-if="!device || [GcodeState.Idle].includes(device.gcode_state)" class="homepage homepage-idle">
+    <img class="printer-thumbnail" :src="p1sThumbnail" />
+    <span class="hint">{{ randomHint }}</span>
+    <div class="card files" clickable @click="router.push({ name: ROUTE_NAME.HOME_FILES })">
+      <img :src="fileIcon" />
+      打印文件
+    </div>
+    <div class="card info-cards">
+      <div class="nozzle-temp" @click="router.push({ name: ROUTE_NAME.CONTROL_NOZZLE })">
+        <img class="temp-icon" :src="nozzleHeating ? nozzleOnIcon : nozzleOffIcon" />
+        <div>
+          <span class="temp-value">{{ nozzleTemp }}</span>
+          <span class="temp-unit">°C</span>
+        </div>
+      </div>
+      <!-- TODO: AMS -->
+      <!--
+      <div v-if="device && device.ams.ams.length > 0" @click="router.push({ name: ROUTE_NAME.FILAMENT })">
+        AMS-X
+      </div>
+      -->
+      <div class="wifi-signal" @click="router.push({ name: ROUTE_NAME.SETTING_HOME })">
+        <img :src="wifiSignalIcon"/>
+        <div>Wi-Fi</div>
+      </div>
+      <div class="hms" @click="router.push({ name: ROUTE_NAME.MESSAGE })">
+        <img :src="device && device.hms.length > 0 ? hmsErrorIcon : hmsOkIcon"/>
+        <div :style="{ color: device && device.hms.length > 0 ? 'orange' : undefined }">
+          {{ device && device.hms.length > 0 ? device.hms.length : '助手' }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- running -->
+  <div v-else-if="[GcodeState.Prepare, GcodeState.Running, GcodeState.Pause, GcodeState.Finish, GcodeState.Failed].includes(device.gcode_state)" class="homepage homepage-running">
+    <div class="card task-card" ref="taskCardRef" :style="{ width : `${taskCardWidth}px` }">
       <span v-if="isRecording" class="recording"><i-material-symbols-circle />REC</span>
       <span class="files" @click="router.push({ name: ROUTE_NAME.HOME_FILES })">{{ '文件 >' }}</span>
       <img v-if="getTaskThumbnail" class="task-thumbnail" :src="getTaskThumbnail"/>
-      <img v-if="!getTaskThumbnail" class="task-thumbnail task-loading-thumbnail" :src="loadingThumbnail"/>
+      <img v-else class="task-thumbnail task-loading-thumbnail" :src="loadingThumbnail"/>
       <span class="task-name">{{ taskName }}</span>
     </div>
-    <div class="printer-card">
+    <div class="card printer-card">
       <div class="printer-content">
         <img :src="p1sThumbnail" />
         <span class="heatbed-temp">
@@ -27,7 +62,7 @@
         </span>
       </div>
     </div>
-    <div class="progress-card">
+    <div class="card progress-card">
       <div class="progress-card-left">
         <div class="progress-labels">
           <span>{{ getPrintPercent }}%</span>
@@ -39,28 +74,33 @@
       <div class="progress-card-buttons">
         <ControlButton :icon="skipIcon" label="跳过" font-size="10px" @click="handleSkip" :disabled="!showPrintActions" />
         <ControlButton v-if="!isPaused" :icon="pauseIcon" label="暂停" font-size="10px" @click="handlePause" :disabled="!showPrintActions" />
-        <ControlButton v-if="isPaused" :icon="resumeIcon" label="继续" font-size="10px" @click="handleResume" :disabled="!showPrintActions" />
+        <ControlButton v-else :icon="resumeIcon" label="继续" font-size="10px" @click="handleResume" :disabled="!showPrintActions" />
         <ControlButton :icon="stopIcon" label="停止" font-size="10px" @click="handleStop" :disabled="!showPrintActions" />
       </div>
     </div>
-    <ControlButton class="light-button" :icon="lightSwitchValue ? lightOnIcon : lightOffIcon" label="照明" font-size="10px" @click="toggleLight" />
+    <ControlButton
+      class="card hms"
+      :icon="device.hms.length > 0 ? hmsErrorIcon : hmsOkIcon"
+      :label="device.hms.length > 0 ? String(device.hms.length) : ''"
+      font-size="10px"
+      @click="router.push({ name: ROUTE_NAME.MESSAGE })"
+      />
   </div>
+  <!-- TODO: Error Popup -->
 </template>
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { showToast } from 'vant'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
 import humanizeDuration from 'humanize-duration'
 import { unzipSync } from 'fflate'
 import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
-import { LightType, GcodeState, CurrentStage } from '../../api/enums'
+import { GcodeState, CurrentStage } from '../../api/enums'
 import type { Project } from '../../api/project'
 import { getCurrentProject, saveProject } from '../../utils/project'
-import { getCurrentDevice } from '../../utils/device'
 
-import lightOnIcon from '../../assets/images/monitor_lamp_on.svg'
-import lightOffIcon from '../../assets/images/monitor_lamp_off.svg'
+import fileIcon from '../../assets/images/benchy.png'
 import skipIcon from '../../assets/images/print_control_partskip.svg'
 import pauseIcon from '../../assets/images/print_control_pause.svg'
 import resumeIcon from '../../assets/images/print_control_resume.svg'
@@ -81,6 +121,21 @@ import nozzleHeatingThumbnail from '../../assets/images/indicator_heat_nozzle_23
 import nozzleCoolingThumbnail from '../../assets/images/indicator_nozzle_cooling_23.png'
 import nozzleOcclusionThumbnail from '../../assets/images/indicator_occlusion_filament_23.png'
 // import nozzlePurgeThumbnail from '../../assets/images/indicator_purge_filament_23.png'
+import hmsOkIcon from '../../assets/images/hms_ok.png'
+import hmsErrorIcon from '../../assets/images/hms_error.png'
+
+const getRandomHint = () => {
+  const hints = [
+    '500层算啥，再来500层！',
+    '准备好了吗？到我大显身手了。',
+    '欢迎回来！我们再开启一场3D冒险吗？',
+    '状态满分，准备开干！',
+    '新的一天，新的创造。',
+    '磨刀不误砍柴工',
+  ]
+  return hints[Math.floor(Math.random() * hints.length)]
+}
+const randomHint = ref(getRandomHint())
 
 const shortEnglishHumanizer = humanizeDuration.humanizer({
   language: 'shortEn',
@@ -122,7 +177,6 @@ const taskCardRef = ref<HTMLElement | null>(null)
 const taskCardWidth = ref(0)
 const wifiSignalIcon = ref(getWifiSignalIcon())
 const showDeviceListPopup = ref(false)
-const deviceItem = ref(getCurrentDevice())
 const device = ref(client.device.print)
 const project = ref(getCurrentProject())
 
@@ -145,32 +199,22 @@ onUnmounted(() => {
   client.off(PrinterEvent.PRINT_PROJECT_FILE, onProjectFile)
 })
 
-watch(
-  () => showDeviceListPopup.value,
-  (visible, prevVisible) => {
-    if (prevVisible && !visible) {
-      deviceItem.value = getCurrentDevice()
-    }
-  }
-)
-
 const handleResize = () => {
   if (taskCardRef.value) {
     taskCardWidth.value = taskCardRef.value.clientHeight
   }
 }
 
-const onPushStatus = (params: any) => {
+const onPushStatus = () => {
   device.value = client.device.print
   wifiSignalIcon.value = getWifiSignalIcon()
   nozzleThumbnail.value = getNozzleThumbnail()
-  if (params?.lights_report) {
-    lightSwitchValue.value = lightState.value
-  }
   if (!project.value) {
     project.value = getCurrentProject()
     loadProjectThumbnail()
   }
+
+  nextTick(() => handleResize())
 }
 
 const onProjectFile = (projectData: Project) => {
@@ -264,7 +308,7 @@ const getNozzleThumbnail = () => {
   if (device.value.nozzle_temper > 50) {
     return (device.value.nozzle_target_temper === 0) ? nozzleCoolingThumbnail : nozzleHeatingThumbnail
   }
-  // TODO
+  // TODO: purge
   return nozzleNormalThumbnail
 }
 const nozzleThumbnail = ref(getNozzleThumbnail())
@@ -284,6 +328,7 @@ const showPrintActions = computed(() => [GcodeState.Pause, GcodeState.Running].i
 
 const handleSkip = () => {
   console.log('[Controls] skip')
+  // TODO: select & skip object
   showToast({
     message: '功能开发中～',
     position: 'bottom',
@@ -304,33 +349,72 @@ const handleStop = () => {
   console.log('[Controls] stop')
   client.setStop()
 }
-
-const lightState = computed(() => device.value?.lights_report?.find(item => item.node === LightType.Chamber)?.mode === 'on')
-const lightSwitchValue = ref(lightState.value)
-const toggleLight = () => {
-  const value = !lightSwitchValue.value
-  lightSwitchValue.value = value
-  client.setLight(LightType.Chamber, value)
-}
-
 </script>
 
 <style scoped>
 .homepage {
   display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: 1fr auto;
   height: 100%;
   padding: 10px;
   gap: 10px;
+  font-size: 14px;
 }
 
-.task-card,
-.printer-card,
-.progress-card,
-.light-button {
-  background: var(--van-background-2);
-  border-radius: 8px;
+/* idle */
+.homepage-idle {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 4fr);
+  grid-template-rows: minmax(0, 1fr) 120px;
+  align-items: center;
+}
+.homepage-idle > .printer-thumbnail {
+  height: 100%;
+  padding: 8px;
+  padding-left: 24px;
+}
+.homepage-idle > .hint {
+  border-left: 2px solid var(--van-primary-color);
+  padding-left: 10px;
+  font-size: 15px;
+}
+.homepage-idle > div {
+  height: 100%;
+}
+.homepage-idle > .files {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+.homepage-idle > .files > img {
+  height: 60%;
+}
+.info-cards {
+  align-items: center;
+  gap: 8px;
+}
+.info-cards > div {
+  flex: 1;
+  text-align: center;
+  color: var(--van-text-color-2);
+}
+.info-cards > div:active {
+  filter: brightness(0.8);
+}
+.info-cards > .nozzle-temp .temp-value {
+  color: var(--van-text-color);
+  padding-right: 4px;
+}
+.info-cards > .wifi-signal > img,
+.info-cards > .hms > img {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 12px;
+}
+
+/* running */
+.homepage-running {
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
 }
 
 .task-card {
@@ -363,7 +447,7 @@ const toggleLight = () => {
   margin-right: 1px;
 }
 
-.files {
+.task-card .files {
   grid-column: 2;
   grid-row: 1;
   justify-self: end;
@@ -455,7 +539,7 @@ const toggleLight = () => {
   top: 60%;
 }
 
-.wifi-signal {
+.printer-card .wifi-signal {
   left: 25%;
   top: 25%;
   border-radius: 50%;
@@ -464,7 +548,7 @@ const toggleLight = () => {
   padding: 8px !important;
 }
 
-.wifi-signal img {
+.printer-card .wifi-signal img {
   width: 18px;
   height: 18px;
 }
@@ -552,23 +636,31 @@ const toggleLight = () => {
   margin-bottom: 2px;
 }
 
-.light-button {
+.card.hms {
   grid-column: 2;
   grid-row: 2;
   justify-self: end;
   width: 56px;
   /* height: 72px; */
+  background-color: var(--van-background-2);
+  color: orange;
 }
 
-:deep(.light-button > img) {
-  width: 20px;
-  height: 20px;
+:deep(.card.hms > img) {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 0;
 }
 
 @media (orientation: portrait) {
   .homepage {
     grid-template-columns: 1fr;
     grid-template-rows: 250px 250px auto auto;
+    height: auto;
+  }
+  .homepage-idle {
+    grid-template-columns: 1fr;
+    grid-template-rows: 200px 80px 120px 120px;
     height: auto;
   }
 
@@ -598,7 +690,7 @@ const toggleLight = () => {
     justify-content: flex-start;
   }
 
-  .light-button {
+  .card.hms {
     display: none;
   }
 }

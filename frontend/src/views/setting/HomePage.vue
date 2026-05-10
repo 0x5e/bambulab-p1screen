@@ -134,13 +134,6 @@ const handleReconnect = () => {
   gap: 10px;
 }
 
-.card {
-  border: 0;
-  border-radius: 8px;
-  background-color: var(--van-background-2);
-  display: flex;
-}
-
 .account-card {
   grid-column: 1 / 2;
   grid-row: 1 / 4;
@@ -212,10 +205,6 @@ const handleReconnect = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.card[clickable]:active {
-  filter: brightness(0.8);
 }
 
 .icon-large {

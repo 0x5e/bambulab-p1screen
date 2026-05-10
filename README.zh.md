@@ -11,6 +11,7 @@
 拓竹 P1 系列控制屏软件。
 
 ## 预览图
+<img src="./screenshoot/home-idle.png" alt="主页（空闲）" width="50%" />
 <img src="./screenshoot/home.png" alt="主页" width="50%" />
 <img src="./screenshoot/control.png" alt="控制页" width="50%" />
 <img src="./screenshoot/printspeed.png" alt="打印速度" width="50%" />
@@ -73,7 +74,6 @@ docker compose up -d
 
 ## TODOs
 - 首页
-  - 空闲状态
   - 文件列表
 - 耗材页
   - 自动续料

@@ -91,6 +91,17 @@ body {
   overflow: hidden;
 }
 
+.card {
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--van-background-2);
+  display: flex;
+}
+
+.card[clickable]:active {
+  filter: brightness(0.8);
+}
+
 @media (min-width: 1024px) {
   body {
     display: grid;

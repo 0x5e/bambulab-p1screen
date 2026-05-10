@@ -11,6 +11,7 @@
 Control screen software for the Bambu Lab P1 series.
 
 ## Screenshots
+<img src="./screenshoot/home-idle.png" alt="Home Idle" width="50%" />
 <img src="./screenshoot/home.png" alt="Home" width="50%" />
 <img src="./screenshoot/control.png" alt="Controls" width="50%" />
 <img src="./screenshoot/printspeed.png" alt="PrintSpeed" width="50%" />
@@ -72,7 +73,6 @@ Any full-screen web launch method is acceptable. More ideas are welcome.
 
 ## TODOs
 - Homepage
-  - Idle State
   - File list
 - Filament
   - Auto Refill
