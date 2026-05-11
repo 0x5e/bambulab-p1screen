@@ -42,6 +42,7 @@ public final class MainActivity extends Activity {
 
     webView = findViewById(R.id.web_view);
     webView.setPadding(0, 0, 0, 0);
+    webView.setBackgroundColor(0xFF2C2C2C);
     webView.setHapticFeedbackEnabled(false);
     webView.setWebChromeClient(new WebChromeClient() {
       @Override
