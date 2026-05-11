@@ -8,6 +8,7 @@
           :key="item.key"
           :class="{ 'nav-item': true, 'nav-item-active': item.key === activeNavKey }"
           :to="item.to"
+          replace
           draggable="false"
           @dragstart.prevent
         >
