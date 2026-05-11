@@ -28,6 +28,7 @@ public final class MainActivity extends Activity {
   private WebView webView;
   private WebService webService;
   private long lastBackPressedAt;
+  private Toast exitToast;
 
   @SuppressLint("SetJavaScriptEnabled")
   @Override
@@ -70,6 +71,11 @@ public final class MainActivity extends Activity {
     });
 
     webView.setWebViewClient(new WebViewClient() {
+      @Override
+      public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
+        lastBackPressedAt = 0;
+      }
+
       @Override
       public void onPageFinished(WebView view, String url) {
         webView.setVisibility(View.VISIBLE);
@@ -114,13 +120,21 @@ public final class MainActivity extends Activity {
 
   @Override
   public void onBackPressed() {
+    if (webView != null && webView.canGoBack()) {
+      webView.goBack();
+      return;
+    }
     long now = SystemClock.elapsedRealtime();
     if (now - lastBackPressedAt < EXIT_INTERVAL_MS) {
       finishAndRemoveTask();
       return;
     }
     lastBackPressedAt = now;
-    Toast.makeText(this, "再按一次返回键退出应用", Toast.LENGTH_SHORT).show();
+    if (exitToast != null) {
+      exitToast.cancel();
+    }
+    exitToast = Toast.makeText(this, R.string.exit_toast, Toast.LENGTH_SHORT);
+    exitToast.show();
   }
 
   private void applyFullscreen() {

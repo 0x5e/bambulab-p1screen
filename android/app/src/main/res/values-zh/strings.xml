@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">拓竹打印屏</string>
+  <string name="loading">启动中…</string>
+  <string name="exit_toast">再按一次返回键退出应用</string>
+</resources>
