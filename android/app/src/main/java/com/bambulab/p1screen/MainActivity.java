@@ -3,18 +3,19 @@ package com.bambulab.p1screen;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import androidx.core.splashscreen.SplashScreen;
 
 import java.io.IOException;
 
@@ -34,6 +35,8 @@ public final class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
 
     startWebService();
+
+    SplashScreen.installSplashScreen(this);
 
     setContentView(R.layout.activity_main);
 
@@ -62,6 +65,13 @@ public final class MainActivity extends Activity {
             break;
         }
         return true;
+      }
+    });
+
+    webView.setWebViewClient(new WebViewClient() {
+      @Override
+      public void onPageFinished(WebView view, String url) {
+        webView.setVisibility(View.VISIBLE);
       }
     });
 

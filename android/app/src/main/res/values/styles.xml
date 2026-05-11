@@ -1,3 +1,10 @@
 <resources>
   <style name="AppTheme" parent="@android:style/Theme.DeviceDefault.NoActionBar" />
+
+  <style name="SplashTheme" parent="Theme.SplashScreen">
+    <item name="windowSplashScreenBackground">#2C2C2C</item>
+    <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon_empty</item>
+    <item name="windowSplashScreenIconBackgroundColor">#2C2C2C</item>
+    <item name="postSplashScreenTheme">@style/AppTheme</item>
+  </style>
 </resources>
