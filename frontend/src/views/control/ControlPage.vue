@@ -2,59 +2,59 @@
   <div class="control-page">
     <img src="../../assets/images/printer-inside.png" class="background-image" />
     <div class="control-grid">
-      <div class="panel panel-main panel-air" @click="showFanSpeedPopup = true">
-        <div class="panel-icon">
-          <img :src="activeFanCount() > 0 ? fanOnIcon : fanOffIcon" />
+      <div class="card fan-card" clickable @click="showFanSpeedPopup = true">
+        <div class="card-icon">
+          <img :src="fanOffIcon" />
         </div>
-        <div class="panel-title">风扇</div>
-        <div class="panel-value">{{ fanStatusText }}</div>
-        <i-material-symbols-chevron-right-rounded class="panel-arrow" />
+        <div class="card-title">风扇</div>
+        <div class="card-value">{{ fanStatusText }}</div>
+        <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
 
-      <div class="panel panel-main panel-speed" @click="showPrintSpeedPopup = true">
-        <div class="panel-icon">
+      <div class="card speed-card" clickable @click="showPrintSpeedPopup = true">
+        <div class="card-icon">
           <i-material-symbols-swap-driving-apps-wheel />
           <!-- <img src="../../assets/images/monitor_speed.svg" /> -->
         </div>
-        <div class="panel-title">速度</div>
-        <div class="panel-value">{{ speedText }}</div>
-        <i-material-symbols-chevron-right-rounded class="panel-arrow" />
+        <div class="card-title">速度</div>
+        <div class="card-value">{{ speedText }}</div>
+        <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
 
-      <div class="panel panel-main panel-motion" @click="router.push({ name: ROUTE_NAME.CONTROL_MOTION })">
-        <div class="panel-icon">
+      <div class="card motion-card" clickable @click="router.push({ name: ROUTE_NAME.CONTROL_MOTION })">
+        <div class="card-icon">
           <i-material-symbols-open-with-rounded />
         </div>
-        <div class="panel-title">运动</div>
-        <div class="panel-value">XYZ</div>
-        <i-material-symbols-chevron-right-rounded class="panel-arrow" />
+        <div class="card-title">运动</div>
+        <div class="card-value">XYZ</div>
+        <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
 
-      <div class="panel panel-nozzle" @click="router.push({ name: ROUTE_NAME.CONTROL_NOZZLE })">
-        <div class="panel-head">
-          <div class="panel-icon">
-            <img :src="nozzleHeating ? nozzleOnIcon : nozzleOffIcon" />
+      <div class="card nozzle-card" clickable @click="router.push({ name: ROUTE_NAME.CONTROL_NOZZLE })">
+        <div class="card-head">
+          <div class="card-icon">
+            <img :src="nozzleOffIcon" />
           </div>
-          <div class="panel-title">喷嘴和挤出机</div>
-          <i-material-symbols-chevron-right-rounded class="panel-arrow" />
+          <div class="card-title">喷嘴和挤出机</div>
+          <i-material-symbols-chevron-right-rounded class="arrow" />
         </div>
-        <div class="nozzle-temp-row">
+        <div class="nozzle-temp">
           <img class="nozzle-image" src="../../assets/images/extruder_normal_23.png" />
           <span>{{ nozzleTempText }}</span>
         </div>
       </div>
 
-      <div class="panel panel-main panel-bed" @click="openTempPopup">
-        <div class="panel-icon">
-          <img :src="bedHeating ? bedOnIcon : bedOffIcon" />
+      <div class="card heatbed-card" clickable @click="openTempPopup">
+        <div class="card-icon">
+          <img :src="bedOffIcon" />
         </div>
-        <div class="panel-title">热床</div>
-        <div class="panel-value">{{ bedTempText }}</div>
-        <i-material-symbols-chevron-right-rounded class="panel-arrow" />
+        <div class="card-title">热床</div>
+        <div class="card-value">{{ bedTempText }}</div>
+        <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
 
     </div>
-    <div class="panel panel-light-fixed">
+    <div class="card light-card">
       <div class="light-content">
         <div class="light-left">
           <img class="lightbulb" :src="lightSwitchValue ? lightOnIcon : lightOffIcon" />
@@ -94,11 +94,8 @@ import { showDialog } from 'vant'
 import { FanType, GcodeState, LightType, PrintSpeedLevel, TemperatureType } from '../../api/enums'
 import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
 
-import fanOnIcon from '../../assets/images/monitor_fan_on.svg'
 import fanOffIcon from '../../assets/images/monitor_fan_off.svg'
-import nozzleOnIcon from '../../assets/images/monitor_nozzle_temp_active.svg'
 import nozzleOffIcon from '../../assets/images/monitor_nozzle_temp.svg'
-import bedOnIcon from '../../assets/images/monitor_bed_temp_active.svg'
 import bedOffIcon from '../../assets/images/monitor_bed_temp.svg'
 import lightOnIcon from '../../assets/images/monitor_lamp_on.svg'
 import lightOffIcon from '../../assets/images/monitor_lamp_off.svg'
@@ -177,10 +174,7 @@ const fanStatusText = computed(() => {
   return count === 0 ? '无风扇开启' : `${count}风扇开启`
 })
 
-const nozzleHeating = computed(() => device.value && (device.value.nozzle_target_temper - 2 > device.value.nozzle_temper))
 const nozzleTempText = computed(() => device.value ? `${Math.floor(device.value.nozzle_temper ?? 0)}°C/${Math.floor(device.value.nozzle_target_temper ?? 0)}°C` : '')
-
-const bedHeating = computed(() => device.value && (device.value.bed_target_temper - 2 > device.value.bed_temper))
 const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed_temper ?? 0)}°C/${Math.floor(device.value.bed_target_temper ?? 0)}°C` : '')
 </script>
 
@@ -215,25 +209,55 @@ const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed
   grid-template-columns: minmax(0, 4fr) minmax(0, 3fr) minmax(0, 3fr);
   grid-template-rows: 60px 100px 60px 1fr;
   grid-template-areas:
-    'air speed motion'
+    'fan speed motion'
     'nozzle . .'
     'bed . .'
     '. . .';
 }
 
-.panel {
-  border: 0;
-  border-radius: 8px;
-  background-color: var(--van-background-2);
+.card {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 24px;
+  grid-template-rows: 1fr 1fr;
+  align-items: center;
+  align-content: center;
+  column-gap: 8px;
   padding: 10px 12px;
   text-align: left;
 }
 
-.panel:not(.panel-light-fixed):active {
-  filter: brightness(0.8);
+.card > .card-icon {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  align-self: center;
 }
 
-.panel-head {
+.card > .arrow {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  align-self: center;
+  justify-self: center;
+}
+
+.card > .card-title {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  margin-left: 0;
+  white-space: nowrap;
+}
+
+.card > .card-value {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  align-self: start;
+}
+
+.card-head {
   display: grid;
   grid-template-columns: 34px 1fr auto;
   align-items: center;
@@ -241,7 +265,7 @@ const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed
   height: 34px;
 }
 
-.panel-icon {
+.card-icon {
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -251,24 +275,24 @@ const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed
   font-size: 20px;
 }
 
-.panel-title {
+.card-title {
   color: var(--van-text-color-2);
   font-size: 13px;
   line-height: 18px;
 }
 
-.panel-icon > img {
+.card-icon > img {
   width: 20px;
   height: 20px;
   object-fit: contain;
   opacity: 0.8;
 }
 
-.panel-icon > svg {
+.card-icon > svg {
   color: var(--van-text-color-3);
 }
 
-.panel-arrow {
+.arrow {
   width: 24px;
   height: 24px;
   display: grid;
@@ -280,7 +304,7 @@ const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed
   line-height: 1;
 }
 
-.panel-value {
+.card-value {
   margin-left: 42px;
   margin-top: 2px;
   font-size: 15px;
@@ -289,65 +313,27 @@ const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed
   color: var(--van-text-color);
 }
 
-.panel-air { grid-area: air; }
-.panel-speed { grid-area: speed; }
-.panel-motion { grid-area: motion; }
-.panel-nozzle { grid-area: nozzle; }
-.panel-bed { grid-area: bed; }
+.fan-card { grid-area: fan; }
+.speed-card { grid-area: speed; }
+.motion-card { grid-area: motion; }
+.nozzle-card { grid-area: nozzle; }
+.heatbed-card { grid-area: bed; }
 
-.panel-main .panel-icon {
-  grid-column: 1;
-  grid-row: 1 / 3;
-  align-self: center;
-}
 
-.panel-main .panel-arrow {
-  grid-column: 3;
-  grid-row: 1 / 3;
-  align-self: center;
-  justify-self: center;
-}
-
-.panel-main .panel-title {
-  grid-column: 2;
-  grid-row: 1;
-  align-self: end;
-  margin-left: 0;
-  white-space: nowrap;
-}
-
-.panel-main {
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 24px;
-  grid-template-rows: 1fr 1fr;
-  align-items: center;
-  align-content: center;
-  column-gap: 8px;
-}
-
-.panel-main .panel-value {
-  grid-column: 2;
-  grid-row: 2;
-  margin: 0;
-  min-height: 20px;
-  display: flex;
-  align-items: center;
-  align-self: start;
-}
-
-.panel-nozzle {
+.nozzle-card {
   padding: 0 12px;
   display: flex;
   flex-direction: column;
+  align-items: initial;
 }
 
-.panel-nozzle .panel-head {
+.nozzle-card .card-head {
   margin: 8px 0;
   width: 100%;
   grid-template-columns: 34px minmax(0, 1fr) 24px;
 }
 
-.nozzle-temp-row {
+.nozzle-temp {
   margin: 4px 0;
   display: flex;
   align-items: center;
@@ -386,7 +372,8 @@ const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed
   object-fit: contain;
 }
 
-.panel-light-fixed {
+.light-card {
+  display: block;
   position: absolute;
   right: 10px;
   bottom: 10px;
@@ -407,7 +394,7 @@ const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed
     grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
     grid-template-rows: 60px 60px 100px;
     grid-template-areas:
-      'air speed'
+      'fan speed'
       'bed motion'
       'nozzle .';
   }
