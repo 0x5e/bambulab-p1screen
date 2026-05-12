@@ -81,6 +81,7 @@ Any full-screen web launch method is acceptable. More ideas are welcome.
 - Message
 - Other
   - International
+  - Global Dialog(Print Success / Failure / Warning)
 
 ## References
 - [P1 Screen Operation Guide](https://wiki.bambulab.com/en/p1/manual/screen-operation)

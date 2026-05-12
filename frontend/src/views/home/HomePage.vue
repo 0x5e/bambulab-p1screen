@@ -17,8 +17,13 @@
       </div>
       <!-- TODO: AMS -->
       <!--
-      <div v-if="device && device.ams.ams.length > 0" @click="router.push({ name: ROUTE_NAME.FILAMENT })">
-        AMS-X
+      <div class="ams" v-if="device && device.ams.ams.length > 0" @click="router.push({ name: ROUTE_NAME.FILAMENT })">
+        <template v-for="ams in device.ams.ams" :key="ams.id">
+          AMS-{{ amsPrefix(ams.id) }}
+          <div>
+            
+          </div>
+        </template>
       </div>
       -->
       <div class="wifi-signal" @click="router.push({ name: ROUTE_NAME.SETTING_HOME })">

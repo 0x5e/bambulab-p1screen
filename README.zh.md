@@ -82,6 +82,7 @@ docker compose up -d
 - 消息页
 - 其他
   - 多语言
+  - 全局弹窗（打印成功/失败/警告）
 
 ## 参考内容
 - [P1 系列屏幕操作指南](https://wiki.bambulab.com/en/p1/manual/screen-operation)
