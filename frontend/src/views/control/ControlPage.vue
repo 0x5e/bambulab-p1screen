@@ -6,7 +6,7 @@
         <div class="card-icon">
           <img :src="fanOffIcon" />
         </div>
-        <div class="card-title">风扇</div>
+        <div class="card-title">{{ t('fan') }}</div>
         <div class="card-label">{{ fanStatusText }}</div>
         <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
@@ -16,7 +16,7 @@
           <i-material-symbols-swap-driving-apps-wheel />
           <!-- <img src="../../assets/images/monitor_speed.svg" /> -->
         </div>
-        <div class="card-title">速度</div>
+        <div class="card-title">{{ t('speed') }}</div>
         <div class="card-label">{{ speedText }}</div>
         <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
@@ -25,7 +25,7 @@
         <div class="card-icon">
           <i-material-symbols-open-with-rounded />
         </div>
-        <div class="card-title">运动</div>
+        <div class="card-title">{{ t('motion') }}</div>
         <div class="card-label">XYZ</div>
         <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
@@ -35,7 +35,7 @@
           <div class="card-icon">
             <img :src="nozzleOffIcon" />
           </div>
-          <div class="card-title">喷嘴和挤出机</div>
+          <div class="card-title">{{ t('nozzle_extruder') }}</div>
           <i-material-symbols-chevron-right-rounded class="arrow" />
         </div>
         <div class="nozzle-temp">
@@ -55,7 +55,7 @@
         <div class="card-icon">
           <img :src="bedOffIcon" />
         </div>
-        <div class="card-title">热床</div>
+        <div class="card-title">{{ t('heatbed') }}</div>
         <div class="card-label">
           <div v-if="device && device?.bed_target_temper - device?.bed_temper > 2" :style="{ color: 'orange' }">
             <span class="current-temp">{{ Math.floor(device?.bed_temper ?? 0) }}°C</span>
@@ -72,7 +72,7 @@
       <div class="light-content">
         <div class="light-left">
           <img class="lightbulb" :src="lightIcon(lightSwitchValue)" />
-          <span>照明</span>
+          <span>{{ t('light') }}</span>
         </div>
         <van-switch
           :model-value="lightSwitchValue"
@@ -102,6 +102,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
 import { showDialog } from 'vant'
@@ -115,6 +116,7 @@ import nozzleOffIcon from '../../assets/images/monitor_nozzle_temp.svg'
 import bedOffIcon from '../../assets/images/monitor_bed_temp.svg'
 
 const router = useRouter()
+const { t } = useI18n()
 const client = PrinterClient.getInstance()
 const { device } = usePrinterStore()
 const lightState = computed(() => device.value?.lights_report?.find(item => item.node === LightType.Chamber)?.mode === 'on')
@@ -142,7 +144,7 @@ const printSpeedLevel = computed(() => device.value?.spd_lvl)
 
 const handlePrintSpeedConfirm = (speedLevel: number) => {
   if ([GcodeState.Idle, GcodeState.Finish].includes(device.value?.gcode_state ?? GcodeState.Unknown)) {
-    showDialog({ message: '空闲状态下调整打印速度不生效。' })
+    showDialog({ message: t('speed_idle_warning') })
     return
   }
   client.setPrintSpeedLevel(speedLevel)
@@ -155,16 +157,16 @@ const handleLightSwitch = (value: boolean) => {
 
 const speedText = computed(() => {
   const speed = [{
-    label: '狂暴',
+    label: t('speed_ludicrous'),
     value: PrintSpeedLevel.Ludicrous,
   }, {
-    label: '运动',
+    label: t('speed_sport'),
     value: PrintSpeedLevel.Sport,
   }, {
-    label: '标准',
+    label: t('speed_standard'),
     value: PrintSpeedLevel.Standard,
   }, {
-    label: '静音',
+    label: t('speed_silent'),
     value: PrintSpeedLevel.Silent,
   }].filter(item => item.value === device.value?.spd_lvl)
   return (speed.length > 0) ? speed[0].label : ''
@@ -174,7 +176,7 @@ const activeFanCount = () => [FanType.Part, FanType.Aux, FanType.Chamber].filter
 const fanStatusText = computed(() => {
   if (!device.value) return ''
   const count = activeFanCount()
-  return count === 0 ? '无风扇开启' : `${count}风扇开启`
+  return count === 0 ? t('fan_none') : t('fan_running', { count })
 })
 
 </script>

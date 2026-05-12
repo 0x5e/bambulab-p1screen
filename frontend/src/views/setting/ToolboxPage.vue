@@ -1,8 +1,13 @@
 <template>
-  <BaseSubPage title="工具箱">
-    <van-empty description="开发中" />
+  <BaseSubPage :title="t('toolbox')">
+    <van-empty :description="t('developing')" />
   </BaseSubPage>
 </template>
+
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+</script>
 
 <style scoped>
 :deep(.van-empty__image) {

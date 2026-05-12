@@ -1,12 +1,12 @@
 <template>
   <BasePopup
     :show="show"
-    title="风扇"
+    :title="t('fan')"
     @update:show="emit('update:show', $event)"
   >
     <div class="fan-speed-card">
       <div class="fan-title-group">
-        <span class="fan-speed-name">部件</span>
+        <span class="fan-speed-name">{{ t('fan_part') }}</span>
         <img class="fan-speed-icon" :src="fanPartSpeed > 0 ? fanOnIcon : fanOffIcon" />
       </div>
       <van-switch
@@ -29,7 +29,7 @@
 
     <div class="fan-speed-card">
       <div class="fan-title-group">
-        <span class="fan-speed-name">辅助</span>
+        <span class="fan-speed-name">{{ t('fan_aux') }}</span>
         <img class="fan-speed-icon" :src="fanAuxSpeed > 0 ? fanOnIcon : fanOffIcon" />
       </div>
       <van-switch
@@ -52,7 +52,7 @@
 
     <div class="fan-speed-card">
       <div class="fan-title-group">
-        <span class="fan-speed-name">机箱</span>
+        <span class="fan-speed-name">{{ t('fan_chamber') }}</span>
         <img class="fan-speed-icon" :src="fanChamberSpeed > 0 ? fanOnIcon : fanOffIcon" />
       </div>
       <van-switch
@@ -77,12 +77,14 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { FanType } from '../api/enums'
 import { PrinterClient } from '../api/PrinterClient'
 import { usePrinterStore } from '../stores/printer'
 import fanOnIcon from '../assets/images/monitor_fan_on.svg'
 import fanOffIcon from '../assets/images/monitor_fan_off.svg'
 
+const { t } = useI18n()
 const client = PrinterClient.getInstance()
 const { device } = usePrinterStore()
 

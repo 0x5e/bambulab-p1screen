@@ -80,7 +80,6 @@ Any full-screen web launch method is acceptable. More ideas are welcome.
   - Toolbox
 - Message
 - Other
-  - International
   - Global Dialog(Print Success / Failure / Warning)
 
 ## References

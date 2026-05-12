@@ -24,6 +24,7 @@
 
   --van-dialog-background: var(--van-background);
   --van-dialog-confirm-button-text-color: var(--van-text-color);
+  --van-action-sheet-cancel-text-color: var(--van-text-color);
 
   --van-progress-background: var(--van-background-4);
   --van-stepper-button-disabled-color: var(--van-background-4);

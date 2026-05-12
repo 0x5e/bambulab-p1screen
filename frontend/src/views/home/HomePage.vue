@@ -5,7 +5,7 @@
     <span class="hint">{{ randomHint }}</span>
     <div class="card files" clickable @click="router.push({ name: ROUTE_NAME.HOME_FILES })">
       <img :src="fileIcon" />
-      打印文件
+      {{ t('print_files') }}
     </div>
     <div class="card info-cards">
       <div class="nozzle-temp" @click="router.push({ name: ROUTE_NAME.CONTROL_NOZZLE })">
@@ -33,7 +33,7 @@
       <div class="hms" @click="router.push({ name: ROUTE_NAME.MESSAGE })">
         <img :src="hmsIcon(!(device && device.hms.length > 0))"/>
         <div :style="{ color: device && device.hms.length > 0 ? 'orange' : undefined }">
-          {{ device && device.hms.length > 0 ? device.hms.length : '助手' }}
+          {{ device && device.hms.length > 0 ? device.hms.length : t('assistant') }}
         </div>
       </div>
     </div>
@@ -42,7 +42,7 @@
   <div v-else-if="[GcodeState.Prepare, GcodeState.Running, GcodeState.Pause, GcodeState.Finish, GcodeState.Failed].includes(device.gcode_state)" class="homepage homepage-running">
     <div class="card task-card" ref="taskCardRef" :style="{ width : `${taskCardWidth}px` }">
       <span v-if="isRecording" class="recording"><i-material-symbols-circle />REC</span>
-      <span class="files" @click="router.push({ name: ROUTE_NAME.HOME_FILES })">{{ '文件 >' }}</span>
+      <span class="files" @click="router.push({ name: ROUTE_NAME.HOME_FILES })">{{ t('file_link') }}</span>
       <img v-if="getTaskThumbnail" class="task-thumbnail" :src="getTaskThumbnail"/>
       <img v-else class="task-thumbnail task-loading-thumbnail" :src="loadingThumbnail"/>
       <span class="task-name">{{ taskName }}</span>
@@ -77,10 +77,10 @@
         <span class="progress-status">{{ getPrintStateLabel }}</span>
       </div>
       <div class="progress-card-buttons">
-        <ControlButton :icon="skipIcon" label="跳过" font-size="10px" @click="handleSkip" :disabled="!showPrintActions" />
-        <ControlButton v-if="!isPaused" :icon="pauseIcon" label="暂停" font-size="10px" @click="handlePause" :disabled="!showPrintActions" />
-        <ControlButton v-else :icon="resumeIcon" label="继续" font-size="10px" @click="handleResume" :disabled="!showPrintActions" />
-        <ControlButton :icon="stopIcon" label="停止" font-size="10px" @click="handleStop" :disabled="!showPrintActions" />
+        <ControlButton :icon="skipIcon" :label="t('action_skip')" font-size="10px" @click="handleSkip" :disabled="!showPrintActions" />
+        <ControlButton v-if="!isPaused" :icon="pauseIcon" :label="t('action_pause')" font-size="10px" @click="handlePause" :disabled="!showPrintActions" />
+        <ControlButton v-else :icon="resumeIcon" :label="t('action_resume')" font-size="10px" @click="handleResume" :disabled="!showPrintActions" />
+        <ControlButton :icon="stopIcon" :label="t('action_stop')" font-size="10px" @click="handleStop" :disabled="!showPrintActions" />
       </div>
     </div>
     <ControlButton
@@ -100,11 +100,13 @@ import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
 import humanizeDuration from 'humanize-duration'
 import { unzipSync } from 'fflate'
+import { useI18n } from 'vue-i18n'
 import { PrinterClient } from '../../api/PrinterClient'
 import { GcodeState, CurrentStage } from '../../api/enums'
 import { saveProject } from '../../utils/project'
 import { hmsIcon, wifiSignalIcon } from '../../utils/icon'
 import { usePrinterStore } from '../../stores/printer'
+import hints from '../../assets/hints.json'
 
 import fileIcon from '../../assets/images/benchy.png'
 import skipIcon from '../../assets/images/print_control_partskip.svg'
@@ -122,20 +124,17 @@ import nozzleCoolingThumbnail from '../../assets/images/indicator_nozzle_cooling
 import nozzleOcclusionThumbnail from '../../assets/images/indicator_occlusion_filament_23.png'
 // import nozzlePurgeThumbnail from '../../assets/images/indicator_purge_filament_23.png'
 
+const { locale, t } = useI18n()
+
 const getRandomHint = () => {
-  const hints = [
-    '500层算啥，再来500层！',
-    '准备好了吗？到我大显身手了。',
-    '欢迎回来！我们再开启一场3D冒险吗？',
-    '状态满分，准备开干！',
-    '新的一天，新的创造。',
-    '磨刀不误砍柴工',
-    '我想要，我得到！',
-    '嗨，今天做点啥？',
-  ]
-  return hints[Math.floor(Math.random() * hints.length)]
+  const localeHints = hints[locale.value.startsWith('zh') ? 'zh' : 'en']
+  return localeHints[Math.floor(Math.random() * localeHints.length)]
 }
 const randomHint = ref(getRandomHint())
+
+watch(locale, () => {
+  randomHint.value = getRandomHint()
+})
 
 const shortEnglishHumanizer = humanizeDuration.humanizer({
   language: 'shortEn',
@@ -242,18 +241,17 @@ const getPrintPercent = computed(() => {
 const getPrintStateLabel = computed(() => {
   switch (device.value?.gcode_state) {
     case GcodeState.Idle:
-      return '空闲'
+      return t('print_state_idle')
     case GcodeState.Prepare:
-      return `下载中(${device.value?.gcode_file_prepare_percent}%)`
+      return t('print_state_preparing', { percent: device.value?.gcode_file_prepare_percent })
     case GcodeState.Running:
       return getPrintSubStateLabel()
-      // return '打印中'
     case GcodeState.Pause:
-      return '已暂停'
+      return t('print_state_paused')
     case GcodeState.Finish:
-      return '完成'
+      return t('print_state_finished')
     case GcodeState.Failed:
-      return '失败'
+      return t('print_state_failed')
     default:
       return ''
   }
@@ -262,15 +260,15 @@ const getPrintStateLabel = computed(() => {
 const getPrintSubStateLabel = () => {
   switch (device.value?.stg_cur) {
     case CurrentStage.PRINTING:
-      return '打印中'
+      return t('print_state_printing')
     case CurrentStage.HEATBED_PREHEATING:
-      return '预加热热床'
+      return t('print_state_heatbed_preheating')
     case CurrentStage.CHANGING_FILAMENT:
-      return '换料中'
+      return t('print_state_changing_filament')
     case CurrentStage.HOMING_TOOLHEAD:
-      return '工具头回中'
+      return t('print_state_homing_toolhead')
     case CurrentStage.CLEANING_NOZZLE_TIP:
-      return '清理喷嘴头'
+      return t('print_state_cleaning_nozzle_tip')
     default:
       return ''
   }
@@ -293,7 +291,7 @@ const handleSkip = () => {
   console.log('[Controls] skip')
   // TODO: select & skip object
   showToast({
-    message: '功能开发中～',
+    message: t('developing'),
     position: 'bottom',
   })
 }

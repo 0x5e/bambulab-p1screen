@@ -12,7 +12,7 @@
         :disabled="inputValue.length === 0"
         @click="handleConfirm"
       >
-        确定
+        {{ t('confirm') }}
       </van-button>
     </template>
 
@@ -37,7 +37,10 @@
 
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { TemperatureType } from '../api/enums'
+
+const { t } = useI18n()
 
 const props = withDefaults(
   defineProps<{
@@ -53,13 +56,13 @@ const props = withDefaults(
 const title = computed(() => {
   switch (props.type) {
     case TemperatureType.Nozzle:
-      return '喷嘴温度'
+      return t('nozzle_temperature')
     case TemperatureType.Heatbed:
-      return '热床温度'
+      return t('heatbed_temperature')
     case TemperatureType.Chamber:
-      return '机箱温度'
+      return t('chamber_temperature')
     default:
-      return '温度'
+      return t('temperature')
   }
 })
 

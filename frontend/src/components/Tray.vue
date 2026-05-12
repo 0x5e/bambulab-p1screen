@@ -5,7 +5,7 @@
     placement="bottom"
     :actions="actions"
     :offset="[0, -32]"
-    style="--van-popover-action-width: 80px;"
+    style="--van-popover-action-width: 90px;"
     @select="handleTrayAction"
   >
     <template #reference>
@@ -29,8 +29,11 @@
 <script setup lang="ts">
 import { colord } from 'colord'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { type PopoverAction } from 'vant'
 import type { DeviceTray } from '../api/device'
+
+const { t } = useI18n()
 
 const props = withDefaults(
   defineProps<{
@@ -52,23 +55,23 @@ const actions = computed<PopoverAction[]>(() => {
   if (!exist.value && !isExt.value) return []
 
   const menu: PopoverAction[] = [
-    { type: 'edit', text: readonly.value ? '查看' : '编辑' },
+    { type: 'edit', text: readonly.value ? t('view') : t('edit') },
   ]
 
   if (isLoading.value) { // 换料中
     if (props.trayTar !== 255 && isTarget.value) {
-      menu.push({ type: 'load', text: '进料中', disabled: true })
+      menu.push({ type: 'load', text: t('loading_filament'), disabled: true })
     } else if (props.trayTar === 255 && isPrev.value) {
-      menu.push({ type: 'load', text: '退料中', disabled: true })
+      menu.push({ type: 'load', text: t('unloading_filament'), disabled: true })
     } else {
-      menu.push({ type: 'load', text: '进料', disabled: true })
+      menu.push({ type: 'load', text: t('load'), disabled: true })
     }
   } else {
-    menu.push(isCurrent.value ? { type: 'unload', text: '退料' } : { type: 'load', text: '进料' })
+    menu.push(isCurrent.value ? { type: 'unload', text: t('unload') } : { type: 'load', text: t('load') })
   }
 
   if (!isExt.value) {
-    menu.push({ type: 'reload', text: '重读' })
+    menu.push({ type: 'reload', text: t('reload') })
   }
   return menu
 })
@@ -180,5 +183,8 @@ const textColor = computed(() => {
   height: 15px;
   border: 2px dashed;
   margin-bottom: -8px;
+}
+:deep(.van-popover__action-text) {
+  white-space: nowrap !important;
 }
 </style>

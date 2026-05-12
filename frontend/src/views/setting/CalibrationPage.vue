@@ -1,5 +1,5 @@
 <template>
-  <BaseSubPage title="打印校准">
+  <BaseSubPage :title="t('print_calibration')">
     <template #right>
       <van-button
         class="header-action-btn"
@@ -8,24 +8,24 @@
         :disabled="option === 0"
         @click="handleConfirm"
       >
-        确定
+        {{ t('confirm') }}
       </van-button>
     </template>
     <SettingCell
-      title="自动热床调平（6分钟）"
-      label="通过喷嘴接触打印板来检测热床的平整度。调平可以试挤出的高度更均匀。"
+      :title="t('auto_bed_leveling')"
+      :label="t('auto_bed_leveling_desc')"
       :selected="bedLevelling"
       @click="bedLevelling = $event"
     />
     <SettingCell
-      title="振动补偿（4分钟）"
-      label="测量打印机的机械共振模型以补偿震动。可以减少加速造成的纹路并大幅提高打印速度。"
+      :title="t('vibration_compensation')"
+      :label="t('vibration_compensation_desc')"
       :selected="vibrationCompensation"
       @click="vibrationCompensation = $event"
     />
     <SettingCell
-      title="电机降噪（15分钟）"
-      label="测量每个电机的细微差异以优化主动降噪算法。"
+      :title="t('motor_noise_cancellation')"
+      :label="t('motor_noise_cancellation_desc')"
       :selected="motorCancellation"
       @click="motorCancellation = $event"
     />
@@ -34,11 +34,13 @@
 
 <script setup lang="tsx">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
 import { showConfirmDialog } from 'vant'
 import { PrinterClient } from '../../api/PrinterClient'
 
+const { t } = useI18n()
 const router = useRouter()
 const client = PrinterClient.getInstance()
 
@@ -56,8 +58,9 @@ const option = computed(() => {
 const handleConfirm = async () => {
   try {
     await showConfirmDialog({
-      message: '机器校准过程需要一段时间，且机器会产生轻微震动，在此过程中，不可操作机器，确定要开始校准吗？',
-      confirmButtonText: '开始校准',
+      message: t('calibration_confirm_msg'),
+      cancelButtonText: t('cancel'),
+      confirmButtonText: t('start_calibration'),
       messageAlign: 'left',
     })
   } catch {

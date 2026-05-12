@@ -1,8 +1,14 @@
 <template>
-  <BaseSubPage title="文件列表">
-    <van-empty description="开发中" />
+  <BaseSubPage :title="t('file_list')">
+    <van-empty :description="t('developing')" />
   </BaseSubPage>
 </template>
+
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+</script>
 
 <style scoped>
 :deep(.van-empty__image) {

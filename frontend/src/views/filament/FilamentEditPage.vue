@@ -1,11 +1,11 @@
 <template>
-  <BaseSubPage title="编辑耗材">
+  <BaseSubPage :title="t('edit_filament')">
     <div class="filament-edit-card">
       <div class="form-row form-filament">
-        <label class="form-label">耗材</label>
+        <label class="form-label">{{ t('filament') }}</label>
         <select class="manufacturer" v-model="manufacturer" :disabled="isReadonly || isCustomFilament" @change="onManufacturerChange">
           <option v-for="item in manufacturerList" :key="item" :value="item">{{ item }}</option>
-          <option v-if="isCustomFilament" value="Custom">自定义</option>
+          <option v-if="isCustomFilament" value="Custom">{{ t('custom') }}</option>
         </select>
         <select class="filament" v-model="filamentId" :disabled="isReadonly || isCustomFilament">
           <option v-for="item in getFilamentListOf(manufacturer)" :key="item.filament_id" :value="item.filament_id">{{ item.filament_name }}</option>
@@ -14,7 +14,7 @@
       </div>
 
       <div class="form-row form-color">
-        <label class="form-label">颜色</label>
+        <label class="form-label">{{ t('color') }}</label>
         <div class="color-field" @click="showColorPicker = true">
           <div class="color-swatch" :style="{ backgroundColor: hextoRGB(trayColor) }"></div>
           <span v-if="!isReadonly" class="icon-edit" ></span>
@@ -22,29 +22,29 @@
       </div>
 
       <div class="form-row form-temperature">
-        <label class="form-label">喷嘴温度</label>
+        <label class="form-label">{{ t('nozzle_temperature') }}</label>
         <div class="temperature-field">
-          最低
+          {{ t('temp_min') }}
           <span>{{ isCustomFilament ? tray?.nozzle_temp_min : getSelectedFilament()?.min_temperature || 0 }}</span>
           °C
         </div>
         <div class="temperature-field">
-          最高
+          {{ t('temp_max') }}
           <span>{{ isCustomFilament ? tray?.nozzle_temp_max : getSelectedFilament()?.max_temperature || 0 }}</span>
           °C
         </div>
       </div>
 
       <div class="form-actions">
-        <van-button class="action-btn" plain type="default" @click="handleReset" :disabled="!tray">重置</van-button>
-        <van-button class="action-btn" type="primary" @click="handleConfirm" :disabled="!(tray && filamentId && filamentId.length > 0)">确认</van-button>
+        <van-button class="action-btn" plain type="default" @click="handleReset" :disabled="!tray">{{ t('reset') }}</van-button>
+        <van-button class="action-btn" type="primary" @click="handleConfirm" :disabled="!(tray && filamentId && filamentId.length > 0)">{{ t('confirm') }}</van-button>
       </div>
     </div>
 
     <van-overlay :show="showColorPicker" @click="showColorPicker = false">
       <div class="color-picker-wrapper">
         <div @click.stop >
-          <span>其他颜色</span>
+          <span>{{ t('other_colors') }}</span>
           <i-material-symbols-close-rounded @click="showColorPicker = false" />
           <div class="color-grids">
             <div
@@ -64,6 +64,7 @@
 
 <script setup lang="ts">
 import { computed, Ref, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { showToast, showConfirmDialog } from 'vant'
 import { PrinterClient } from '../../api/PrinterClient'
@@ -79,6 +80,7 @@ const router = useRouter()
 const client = PrinterClient.getInstance()
 
 const { device } = usePrinterStore()
+const { t } = useI18n()
 const amsId = route.params.ams_id as string
 const trayId = route.params.tray_id as string
 
@@ -160,7 +162,11 @@ const handleReset = async () => {
   if (!tray.value) return
 
   try {
-    await showConfirmDialog({ message: '您确定要清除耗材丝信息吗？' })
+    await showConfirmDialog({ 
+      message: t('confirm_clear_filament'),
+      cancelButtonText: t('cancel'),
+      confirmButtonText: t('confirm'),
+    })
   } catch {
     return
   }
@@ -187,7 +193,7 @@ const handleReset = async () => {
   } catch (error: any) {
     console.error(`[FilamentEditPage] reset failed: ${error.message}`)
     showToast({
-      message: `重置失败：${error.message}`,
+      message: t('reset_failed', { message: error.message }),
       position: 'bottom',
     })
   }
@@ -224,7 +230,7 @@ const handleConfirm = async () => {
   } catch (error: any) {
     console.error(`[FilamentEditPage] save failed: ${error.message}`)
     showToast({
-      message: `保存失败：${error.message}`,
+      message: t('save_failed', { message: error.message }),
       position: 'bottom',
     })
   }

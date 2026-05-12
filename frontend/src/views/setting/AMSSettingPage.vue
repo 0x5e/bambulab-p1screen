@@ -1,27 +1,27 @@
 <template>
-  <BaseSubPage title="AMS 设置">
+  <BaseSubPage :title="t('ams_settings')">
     <div v-if="device">
       <SettingCell
-        title="插入耗材时读取"
-        label="插入耗材后，AMS 会自动读取耗材信息。需要花费大约20秒。"
+        :title="t('ams_tray_read')"
+        :label="t('ams_tray_read_desc')"
         :selected="tray_read_option"
         @click="onChangeUserSetting('tray_read_option', $event)"
       />
       <SettingCell
-        title="开机时读取"
-        label="每次开机时，AMS 将会自动读取其所插入的耗材信息。需要花费大约1分钟。"
+        :title="t('ams_startup_read')"
+        :label="t('ams_startup_read_desc')"
         :selected="startup_read_option"
         @click="onChangeUserSetting('startup_read_option', $event)"
       />
       <SettingCell
-        title="剩余容量估计"
-        label="AMS 将会尝试估算Bambulab官方耗材的剩余容量。"
+        :title="t('ams_remain_estimate')"
+        :label="t('ams_remain_estimate_desc')"
         :selected="calibrate_remain_flag"
         @click="onChangeUserSetting('calibrate_remain_flag', $event)"
       />
       <SettingCell
-        title="AMS自动续料"
-        label="AMS 将在当前耗材用尽后，自动使用与该耗材品牌、类型和颜色完全相同的其他耗材继续打印。"
+        :title="t('ams_auto_switch')"
+        :label="t('ams_auto_switch_desc')"
         :selected="auto_switch_filament"
         @click="onChangePrintOption('auto_switch_filament', $event)"
       />
@@ -31,11 +31,13 @@
 
 <script setup lang="tsx">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { PrinterClient } from '../../api/PrinterClient'
 import { HomeFlagBit } from '../../api/enums'
 import { showToast } from 'vant'
 import { usePrinterStore } from '../../stores/printer'
 
+const { t } = useI18n()
 const client = PrinterClient.getInstance()
 const { device } = usePrinterStore()
 const tray_read_option = ref(device.value?.ams.insert_flag === true)
@@ -61,7 +63,7 @@ const onChangeUserSetting = async (key: string, selected: boolean) => {
     }
     params[key] = selected
     await client.request('print.ams_user_setting', params)
-    showToast({ message: '成功', position: 'bottom'})
+    showToast({ message: t('success'), position: 'bottom'})
     switch(key) {
       case 'tray_read_option':
         device.value.ams.insert_flag = selected
@@ -78,16 +80,16 @@ const onChangeUserSetting = async (key: string, selected: boolean) => {
         break
     }
   } catch (error: any) {
-    showToast({ message: `失败：${error.message}`, position: 'bottom'})
+    showToast({ message: t('failed', { message: error.message }), position: 'bottom'})
   }
 }
 
 const onChangePrintOption = async (key: string, selected: boolean) => {
   try {
     await client.request('print.print_option', { [key]: selected })
-    showToast({ message: '成功', position: 'bottom'})
+    showToast({ message: t('success'), position: 'bottom'})
   } catch (error: any) {
-    showToast({ message: `失败：${error.message}`, position: 'bottom'})
+    showToast({ message: t('failed', { message: error.message }), position: 'bottom'})
   }
 }
 

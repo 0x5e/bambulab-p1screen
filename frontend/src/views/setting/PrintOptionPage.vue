@@ -1,9 +1,9 @@
 <template>
-  <BaseSubPage title="打印选项">
+  <BaseSubPage :title="t('print_options')">
     <SettingCell
       v-if="device"
-      title="丢步自动恢复"
-      label="检测到电机运行异常导致跳过步骤时，尝试自动恢复。"
+      :title="t('auto_recovery')"
+      :label="t('auto_recovery_desc')"
       :selected="auto_recovery"
       @click="onChange"
     />
@@ -12,10 +12,12 @@
 
 <script setup lang="tsx">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { PrinterClient } from '../../api/PrinterClient'
 import { HomeFlagBit } from '../../api/enums'
 import { usePrinterStore } from '../../stores/printer'
 
+const { t } = useI18n()
 const client = PrinterClient.getInstance()
 const { device } = usePrinterStore()
 const auto_recovery = ref(Boolean((device.value?.home_flag ?? 0) & (1 << HomeFlagBit.auto_recovery)))

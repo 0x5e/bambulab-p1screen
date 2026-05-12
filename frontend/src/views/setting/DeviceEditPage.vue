@@ -1,11 +1,11 @@
 <template>
-  <BaseSubPage :title="isEditMode ? '编辑设备' : '添加设备'">
+  <BaseSubPage :title="isEditMode ? t('edit_device') : t('add_device')">
   <div class="device-manage-page">
     <van-cell-group inset>
       <van-field
         v-model.trim="name"
-        label="设备名称"
-        placeholder="设备名称"
+        :label="t('device_name')"
+        :placeholder="t('device_name')"
         input-align="right"
         enterkeyhint="next"
         @keydown.enter.prevent="ipInputRef?.focus()"
@@ -13,8 +13,8 @@
       <van-field
         ref="ipInputRef"
         v-model.trim="ip"
-        label="IP 地址"
-        placeholder="IP 地址"
+        :label="t('ip_address')"
+        :placeholder="t('ip_address')"
         input-align="right"
         enterkeyhint="next"
         @keydown.enter.prevent="isEditMode ? codeInputRef?.focus() : serialInputRef?.focus()"
@@ -23,8 +23,8 @@
         ref="serialInputRef"
         v-model.trim="serial"
         :readonly="isEditMode"
-        label="序列号"
-        placeholder="序列号"
+        :label="t('serial_number')"
+        :placeholder="t('serial_number')"
         input-align="right"
         enterkeyhint="next"
         @keydown.enter.prevent="codeInputRef?.focus()"
@@ -32,8 +32,8 @@
       <van-field
         ref="codeInputRef"
         v-model.trim="code"
-        label="配对码"
-        placeholder="配对码"
+        :label="t('pairing_code')"
+        :placeholder="t('pairing_code')"
         input-align="right"
         enterkeyhint="done"
         @keydown.enter.prevent="codeInputRef?.blur()"
@@ -42,12 +42,12 @@
 
     <van-cell-group inset>
       <van-cell
-        title="保存"
+        :title="t('save')"
         class="save-btn"
         :clickable="canSave"
         @click="handleSave"
       />
-      <van-cell v-if="isEditMode" title="删除" class="delete-btn" @click="handleDelete" />
+      <van-cell v-if="isEditMode" :title="t('delete')" class="delete-btn" @click="handleDelete" />
     </van-cell-group>
   </div>
   </BaseSubPage>
@@ -55,11 +55,13 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { showToast } from 'vant'
 import { useRoute, useRouter } from 'vue-router'
 import { PrinterClient } from '../../api/PrinterClient'
 import { addDevice, getDevices, removeDevice, getCurrentDevice,setCurrentDevice } from '../../utils/device'
 
+const { t } = useI18n()
 const client = PrinterClient.getInstance()
 const route = useRoute()
 const router = useRouter()
@@ -82,7 +84,7 @@ const handleSave = () => {
   client.connect(ip.value, serial.value, code.value)
   router.back()
   showToast({
-    message: '保存成功',
+    message: t('save_success'),
     position: 'bottom',
   })
 }
@@ -98,7 +100,7 @@ const handleDelete = () => {
   }
   router.back()
   showToast({
-    message: '删除成功',
+    message: t('delete_success'),
     position: 'bottom',
   })
 }

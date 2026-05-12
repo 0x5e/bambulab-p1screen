@@ -40,7 +40,7 @@
         :trayPrev="Number(device?.ams.tray_pre) ?? -1"
         :popoverAction="handleTrayAction"
       />
-      <span class="ext-name" >外挂料盘</span>
+      <span class="ext-name" >{{ t('external_spool') }}</span>
     </div>
     <div class="setting">
       <van-popover
@@ -63,6 +63,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { PopoverAction } from 'vant'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
@@ -73,13 +74,14 @@ import { humIcon } from '../../utils/icon'
 import { usePrinterStore } from '../../stores/printer'
 
 const router = useRouter()
+const { t } = useI18n()
 const client = PrinterClient.getInstance()
 
 const { device } = usePrinterStore()
 const currentAmsId = ref<string | undefined>(device.value?.ams.ams[0].id)
 const currentAms = computed(() => device.value?.ams.ams.filter(ams => ams.id === currentAmsId.value)[0])
 const showSettingsPopover = ref(false)
-const settingsActions: PopoverAction[] = [{ type: 'auto-refill', text: '自动续料' }]
+const settingsActions: PopoverAction[] = [{ type: 'auto-refill', text: t('auto_refill') }]
 
 watch(device, () => {
   if (!currentAmsId.value && device.value && device.value.ams.ams.length > 0) {

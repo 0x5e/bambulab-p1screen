@@ -1,8 +1,9 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { Button, Checkbox, Slider, Progress, Popup, Popover, Overlay, Dialog, Cell, CellGroup, Empty, Tab, Tabs, Switch, Stepper, Field } from 'vant'
+import { ActionSheet, Button, Checkbox, Slider, Progress, Popup, Popover, Overlay, Dialog, Cell, CellGroup, Empty, Tab, Tabs, Switch, Stepper, Field } from 'vant'
 import App from './App.vue'
 import { PrinterClient } from './api/PrinterClient'
+import { i18n } from './i18n'
 import { routes } from './router/routes'
 import { getCurrentDevice } from './utils/device'
 import 'vant/lib/index.css'
@@ -35,6 +36,8 @@ const router = createRouter({
 
 createApp(App)
   .use(router)
+  .use(i18n)
+  .use(ActionSheet)
   .use(Button)
   .use(Slider)
   .use(Progress)

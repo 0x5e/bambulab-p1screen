@@ -1,8 +1,8 @@
 <template>
-  <BaseSubPage title="运动：XYZ">
+  <BaseSubPage :title="t('motion_xyz')">
     <div class="motion-card">
       <div>
-        <span>工具头</span>
+        <span>{{ t('toolhead') }}</span>
         <div class="motion-xy">
           <div class="axis-dial">
             <div class="axis-ring">
@@ -34,7 +34,7 @@
         </div>
       </div>
       <div>
-        <span>热床</span>
+        <span>{{ t('heatbed') }}</span>
         <div class="motion-z">
           <van-button
             class="heatbed-btn"
@@ -80,10 +80,12 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { PrinterClient } from '../../api/PrinterClient'
 import bedUpImage from '../../assets/images/monitor_bed_up.svg'
 import bedDownImage from '../../assets/images/monitor_bed_down.svg'
 
+const { t } = useI18n()
 const client = PrinterClient.getInstance()
 
 const handleMove = (axis: 'home' | 'x' | 'y' | 'z', step: -10 | -1 | 0| 1 | 10) => {

@@ -1,7 +1,7 @@
 <template>
   <BasePopup
     :show="show"
-    title="打印速度"
+    :title="t('print_speed')"
     @update:show="emit('update:show', $event)"
   >
     <div class="print-speed-buttons">
@@ -21,7 +21,10 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { PrintSpeedLevel } from '../api/enums'
+
+const { t } = useI18n()
 
 type SpeedButton = {
   label: string
@@ -29,16 +32,16 @@ type SpeedButton = {
 }
 
 const buttons: SpeedButton[] = [{
-  label: '狂暴模式（166%）',
+  label: t('speed_mode_ludicrous'),
   value: PrintSpeedLevel.Ludicrous,
 }, {
-  label: '运动模式（124%）',
+  label: t('speed_mode_sport'),
   value: PrintSpeedLevel.Sport,
 }, {
-  label: '标准模式（100%）',
+  label: t('speed_mode_standard'),
   value: PrintSpeedLevel.Standard,
 }, {
-  label: '静音模式（50%）',
+  label: t('speed_mode_silent'),
   value: PrintSpeedLevel.Silent,
 }]
 

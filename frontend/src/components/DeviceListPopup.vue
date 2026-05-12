@@ -1,7 +1,7 @@
 <template>
   <BasePopup
     :show="show"
-    title="设备列表"
+    :title="t('device_list')"
     @update:show="emit('update:show', $event)"
   >
     <template #header-right>
@@ -12,7 +12,7 @@
         :disabled="devices.length === 0"
         @click="toggleMode"
       >
-        {{ isEditMode ? '取消' : '编辑' }}
+        {{ isEditMode ? t('cancel') : t('edit') }}
       </van-button>
     </template>
 
@@ -33,7 +33,7 @@
       </van-cell-group>
 
       <van-cell-group inset>
-        <van-cell title="添加设备" class="add-device-cell device-cell" @click="router.push({ name: ROUTE_NAME.SETTING_DEVICE_ADD })" />
+        <van-cell :title="t('add_device')" class="add-device-cell device-cell" @click="router.push({ name: ROUTE_NAME.SETTING_DEVICE_ADD })" />
       </van-cell-group>
     </div>
   </BasePopup>
@@ -41,12 +41,14 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { getCurrentDevice, setCurrentDevice, getDevices } from '../utils/device'
 import { PrinterClient } from '../api/PrinterClient'
 import { showToast } from 'vant'
 import { ROUTE_NAME } from '../router/routes'
 
+const { t } = useI18n()
 const client = PrinterClient.getInstance()
 
 const props = defineProps<{
@@ -83,7 +85,7 @@ const handleCellClick = (serial: string) => {
       client.connect(current.ip, current.serial, current.code)
     }
     showToast({
-      message: '切换成功',
+      message: t('switch_success'),
       position: 'bottom',
     })
   }
