@@ -63,13 +63,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, Ref, ref, watch } from 'vue'
+import { computed, Ref, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { showToast, showConfirmDialog } from 'vant'
-import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
+import { PrinterClient } from '../../api/PrinterClient'
 import filamentList from '../../assets/filament.json'
 import filamentColorList from '../../assets/colors.json'
 import { colord } from 'colord'
+import { usePrinterStore } from '../../stores/printer'
 
 const manufacturerList = [...new Set(filamentList.map(item => item.manufacturer))]
 
@@ -77,7 +78,7 @@ const route = useRoute()
 const router = useRouter()
 const client = PrinterClient.getInstance()
 
-const device = ref(client.device.print)
+const { device } = usePrinterStore()
 const amsId = route.params.ams_id as string
 const trayId = route.params.tray_id as string
 
@@ -121,22 +122,13 @@ const hextoRGB = (color: string) => {
   return parsedColor.toRgbString() // for compatible
 }
 
-onMounted(() => {
-  client.on(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-onUnmounted(() => {
-  client.off(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-const onPushStatus = () => {
-  device.value = client.device.print
+watch(device, () => {
   if (!filamentId.value) {
     currentFilament.value = getCurrentFilament()
     manufacturer.value = currentFilament.value?.manufacturer || 'Custom'
     filamentId.value = tray.value?.tray_info_idx
   }
-}
+}, { immediate: true })
 
 watch(
   tray,

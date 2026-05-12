@@ -62,38 +62,30 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { PopoverAction } from 'vant'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
-import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
+import { PrinterClient } from '../../api/PrinterClient'
 import { DeviceTray } from '../../api/device'
 import { amsPrefix } from '../../utils/ams'
 import { humIcon } from '../../utils/icon'
+import { usePrinterStore } from '../../stores/printer'
 
 const router = useRouter()
 const client = PrinterClient.getInstance()
 
-const device = ref(client.device.print)
+const { device } = usePrinterStore()
 const currentAmsId = ref<string | undefined>(device.value?.ams.ams[0].id)
 const currentAms = computed(() => device.value?.ams.ams.filter(ams => ams.id === currentAmsId.value)[0])
 const showSettingsPopover = ref(false)
 const settingsActions: PopoverAction[] = [{ type: 'auto-refill', text: '自动续料' }]
 
-onMounted(() => {
-  client.on(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-onUnmounted(() => {
-  client.off(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-const onPushStatus = () => {
-  device.value = client.device.print
+watch(device, () => {
   if (!currentAmsId.value && device.value && device.value.ams.ams.length > 0) {
     currentAmsId.value = device.value.ams.ams[0].id
   }
-}
+}, { immediate: true })
 
 const handleTrayAction = (amsId: number, tray: DeviceTray, action: PopoverAction) => {
   console.log(`[Tray] type=${action.type}, amsId=${amsId}, tray=${JSON.stringify(tray)}`)

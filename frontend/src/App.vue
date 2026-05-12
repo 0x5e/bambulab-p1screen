@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import type { Component } from 'vue'
 import IconHome from '~icons/material-symbols/home-rounded'
@@ -32,6 +32,7 @@ import IconTune from '~icons/material-symbols/tune-rounded'
 import IconDatabase from '~icons/material-symbols/database'
 import IconSettings from '~icons/material-symbols/settings-rounded'
 import IconSMS from '~icons/material-symbols/sms-rounded'
+import { bindPrinterClient, unbindPrinterClient } from './stores/printer'
 
 const route = useRoute()
 
@@ -52,6 +53,14 @@ const navItems: NavItem[] = [
 const activeNavKey = computed(() => {
   const firstSegment = route.path.split('/')[1]
   return firstSegment ?? ''
+})
+
+onMounted(() => {
+  bindPrinterClient()
+})
+
+onUnmounted(() => {
+  unbindPrinterClient()
 })
 </script>
 

@@ -76,31 +76,26 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref} from 'vue'
+import { ref, watch } from 'vue'
 import { FanType } from '../api/enums'
-import { PrinterClient, PrinterEvent } from '../api/PrinterClient'
+import { PrinterClient } from '../api/PrinterClient'
+import { usePrinterStore } from '../stores/printer'
 import fanOnIcon from '../assets/images/monitor_fan_on.svg'
 import fanOffIcon from '../assets/images/monitor_fan_off.svg'
 
 const client = PrinterClient.getInstance()
-const device = ref(client.device.print)
-
-onMounted(() => {
-  client.on(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-onUnmounted(() => {
-  client.off(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
+const { device } = usePrinterStore()
 
 const getFanSpeedPercent = (type: FanType) => Math.round(client.getFanSpeed(type) / 255 * 10) * 10
+const fanPartSpeed = ref(getFanSpeedPercent(FanType.Part))
+const fanAuxSpeed = ref(getFanSpeedPercent(FanType.Aux))
+const fanChamberSpeed = ref(getFanSpeedPercent(FanType.Chamber))
 
-const onPushStatus = () => {
-  device.value = client.device.print
+watch(device, () => {
   fanPartSpeed.value = getFanSpeedPercent(FanType.Part)
   fanAuxSpeed.value = getFanSpeedPercent(FanType.Aux)
   fanChamberSpeed.value = getFanSpeedPercent(FanType.Chamber)
-}
+}, { immediate: true })
 
 defineProps<{
   show: boolean
@@ -109,10 +104,6 @@ defineProps<{
 const emit = defineEmits<{
   (event: 'update:show', value: boolean): void
 }>()
-
-const fanPartSpeed = ref(getFanSpeedPercent(FanType.Part))
-const fanAuxSpeed = ref(getFanSpeedPercent(FanType.Aux))
-const fanChamberSpeed = ref(getFanSpeedPercent(FanType.Chamber))
 
 const onSwitchChange = (type: FanType, checked: boolean) => {
   const percentage = checked ? 100 : 0

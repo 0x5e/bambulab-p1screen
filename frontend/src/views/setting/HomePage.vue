@@ -51,17 +51,17 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
 import { getCurrentDevice } from '../../utils/device'
-import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
+import { PrinterClient } from '../../api/PrinterClient'
+import { usePrinterStore } from '../../stores/printer'
 
 const router = useRouter()
 
 const client = PrinterClient.getInstance()
-const device = ref(client.device.print)
-const modules = ref(client.device.module)
+const { device, modules } = usePrinterStore()
 
 const getStatusLabel = () => {
   if (client.lastError?.message === 'Connection refused: Not authorized') return '认证失败'
@@ -80,16 +80,6 @@ const deviceModule = computed(() => modules.value?.find(item => item.name === 'o
 const deviceItem = ref(getCurrentDevice())
 const showDeviceListPopup = ref(false)
 
-onMounted(() => {
-  client.on(PrinterEvent.MQTT_STATE_CHANGE, onPushStatus)
-  client.on(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-onUnmounted(() => {
-  client.off(PrinterEvent.MQTT_STATE_CHANGE, onPushStatus)
-  client.off(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
 watch(
   () => showDeviceListPopup.value,
   (visible, prevVisible) => {
@@ -99,12 +89,12 @@ watch(
   }
 )
 
-const onPushStatus = () => {
-  device.value = client.device.print
-  modules.value = client.device.module
+const updateConnectionStatus = () => {
   isConnected.value = client.mqttClient?.connected || false
   statusLabel.value = getStatusLabel()
 }
+
+watch([device, modules], updateConnectionStatus, { immediate: true })
 
 const handleManageDevice = () => {
   if (!getCurrentDevice()) {
@@ -118,6 +108,7 @@ const handleReconnect = () => {
   const storedDevice = getCurrentDevice()
   if (!storedDevice) return
   client.connect(storedDevice.ip, storedDevice.serial, storedDevice.code)
+  updateConnectionStatus()
 }
 
 </script>

@@ -89,17 +89,17 @@
   <!-- TODO: Error Popup -->
 </template>
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { computed, ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { showToast } from 'vant'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
 import humanizeDuration from 'humanize-duration'
 import { unzipSync } from 'fflate'
-import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
+import { PrinterClient } from '../../api/PrinterClient'
 import { GcodeState, CurrentStage } from '../../api/enums'
-import type { Project } from '../../api/project'
-import { getCurrentProject, saveProject } from '../../utils/project'
+import { saveProject } from '../../utils/project'
 import { hmsIcon, wifiSignalIcon } from '../../utils/icon'
+import { usePrinterStore } from '../../stores/printer'
 
 import fileIcon from '../../assets/images/benchy.png'
 import skipIcon from '../../assets/images/print_control_partskip.svg'
@@ -152,31 +152,20 @@ const shortEnglishHumanizer = humanizeDuration.humanizer({
 
 const router = useRouter()
 const client = PrinterClient.getInstance()
+const { device, project } = usePrinterStore()
 
 const taskCardRef = ref<HTMLElement | null>(null)
 const taskCardWidth = ref(0)
 const wifiIcon = ref(wifiSignalIcon())
 const showDeviceListPopup = ref(false)
-const device = ref(client.device.print)
-const project = ref(getCurrentProject())
 
 onMounted(() => {
   window.addEventListener('resize', handleResize)
   handleResize()
-  if (device.value) {
-    loadProjectThumbnail()
-  }
-
-  client.on(PrinterEvent.MQTT_STATE_CHANGE, onPushStatus)
-  client.on(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-  client.on(PrinterEvent.PRINT_PROJECT_FILE, onProjectFile)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
-  client.off(PrinterEvent.MQTT_STATE_CHANGE, onPushStatus)
-  client.off(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-  client.off(PrinterEvent.PRINT_PROJECT_FILE, onProjectFile)
 })
 
 const handleResize = () => {
@@ -185,23 +174,16 @@ const handleResize = () => {
   }
 }
 
-const onPushStatus = () => {
-  device.value = client.device.print
-  wifiIcon.value = wifiSignalIcon()
-  nozzleThumbnail.value = getNozzleThumbnail()
-  if (!project.value) {
-    project.value = getCurrentProject()
-    loadProjectThumbnail()
+const getNozzleThumbnail = () => {
+  if (!device.value) return nozzleNormalThumbnail
+  if (device.value.stg_cur === CurrentStage.PRINTING) return nozzleOcclusionThumbnail
+  if (device.value.nozzle_temper > 50) {
+    return (device.value.nozzle_target_temper === 0) ? nozzleCoolingThumbnail : nozzleHeatingThumbnail
   }
-
-  nextTick(() => handleResize())
+  // TODO: purge
+  return nozzleNormalThumbnail
 }
-
-const onProjectFile = (projectData: Project) => {
-  saveProject(projectData)
-  project.value = projectData
-  loadProjectThumbnail()
-}
+const nozzleThumbnail = ref(getNozzleThumbnail())
 
 const loadProjectThumbnail = async () => {
   if (!project.value) return
@@ -227,6 +209,16 @@ const loadProjectThumbnail = async () => {
 
   project.value = Object.assign({}, project.value)
 }
+
+watch(device, () => {
+  wifiIcon.value = wifiSignalIcon()
+  nozzleThumbnail.value = getNozzleThumbnail()
+  nextTick(() => handleResize())
+}, { immediate: true })
+
+watch(project, () => {
+  loadProjectThumbnail()
+}, { immediate: true })
 
 const isRecording = computed(() => project.value?.timelapse)
 const getTaskThumbnail = computed(() => project.value?.thumbnail_url)
@@ -278,17 +270,6 @@ const getPrintSubStateLabel = () => {
       return ''
   }
 }
-
-const getNozzleThumbnail = () => {
-  if (!device.value) return nozzleNormalThumbnail
-  if (device.value.stg_cur === CurrentStage.PRINTING) return nozzleOcclusionThumbnail
-  if (device.value.nozzle_temper > 50) {
-    return (device.value.nozzle_target_temper === 0) ? nozzleCoolingThumbnail : nozzleHeatingThumbnail
-  }
-  // TODO: purge
-  return nozzleNormalThumbnail
-}
-const nozzleThumbnail = ref(getNozzleThumbnail())
 
 const getPrintInfo = computed(() => {
   if ([GcodeState.Finish, GcodeState.Failed].includes(device.value?.gcode_state ?? GcodeState.Unknown)) return ''

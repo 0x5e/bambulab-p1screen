@@ -30,33 +30,25 @@
 </template>
 
 <script setup lang="tsx">
-import { onMounted, onUnmounted, ref } from 'vue'
-import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
+import { ref, watch } from 'vue'
+import { PrinterClient } from '../../api/PrinterClient'
 import { HomeFlagBit } from '../../api/enums'
 import { showToast } from 'vant'
+import { usePrinterStore } from '../../stores/printer'
 
 const client = PrinterClient.getInstance()
-const device = ref(client.device.print)
+const { device } = usePrinterStore()
 const tray_read_option = ref(device.value?.ams.insert_flag === true)
 const startup_read_option = ref(device.value?.ams.power_on_flag === true)
 const calibrate_remain_flag = ref(Boolean((device.value?.home_flag ?? 0) & (1 << HomeFlagBit.calibrate_remain_flag)))
 const auto_switch_filament = ref(Boolean((device.value?.home_flag ?? 0) & (1 << HomeFlagBit.auto_switch_filament)))
 
-onMounted(() => {
-  client.on(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-onUnmounted(() => {
-  client.off(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-const onPushStatus = () => {
-  device.value = client.device.print
+watch(device, () => {
   tray_read_option.value = device.value?.ams.insert_flag === true
   startup_read_option.value = device.value?.ams.power_on_flag === true
   calibrate_remain_flag.value = Boolean((device.value?.home_flag ?? 0) & (1 << HomeFlagBit.calibrate_remain_flag))
   auto_switch_filament.value = Boolean((device.value?.home_flag ?? 0) & (1 << HomeFlagBit.auto_switch_filament))
-}
+}, { immediate: true })
 
 const onChangeUserSetting = async (key: string, selected: boolean) => {
   if (!device.value) return

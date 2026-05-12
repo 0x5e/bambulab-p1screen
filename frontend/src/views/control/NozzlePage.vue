@@ -1,6 +1,6 @@
 <template>
   <BaseSubPage title="喷嘴和挤出机">
-    <div v-if="device" class="nozzle-container">
+    <div class="nozzle-container">
       <img src="../../assets/images/extruder_normal_23.png" />
       <div>
         <label class="extruder-label">挤出机</label>
@@ -19,7 +19,7 @@
         <div class="nozzle-types">
           <label class="nozzle-type">标准</label>
           <label class="nozzle-type">{{ nozzleTypeName() }}</label>
-          <label class="nozzle-type">{{ device?.nozzle_diameter }}mm</label>
+          <label class="nozzle-type">{{ device?.nozzle_diameter || 0 }}mm</label>
           <span class="nozzle-edit" v-on:click="editNozzle" hidden></span>
         </div>
       </div>
@@ -35,28 +35,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { ref } from 'vue'
 import { showDialog, showToast } from 'vant'
-import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
+import { PrinterClient } from '../../api/PrinterClient'
 import { TemperatureType } from '../../api/enums'
+import { usePrinterStore } from '../../stores/printer'
 
 const client = PrinterClient.getInstance()
-const device = ref(client.device.print)
+const { device } = usePrinterStore()
 const showTempPopup = ref(false)
 const nozzleTypeName = () => {
   return { stainless_steel: '不锈钢', hardened_steel: '硬化钢', '': '未知'}[device.value?.nozzle_type || '']
-}
-
-onMounted(() => {
-  client.on(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-onUnmounted(() => {
-  client.off(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-const onPushStatus = () => {
-  device.value = client.device.print
 }
 
 const handleMove = (axis: 'e', step: -10 | -1 | 0| 1 | 10) => {

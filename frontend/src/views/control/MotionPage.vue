@@ -80,25 +80,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
-import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
+import { PrinterClient } from '../../api/PrinterClient'
 import bedUpImage from '../../assets/images/monitor_bed_up.svg'
 import bedDownImage from '../../assets/images/monitor_bed_down.svg'
 
 const client = PrinterClient.getInstance()
-const device = ref(client.device.print)
-
-onMounted(() => {
-  client.on(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-onUnmounted(() => {
-  client.off(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-const onPushStatus = () => {
-  device.value = client.device.print
-}
 
 const handleMove = (axis: 'home' | 'x' | 'y' | 'z', step: -10 | -1 | 0| 1 | 10) => {
   console.log(`[XYMotion] move axis=${axis}, step=${step}`)

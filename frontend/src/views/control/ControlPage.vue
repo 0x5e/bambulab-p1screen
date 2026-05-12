@@ -101,13 +101,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
 import { showDialog } from 'vant'
 import { FanType, GcodeState, LightType, PrintSpeedLevel, TemperatureType } from '../../api/enums'
-import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
+import { PrinterClient } from '../../api/PrinterClient'
 import { lightIcon } from '../../utils/icon'
+import { usePrinterStore } from '../../stores/printer'
 
 import fanOffIcon from '../../assets/images/monitor_fan_off.svg'
 import nozzleOffIcon from '../../assets/images/monitor_nozzle_temp.svg'
@@ -115,24 +116,13 @@ import bedOffIcon from '../../assets/images/monitor_bed_temp.svg'
 
 const router = useRouter()
 const client = PrinterClient.getInstance()
-const device = ref(client.device.print)
+const { device } = usePrinterStore()
 const lightState = computed(() => device.value?.lights_report?.find(item => item.node === LightType.Chamber)?.mode === 'on')
 const lightSwitchValue = ref(lightState.value)
 
-onMounted(() => {
-  client.on(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-onUnmounted(() => {
-  client.off(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
-})
-
-const onPushStatus = (params: any) => {
-  device.value = client.device.print
-  if (params?.lights_report) {
-    lightSwitchValue.value = lightState.value
-  }
-}
+watch(() => device.value?.lights_report, () => {
+  lightSwitchValue.value = lightState.value
+}, { immediate: true })
 
 const showTempPopup = ref(false)
 const showFanSpeedPopup = ref(false)
