@@ -9,7 +9,7 @@
     </div>
     <div class="card info-cards">
       <div class="nozzle-temp" @click="router.push({ name: ROUTE_NAME.CONTROL_NOZZLE })">
-        <img class="temp-icon" :src="nozzleHeating ? nozzleOnIcon : nozzleOffIcon" />
+        <img class="temp-icon" :src="nozzleOffIcon" />
         <div>
           <span class="temp-value">{{ nozzleTemp }}</span>
           <span class="temp-unit">°C</span>
@@ -22,11 +22,11 @@
       </div>
       -->
       <div class="wifi-signal" @click="router.push({ name: ROUTE_NAME.SETTING_HOME })">
-        <img :src="wifiSignalIcon"/>
+        <img :src="wifiIcon"/>
         <div>Wi-Fi</div>
       </div>
       <div class="hms" @click="router.push({ name: ROUTE_NAME.MESSAGE })">
-        <img :src="device && device.hms.length > 0 ? hmsErrorIcon : hmsOkIcon"/>
+        <img :src="hmsIcon(!(device && device.hms.length > 0))"/>
         <div :style="{ color: device && device.hms.length > 0 ? 'orange' : undefined }">
           {{ device && device.hms.length > 0 ? device.hms.length : '助手' }}
         </div>
@@ -45,18 +45,18 @@
     <div class="card printer-card">
       <div class="printer-content">
         <img :src="p1sThumbnail" />
-        <span class="heatbed-temp">
-          <img class="temp-icon" :src="bedHeating ? bedOnIcon : bedOffIcon" />
+        <span class="heatbed-temp" :style="{ color: (device.nozzle_target_temper - device.nozzle_temper > 2) ? 'orange' : undefined }">
+          <img class="temp-icon" :src="bedOffIcon" />
           {{ heatbedTemp }}
           <span class="temp-unit">°C</span>
         </span>
-        <span class="wifi-signal"><img :src="wifiSignalIcon"/></span>
+        <span class="wifi-signal"><img :src="wifiIcon"/></span>
         <DeviceListPopup v-model:show="showDeviceListPopup" />
       </div>
       <div class="nozzle-content">
         <img :src="nozzleThumbnail" />
-        <span class="nozzle-temp">
-          <img class="temp-icon" :src="nozzleHeating ? nozzleOnIcon : nozzleOffIcon" />
+        <span class="nozzle-temp" :style="{ color: (device.nozzle_target_temper - device.nozzle_temper > 2) ? 'orange' : undefined }" >
+          <img class="temp-icon" :src="nozzleOffIcon" />
           {{ nozzleTemp }}
           <span class="temp-unit">°C</span>
         </span>
@@ -80,8 +80,8 @@
     </div>
     <ControlButton
       class="card hms"
-      :icon="device.hms.length > 0 ? hmsErrorIcon : hmsOkIcon"
-      :label="device.hms.length > 0 ? String(device.hms.length) : ''"
+      :icon="hmsIcon(!(device && device.hms.length > 0))"
+      :label="device && device.hms.length > 0 ? String(device.hms.length) : ''"
       font-size="10px"
       @click="router.push({ name: ROUTE_NAME.MESSAGE })"
       />
@@ -99,6 +99,7 @@ import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
 import { GcodeState, CurrentStage } from '../../api/enums'
 import type { Project } from '../../api/project'
 import { getCurrentProject, saveProject } from '../../utils/project'
+import { hmsIcon, wifiSignalIcon } from '../../utils/icon'
 
 import fileIcon from '../../assets/images/benchy.png'
 import skipIcon from '../../assets/images/print_control_partskip.svg'
@@ -108,21 +109,13 @@ import stopIcon from '../../assets/images/print_control_stop.svg'
 import loadingThumbnail from '../../assets/images/dev_hms_diag_loading_dark.svg'
 import brokenThumbnail from '../../assets/images/monitor_brokenimg.png'
 import p1sThumbnail from '../../assets/images/object_22.png'
-import signalNoIcon from '../../assets/images/monitor_signal_no.svg'
-import signalWeakIcon from '../../assets/images/monitor_signal_weak.svg'
-import signalMiddleIcon from '../../assets/images/monitor_signal_middle.svg'
-import signalStrongIcon from '../../assets/images/monitor_signal_strong.svg'
-import nozzleOnIcon from '../../assets/images/monitor_nozzle_temp_active.svg'
 import nozzleOffIcon from '../../assets/images/monitor_nozzle_temp.svg'
-import bedOnIcon from '../../assets/images/monitor_bed_temp_active.svg'
 import bedOffIcon from '../../assets/images/monitor_bed_temp.svg'
 import nozzleNormalThumbnail from '../../assets/images/indicator_nozzle_23.png'
 import nozzleHeatingThumbnail from '../../assets/images/indicator_heat_nozzle_23.png'
 import nozzleCoolingThumbnail from '../../assets/images/indicator_nozzle_cooling_23.png'
 import nozzleOcclusionThumbnail from '../../assets/images/indicator_occlusion_filament_23.png'
 // import nozzlePurgeThumbnail from '../../assets/images/indicator_purge_filament_23.png'
-import hmsOkIcon from '../../assets/images/hms_ok.png'
-import hmsErrorIcon from '../../assets/images/hms_error.png'
 
 const getRandomHint = () => {
   const hints = [
@@ -132,6 +125,8 @@ const getRandomHint = () => {
     '状态满分，准备开干！',
     '新的一天，新的创造。',
     '磨刀不误砍柴工',
+    '我想要，我得到！',
+    '嗨，今天做点啥？',
   ]
   return hints[Math.floor(Math.random() * hints.length)]
 }
@@ -158,24 +153,9 @@ const shortEnglishHumanizer = humanizeDuration.humanizer({
 const router = useRouter()
 const client = PrinterClient.getInstance()
 
-const getWifiSignalIcon = () => {
-  if (!client.mqttClient?.connected) {
-    return signalNoIcon
-  }
-
-  const percent = client.getWifiSignalPercentage()
-  if (percent >= 75) {
-    return signalStrongIcon
-  } else if (percent >= 50) {
-    return signalMiddleIcon
-  } else {
-    return signalWeakIcon
-  }
-}
-
 const taskCardRef = ref<HTMLElement | null>(null)
 const taskCardWidth = ref(0)
-const wifiSignalIcon = ref(getWifiSignalIcon())
+const wifiIcon = ref(wifiSignalIcon())
 const showDeviceListPopup = ref(false)
 const device = ref(client.device.print)
 const project = ref(getCurrentProject())
@@ -207,7 +187,7 @@ const handleResize = () => {
 
 const onPushStatus = () => {
   device.value = client.device.print
-  wifiSignalIcon.value = getWifiSignalIcon()
+  wifiIcon.value = wifiSignalIcon()
   nozzleThumbnail.value = getNozzleThumbnail()
   if (!project.value) {
     project.value = getCurrentProject()
@@ -252,10 +232,7 @@ const isRecording = computed(() => project.value?.timelapse)
 const getTaskThumbnail = computed(() => project.value?.thumbnail_url)
 const taskName = computed(() => device.value?.subtask_name || '')
 
-const nozzleHeating = computed(() => device.value && (device.value.nozzle_target_temper - 2 > device.value.nozzle_temper))
 const nozzleTemp = computed(() => Math.floor(device.value?.nozzle_temper ?? 0))
-
-const bedHeating = computed(() => device.value && (device.value.bed_target_temper - 2 > device.value.bed_temper))
 const heatbedTemp = computed(() => Math.floor(device.value?.bed_temper ?? 0))
 
 const getPrintPercent = computed(() => {
@@ -386,7 +363,7 @@ const handleStop = () => {
   gap: 20px;
 }
 .homepage-idle > .files > img {
-  height: 60%;
+  height: 50%;
 }
 .info-cards {
   align-items: center;
@@ -499,8 +476,7 @@ const handleStop = () => {
 }
 
 .printer-card .temp-unit {
-  font-size: 10px;
-  padding-left: 4px;
+  font-size: 12px;
   color: var(--van-text-color-2);
 }
 
@@ -509,6 +485,7 @@ const handleStop = () => {
   position: relative;
   width: 16px;
   height: 16px;
+  margin-right: 2px;
 }
 
 .printer-content > img {

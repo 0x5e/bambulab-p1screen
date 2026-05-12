@@ -7,7 +7,7 @@
           <img :src="fanOffIcon" />
         </div>
         <div class="card-title">风扇</div>
-        <div class="card-value">{{ fanStatusText }}</div>
+        <div class="card-label">{{ fanStatusText }}</div>
         <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
 
@@ -17,7 +17,7 @@
           <!-- <img src="../../assets/images/monitor_speed.svg" /> -->
         </div>
         <div class="card-title">速度</div>
-        <div class="card-value">{{ speedText }}</div>
+        <div class="card-label">{{ speedText }}</div>
         <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
 
@@ -26,7 +26,7 @@
           <i-material-symbols-open-with-rounded />
         </div>
         <div class="card-title">运动</div>
-        <div class="card-value">XYZ</div>
+        <div class="card-label">XYZ</div>
         <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
 
@@ -40,7 +40,14 @@
         </div>
         <div class="nozzle-temp">
           <img class="nozzle-image" src="../../assets/images/extruder_normal_23.png" />
-          <span>{{ nozzleTempText }}</span>
+          <div class="card-label">
+            <div v-if="device && device?.nozzle_target_temper - device?.nozzle_temper > 2" :style="{ color: 'orange' }">
+              <span class="current-temp">{{ Math.floor(device?.nozzle_temper ?? 0) }}°C</span>
+              <i-material-symbols-arrow-upward-rounded class="temp-arrow" />
+            </div>
+            <span v-else class="current-temp">{{ Math.floor(device?.nozzle_temper ?? 0) }}°C</span>
+            /{{ Math.floor(Number(device?.nozzle_target_temper ?? '0')) }}°C
+          </div>
         </div>
       </div>
 
@@ -49,7 +56,14 @@
           <img :src="bedOffIcon" />
         </div>
         <div class="card-title">热床</div>
-        <div class="card-value">{{ bedTempText }}</div>
+        <div class="card-label">
+          <div v-if="device && device?.bed_target_temper - device?.bed_temper > 2" :style="{ color: 'orange' }">
+            <span class="current-temp">{{ Math.floor(device?.bed_temper ?? 0) }}°C</span>
+            <i-material-symbols-arrow-upward-rounded class="temp-arrow" />
+          </div>
+          <span v-else class="current-temp">{{ Math.floor(device?.bed_temper ?? 0) }}°C</span>
+          /{{ Math.floor(Number(device?.bed_target_temper ?? '0')) }}°C
+        </div>
         <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
 
@@ -57,7 +71,7 @@
     <div class="card light-card">
       <div class="light-content">
         <div class="light-left">
-          <img class="lightbulb" :src="lightSwitchValue ? lightOnIcon : lightOffIcon" />
+          <img class="lightbulb" :src="lightIcon(lightSwitchValue)" />
           <span>照明</span>
         </div>
         <van-switch
@@ -93,12 +107,11 @@ import { ROUTE_NAME } from '../../router/routes'
 import { showDialog } from 'vant'
 import { FanType, GcodeState, LightType, PrintSpeedLevel, TemperatureType } from '../../api/enums'
 import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
+import { lightIcon } from '../../utils/icon'
 
 import fanOffIcon from '../../assets/images/monitor_fan_off.svg'
 import nozzleOffIcon from '../../assets/images/monitor_nozzle_temp.svg'
 import bedOffIcon from '../../assets/images/monitor_bed_temp.svg'
-import lightOnIcon from '../../assets/images/monitor_lamp_on.svg'
-import lightOffIcon from '../../assets/images/monitor_lamp_off.svg'
 
 const router = useRouter()
 const client = PrinterClient.getInstance()
@@ -174,8 +187,6 @@ const fanStatusText = computed(() => {
   return count === 0 ? '无风扇开启' : `${count}风扇开启`
 })
 
-const nozzleTempText = computed(() => device.value ? `${Math.floor(device.value.nozzle_temper ?? 0)}°C/${Math.floor(device.value.nozzle_target_temper ?? 0)}°C` : '')
-const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed_temper ?? 0)}°C/${Math.floor(device.value.bed_target_temper ?? 0)}°C` : '')
 </script>
 
 <style scoped>
@@ -229,32 +240,11 @@ const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed
 .card > .card-icon {
   grid-column: 1;
   grid-row: 1 / 3;
-  align-self: center;
 }
 
 .card > .arrow {
   grid-column: 3;
   grid-row: 1 / 3;
-  align-self: center;
-  justify-self: center;
-}
-
-.card > .card-title {
-  grid-column: 2;
-  grid-row: 1;
-  align-self: end;
-  margin-left: 0;
-  white-space: nowrap;
-}
-
-.card > .card-value {
-  grid-column: 2;
-  grid-row: 2;
-  margin: 0;
-  min-height: 20px;
-  display: flex;
-  align-items: center;
-  align-self: start;
 }
 
 .card-head {
@@ -279,6 +269,7 @@ const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed
   color: var(--van-text-color-2);
   font-size: 13px;
   line-height: 18px;
+  white-space: nowrap;
 }
 
 .card-icon > img {
@@ -293,24 +284,28 @@ const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed
 }
 
 .arrow {
-  width: 24px;
-  height: 24px;
-  display: grid;
   place-items: center;
-  align-self: center;
   justify-self: center;
   color: var(--van-text-color-2);
-  font-size: 20px;
-  line-height: 1;
 }
 
-.card-value {
-  margin-left: 42px;
-  margin-top: 2px;
-  font-size: 15px;
+.card-label {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  font-size: 14px;
   line-height: 20px;
+  min-height: 20px;
   white-space: nowrap;
   color: var(--van-text-color);
+}
+
+.current-temp {
+  font-size: 15px;
+}
+
+.temp-arrow {
+  font-size: 10px;
 }
 
 .fan-card { grid-area: fan; }
@@ -318,7 +313,6 @@ const bedTempText = computed(() => device.value ? `${Math.floor(device.value.bed
 .motion-card { grid-area: motion; }
 .nozzle-card { grid-area: nozzle; }
 .heatbed-card { grid-area: bed; }
-
 
 .nozzle-card {
   padding: 0 12px;

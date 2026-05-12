@@ -67,12 +67,9 @@ import { PopoverAction } from 'vant'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
 import { PrinterClient, PrinterEvent } from '../../api/PrinterClient'
-import humLevel1Icon from '../../assets/images/hum_level1_no_num_dark.svg'
-import humLevel2Icon from '../../assets/images/hum_level2_no_num_dark.svg'
-import humLevel3Icon from '../../assets/images/hum_level3_no_num_dark.svg'
-import humLevel4Icon from '../../assets/images/hum_level4_no_num_dark.svg'
-import humLevel5Icon from '../../assets/images/hum_level5_no_num_dark.svg'
 import { DeviceTray } from '../../api/device'
+import { amsPrefix } from '../../utils/ams'
+import { humIcon } from '../../utils/icon'
 
 const router = useRouter()
 const client = PrinterClient.getInstance()
@@ -82,9 +79,6 @@ const currentAmsId = ref<string | undefined>(device.value?.ams.ams[0].id)
 const currentAms = computed(() => device.value?.ams.ams.filter(ams => ams.id === currentAmsId.value)[0])
 const showSettingsPopover = ref(false)
 const settingsActions: PopoverAction[] = [{ type: 'auto-refill', text: '自动续料' }]
-
-const amsPrefix = (amsId: string) => String.fromCharCode('A'.charCodeAt(0) + Number(amsId ?? '0'))
-const humIcon = (humidity: string) => [humLevel1Icon, humLevel1Icon, humLevel2Icon, humLevel3Icon, humLevel4Icon, humLevel5Icon][Number(humidity)]
 
 onMounted(() => {
   client.on(PrinterEvent.PRINT_PUSH_STATUS, onPushStatus)
