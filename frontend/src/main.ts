@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { ActionSheet, Button, Checkbox, Slider, Progress, Popup, Popover, Overlay, Dialog, Cell, CellGroup, Empty, Tab, Tabs, Switch, Stepper, Field } from 'vant'
+import { ActionSheet, Badge, Button, Checkbox, Slider, Progress, Popup, Popover, Overlay, Dialog, Cell, CellGroup, Empty, Tab, Tabs, Switch, Stepper, Field } from 'vant'
 import App from './App.vue'
 import { PrinterClient } from './api/PrinterClient'
 import { i18n } from './i18n'
@@ -38,6 +38,7 @@ createApp(App)
   .use(router)
   .use(i18n)
   .use(ActionSheet)
+  .use(Badge)
   .use(Button)
   .use(Slider)
   .use(Progress)

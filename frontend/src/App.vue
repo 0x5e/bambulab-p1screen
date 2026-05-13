@@ -12,7 +12,10 @@
           draggable="false"
           @dragstart.prevent
         >
-          <component :is="item.icon" class="nav-icon" />
+          <van-badge v-if="item.key === 'message'" :content="device && device.hms.length > 0 ? device?.hms.length : undefined" class="nav-icon">
+            <component :is="item.icon" class="nav-icon" />
+          </van-badge>
+          <component v-else :is="item.icon" class="nav-icon" />
         </RouterLink>
       </aside>
 
@@ -32,9 +35,10 @@ import IconTune from '~icons/material-symbols/tune-rounded'
 import IconDatabase from '~icons/material-symbols/database'
 import IconSettings from '~icons/material-symbols/settings-rounded'
 import IconSMS from '~icons/material-symbols/sms-rounded'
-import { bindPrinterClient, unbindPrinterClient } from './stores/printer'
+import { bindPrinterClient, unbindPrinterClient, usePrinterStore } from './stores/printer'
 
 const route = useRoute()
+const { device } = usePrinterStore()
 
 type NavItem = {
   key: string
