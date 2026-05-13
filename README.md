@@ -21,6 +21,7 @@ Control screen software for the Bambu Lab P1 series.
 <img src="./screenshoot/filament.png" alt="Filament" width="50%" />
 <img src="./screenshoot/filament-edit.png" alt="FilamentEdit" width="50%" />
 <img src="./screenshoot/setting.png" alt="Settings" width="50%" />
+<img src="./screenshoot/message.png" alt="Message" width="50%" />
 
 ## System Requirements
 - Display: >= 568x320 (iPhone 5 resolution)

@@ -21,6 +21,7 @@
 <img src="./screenshoot/filament.png" alt="耗材页" width="50%" />
 <img src="./screenshoot/filament-edit.png" alt="耗材编辑页" width="50%" />
 <img src="./screenshoot/setting.png" alt="设置页" width="50%" />
+<img src="./screenshoot/message.png" alt="消息页" width="50%" />
 
 ## 系统要求
 - 分辨率：>= 568x320（iPhone 5 尺寸）
