@@ -28,6 +28,22 @@ const handlePrintPushStatus = () => {
   if (!project.value) {
     project.value = getCurrentProject()
   }
+
+  // test
+  // print.value!.gcode_state = 'IDLE'
+  // print.value!.gcode_state = 'FINISH'
+  // print.value!.gcode_state = 'FAILED'
+  // print.value!.gcode_state = 'RUNNING'
+  // print.value!.hms = [
+  //   {"attr":117448704,"code":131073,"action":0,"timestamp":1777383334}, // AMS耗材用尽。请把耗材放入同一个AMS槽位后继续。
+  // ]
+  // print.value!.ams.ams[1] = {
+  //   id: '1',
+  //   humidity: '3',
+  //   humidity_raw: '10',
+  //   temp: '20',
+  //   tray: print.value!.ams.ams[0].tray,
+  // }
 }
 
 const handleProjectFile = (projectData: Project) => {

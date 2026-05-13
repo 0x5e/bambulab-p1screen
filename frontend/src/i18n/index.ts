@@ -165,6 +165,7 @@ export const messages = {
     loading_filament: '进料中',
     unloading_filament: '退料中',
     reload: '重读',
+    empty_message_hint: '无助手信息',
   },
   en: {
     developing: 'Coming soon',
@@ -302,6 +303,7 @@ export const messages = {
     loading_filament: 'Loading',
     unloading_filament: 'Unloading',
     reload: 'Re-Read',
+    empty_message_hint: 'No assistant message',
   },
 }
 

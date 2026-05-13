@@ -78,7 +78,6 @@ Any full-screen web launch method is acceptable. More ideas are welcome.
   - Auto Refill
 - Setting
   - Toolbox
-- Message
 - Other
   - Global Dialog(Print Success / Failure / Warning)
 

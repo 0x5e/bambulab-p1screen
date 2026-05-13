@@ -8,6 +8,7 @@
     "fflate": "^0.8.2",
     "humanize-duration": "^3.33.2",
     "mqtt": "^5.10.1",
+    "qrcode": "^1.5.4",
     "vant": "^4.9.13",
     "vue": "^3.5.12",
     "vue-i18n": "^11.4.2",
@@ -17,5 +18,8 @@
     "defaults",
     "chrome >= 57",
     "ios >= 10.3"
-  ]
+  ],
+  "devDependencies": {
+    "@types/qrcode": "^1.5.6"
+  }
 }
