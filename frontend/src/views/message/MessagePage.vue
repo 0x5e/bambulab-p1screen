@@ -2,7 +2,7 @@
   <div class="msg-page">
     <div class="card detail-panel" v-if="selectedMsg">
       <canvas ref="qrCanvasRef" class="qr-canvas"></canvas>
-      <div class="detail-url">{{ url(selectedMsg) }}</div>
+      <a class="detail-url" :href="url(selectedMsg)" target="_blank">{{ url(selectedMsg) }}</a>
       <div class="detail-text">{{ text(selectedMsg) }}</div>
     </div>
     <van-empty v-else class="card" :description="t('empty_message_hint')" />
@@ -16,7 +16,7 @@
           v-for="item in device?.hms"
           :key="item.attr + '-' + item.code"
           class="msg-item"
-          :class="[`msg-level-${msgLevel(item)}`, { 'msg-selected': selectedMsg === item }]"
+          :class="[`msg-level-${msgLevel(item)}`, { 'msg-selected': selectedMsg?.attr === item.attr && selectedMsg?.code === item.code }]"
           @click="selectedMsg = item"
         >
           <div class="msg-item-text">{{ text(item) }}</div>
@@ -63,7 +63,7 @@ const ecode = (msg: DeviceHMS, readable: boolean) => {
   if (!readable) code = code.replace(/-/g, '')
   return code
 }
-const url = (msg: DeviceHMS) => `https://e.bambulab.com/e=${ecode(msg, false)}`
+const url = (msg: DeviceHMS) => `https://e.bambulab.com/?e=${ecode(msg, false)}`
 const text = (msg: DeviceHMS) => {
   const hmsList = hmsData['data']['device_hms'][locale.value.startsWith('zh') ? 'zh-cn' : 'en']
   const code = ecode(msg, false)
@@ -96,12 +96,14 @@ const text = (msg: DeviceHMS) => {
 }
 
 .detail-url {
+  display: block;
   font-size: 12px;
   color: var(--van-text-color-2);
   word-break: break-all;
   text-align: center;
   border-radius: 6px;
   width: 100%;
+  text-decoration: none;
 }
 
 .detail-text {
