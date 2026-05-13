@@ -86,8 +86,9 @@
     <ControlButton
       class="card hms"
       :icon="hmsIcon(!(device && device.hms.length > 0))"
-      :label="device && device.hms.length > 0 ? String(device.hms.length) : ''"
+      :label="device && device.hms.length > 0 ? String(device.hms.length) : t('assistant')"
       font-size="10px"
+      :style="{ color: device && device.hms.length > 0 ? 'orange' : undefined }"
       @click="router.push({ name: ROUTE_NAME.MESSAGE })"
       />
   </div>
@@ -604,13 +605,12 @@ const handleStop = () => {
   width: 56px;
   /* height: 72px; */
   background-color: var(--van-background-2);
-  color: orange;
 }
 
 :deep(.card.hms > img) {
   width: 24px;
   height: 24px;
-  margin-bottom: 0;
+  /* margin-bottom: 0; */
 }
 
 @media (orientation: portrait) {
