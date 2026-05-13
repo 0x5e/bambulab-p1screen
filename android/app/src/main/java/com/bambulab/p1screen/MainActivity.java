@@ -78,7 +78,7 @@ public final class MainActivity extends Activity {
 
       @Override
       public void onPageFinished(WebView view, String url) {
-        webView.setVisibility(View.VISIBLE);
+        webView.postDelayed(() -> webView.setVisibility(View.VISIBLE), 800);
       }
     });
 
