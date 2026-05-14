@@ -86,6 +86,7 @@ export type DeviceTray = {
   tray_color: string // rgba
   nozzle_temp_max: string
   nozzle_temp_min: string
+  remain: number // -1, 0~100
 }
 
 export type DeviceLight = {

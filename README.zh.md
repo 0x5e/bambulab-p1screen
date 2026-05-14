@@ -77,7 +77,8 @@ docker compose up -d
 - 首页
   - 文件列表
 - 其他
-  - 全局弹窗（打印成功/失败/警告）
+  - 全局弹窗（打印成功 / 失败 / 警告）
+  - AMS 2 / AMS HT 适配
 
 ## 参考内容
 - [P1 系列屏幕操作指南](https://wiki.bambulab.com/en/p1/manual/screen-operation)

@@ -44,6 +44,18 @@ const handlePrintPushStatus = () => {
   //   temp: '20',
   //   tray: print.value!.ams.ams[0].tray,
   // }
+  // print.value!.ams.ams[0].tray[0].tray_color = '00CC66FF'
+  // print.value!.ams.ams[0].tray[0].tag_uid = 'xxx'
+  // print.value!.ams.ams[0].tray[0].remain = 80
+  // print.value!.ams.ams[0].tray[1].tray_color = '00CCCCFF'
+  // print.value!.ams.ams[0].tray[1].tag_uid = 'xxx'
+  // print.value!.ams.ams[0].tray[1].remain = 75
+  // print.value!.ams.ams[0].tray[2].tray_color = 'CC0000FF'
+  // print.value!.ams.ams[0].tray[2].tag_uid = 'xxx'
+  // print.value!.ams.ams[0].tray[2].remain = 85
+  // print.value!.ams.ams[0].tray[3].tray_color = 'FFFFFFFF'
+  // print.value!.ams.ams[0].tray[3].tag_uid = '0000000000000000'
+  // print.value!.ams.ams[0].tray[3].remain = -1
 }
 
 const handleProjectFile = (projectData: Project) => {

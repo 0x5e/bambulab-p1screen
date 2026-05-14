@@ -10,6 +10,9 @@
   >
     <template #reference>
       <div class="tray" @click.stop="handleTrayClick">
+        <div class="remain" :style="{ visibility: isExt || props.tray.remain === -1 ? 'hidden' : 'visible' }">
+          <div :style="{ backgroundColor: bgColor, width: `${props.tray.remain}%` }"></div>
+        </div>
         <div class="filament" :style="{ '--tray-bg': bgColor }"></div>
         <span class="name" :style="{ color: textColor }">{{ name }}</span>
         <span class="material" :style="{ color: textColor }">{{ material }}</span>
@@ -118,6 +121,20 @@ const textColor = computed(() => {
   height: 64px;
   margin: 8px;
   margin-left: 6px;
+}
+.remain {
+  position: relative;
+  width: 24px;
+  height: 4px;
+  border-radius: 2px;
+  top: -6px;
+  margin: 0 12px;
+  background-color: var(--van-background-5);
+  overflow: hidden;
+}
+.remain > div {
+  height: 100%;
+  border-radius: 2px;
 }
 .filament {
   width: 48px;

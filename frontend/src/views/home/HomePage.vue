@@ -15,17 +15,16 @@
           <span class="temp-unit">°C</span>
         </div>
       </div>
-      <!-- TODO: AMS -->
-      <!--
-      <div class="ams" v-if="device && device.ams.ams.length > 0" @click="router.push({ name: ROUTE_NAME.FILAMENT })">
-        <template v-for="ams in device.ams.ams" :key="ams.id">
+      <div v-if="device && device.ams.ams.length > 0" @click="router.push({ name: ROUTE_NAME.FILAMENT })">
+        <template v-for="ams in device.ams.ams.slice(0, 2)" :key="ams.id">
           AMS-{{ amsPrefix(ams.id) }}
-          <div>
-            
+          <div class="ams">
+            <div v-for="slot in ams.tray.length" :key="slot" class="slot">
+              <div :style="{ backgroundColor: ams.tray[slot - 1].tray_color.length > 0 ? `#${ams.tray[slot - 1].tray_color}` : undefined, height: ams.tray[slot - 1].remain !== -1 ? `${ams.tray[slot - 1].remain}%`: undefined }"></div>
+            </div>
           </div>
         </template>
       </div>
-      -->
       <div class="wifi-signal" @click="router.push({ name: ROUTE_NAME.SETTING_HOME })">
         <img :src="wifiIcon"/>
         <div>Wi-Fi</div>
@@ -105,6 +104,7 @@ import { useI18n } from 'vue-i18n'
 import { PrinterClient } from '../../api/PrinterClient'
 import { GcodeState, CurrentStage } from '../../api/enums'
 import { saveProject } from '../../utils/project'
+import { amsPrefix } from '../../utils/ams'
 import { hmsIcon, wifiSignalIcon } from '../../utils/icon'
 import { usePrinterStore } from '../../stores/printer'
 import hints from '../../assets/hints.json'
@@ -371,6 +371,28 @@ const handleStop = () => {
   width: 32px;
   height: 32px;
   margin-bottom: 12px;
+}
+.ams {
+  height: 24px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 4px;
+}
+.ams .slot {
+  height: 22px;
+  width: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--van-background-5);
+  background-color: var(--van-background-4);
+  overflow: hidden;
+  display: flex;
+  align-items: end;
+}
+.ams .slot > div {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
 }
 
 /* running */

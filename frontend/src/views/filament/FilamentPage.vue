@@ -12,7 +12,7 @@
     </div>
     <div v-if="device && currentAms" class="ams-card">
       <Tray
-        v-for="slot in 4"
+        v-for="slot in currentAms.tray.length"
         :key="slot"
         :name="`${amsPrefix(currentAms.id)}${slot}`"
         :amsId="Number(currentAms.id)"
