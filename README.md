@@ -75,10 +75,6 @@ Any full-screen web launch method is acceptable. More ideas are welcome.
 ## TODOs
 - Homepage
   - File list
-- Filament
-  - Auto Refill
-- Setting
-  - Toolbox
 - Other
   - Global Dialog(Print Success / Failure / Warning)
 

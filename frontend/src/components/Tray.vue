@@ -14,8 +14,8 @@
         <span class="name" :style="{ color: textColor }">{{ name }}</span>
         <span class="material" :style="{ color: textColor }">{{ material }}</span>
         <template v-if="exist || isExt">
-          <span v-if="!readonly" class="icon-edit" :style="{ backgroundColor: textColor}"></span>
-          <span v-if="readonly" class="icon-view" :style="{ backgroundColor: textColor}"></span>
+          <span v-if="readonly" class="icon icon-readonly" :style="{ backgroundColor: textColor}"></span>
+          <span v-else class="icon icon-edit" :style="{ backgroundColor: textColor}"></span>
         </template>
         <div v-if="isCurrent" class="arrow">
           <div class="line" :style="{ borderColor: bgColor }" ></div>
@@ -160,16 +160,18 @@ const textColor = computed(() => {
 .material {
   font-size: 12px;
 }
-.icon-edit {
-  width: 13px;
-  height: 15px;
-  margin: 0 17px;
-  mask-image: url(/src/assets/images/ams_editable.svg);
+.icon {
+  height: 12px;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  margin: 4px;
 }
-.icon-view {
-  height: 19px;
-  margin: 0 16px;
-  mask-image: url(/src/assets/images/ams_readonly.svg);
+.icon-edit {
+  mask-image: url(/src/assets/images/rename_edit.svg);
+}
+.icon-readonly {
+  mask-image: url(/src/assets/images/ams_slot_readonly.svg);
 }
 .arrow {
   position: relative;

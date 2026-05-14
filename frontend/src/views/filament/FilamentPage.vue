@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { PopoverAction } from 'vant'
+import { PopoverAction, showToast } from 'vant'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
 import { PrinterClient } from '../../api/PrinterClient'
@@ -139,7 +139,7 @@ const handleSettingsSelect = (action: PopoverAction) => {
   console.log(`[FilamentPage] settings action: ${action.type}`)
   showSettingsPopover.value = false
   if (action.type === 'auto-refill') {
-    router.push({ name: ROUTE_NAME.FILAMENT_AUTO_REFILL })
+    showToast({ message: t('developing'), position: 'bottom' })
   }
 }
 </script>

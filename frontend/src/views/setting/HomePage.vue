@@ -39,7 +39,7 @@
       <div class="card-label">{{ t('calibration') }}</div>
     </div>
 
-    <div class="card square-card toolbox-card" clickable @click="router.push({ name: ROUTE_NAME.SETTING_TOOLBOX })">
+    <div class="card square-card toolbox-card" clickable @click="showToast({ message: t('developing'), position: 'bottom' })">
       <i-material-symbols-handyman class="icon-large" />
       <div class="card-label">{{ t('toolbox') }}</div>
     </div>
@@ -52,6 +52,7 @@
 </template>
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { showToast } from 'vant'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
