@@ -3,7 +3,7 @@
   <div v-if="!device || [GcodeState.Idle].includes(device.gcode_state)" class="homepage homepage-idle">
     <img class="printer-thumbnail" :src="p1sThumbnail" />
     <span class="hint">{{ randomHint }}</span>
-    <div class="card files" clickable @click="router.push({ name: ROUTE_NAME.HOME_FILES })">
+    <div class="card files" clickable @click="showToast({ message: t('developing'), position: 'bottom' })">
       <img :src="fileIcon" />
       {{ t('print_files') }}
     </div>
@@ -41,7 +41,7 @@
   <div v-else-if="[GcodeState.Prepare, GcodeState.Running, GcodeState.Pause, GcodeState.Finish, GcodeState.Failed].includes(device.gcode_state)" class="homepage homepage-running">
     <div class="card task-card" ref="taskCardRef" :style="{ width : `${taskCardWidth}px` }">
       <span v-if="isRecording" class="recording"><i-material-symbols-circle />REC</span>
-      <span class="files" @click="router.push({ name: ROUTE_NAME.HOME_FILES })">{{ t('file_link') }}</span>
+      <span class="files" @click="showToast({ message: t('developing'), position: 'bottom' })">{{ t('file_link') }}</span>
       <img v-if="getTaskThumbnail" class="task-thumbnail" :src="getTaskThumbnail"/>
       <img v-else class="task-thumbnail task-loading-thumbnail" :src="loadingThumbnail"/>
       <span class="task-name">{{ taskName }}</span>

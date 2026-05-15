@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <div class="card list-item usb-card" clickable @click="router.push({ name: ROUTE_NAME.HOME_FILES })">
+    <div class="card list-item usb-card" clickable @click="showToast({ message: t('developing'), position: 'bottom' })">
       <span class="item-label">{{ t('sdcard_storage') }}</span>
       <div v-if="device" class="item-value">
         {{ device?.sdcard ? t('mounted') : t('unmounted') }}
