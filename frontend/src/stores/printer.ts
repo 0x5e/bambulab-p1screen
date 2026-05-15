@@ -38,6 +38,7 @@ const handlePrintPushStatus = () => {
   // print.value!.hms = [
   //   {"attr":117448704,"code":131073,"action":0,"timestamp":1777383334}, // AMS耗材用尽。请把耗材放入同一个AMS槽位后继续。
   // ]
+  // print.value!.ams.ams = []
   // print.value!.ams.ams[1] = {
   //   id: '1',
   //   humidity: '3',

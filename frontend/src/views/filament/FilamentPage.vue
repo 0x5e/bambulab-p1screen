@@ -1,5 +1,5 @@
 <template>
-  <div class="filament-page">
+  <div class="filament-page" :class="{ 'filament-page-no-ams': device && device.ams.ams.length === 0 }">
     <div>
       <van-tabs v-if="device && device.ams.ams.length > 1" class="ams-tab" @click-tab="handleClickTab">
         <van-tab
@@ -17,9 +17,9 @@
         :name="`${amsPrefix(currentAms.id)}${slot}`"
         :amsId="Number(currentAms.id)"
         :tray="currentAms.tray[slot - 1]"
-        :trayNow="Number(device?.ams.tray_now) ?? -1"
-        :trayTar="Number(device?.ams.tray_tar) ?? -1"
-        :trayPrev="Number(device?.ams.tray_pre) ?? -1"
+        :trayNow="Number(device.ams.tray_now) ?? -1"
+        :trayTar="Number(device.ams.tray_tar) ?? -1"
+        :trayPrev="Number(device.ams.tray_pre) ?? -1"
         :popoverAction="handleTrayAction"
       />
       <span class="ams-name" >AMS-{{ amsPrefix(currentAms.id) }}</span>
@@ -30,14 +30,14 @@
       </div>
       
     </div>
-    <div v-if="device?.vt_tray" class="ext-card">
+    <div v-if="device && device.vt_tray" class="ext-card">
       <Tray
         name="Ext"
         :amsId="255"
-        :tray="device?.vt_tray"
-        :trayNow="Number(device?.ams.tray_now) ?? -1"
-        :trayTar="Number(device?.ams.tray_tar) ?? -1"
-        :trayPrev="Number(device?.ams.tray_pre) ?? -1"
+        :tray="device.vt_tray"
+        :trayNow="Number(device.ams.tray_now) ?? -1"
+        :trayTar="Number(device.ams.tray_tar) ?? -1"
+        :trayPrev="Number(device.ams.tray_pre) ?? -1"
         :popoverAction="handleTrayAction"
       />
       <span class="ext-name" >{{ t('external_spool') }}</span>
@@ -78,8 +78,8 @@ const { t } = useI18n()
 const client = PrinterClient.getInstance()
 
 const { device } = usePrinterStore()
-const currentAmsId = ref<string | undefined>(device.value?.ams.ams[0].id)
-const currentAms = computed(() => device.value?.ams.ams.filter(ams => ams.id === currentAmsId.value)[0])
+const currentAmsId = ref<string | undefined>(device.value && device.value.ams.ams.length > 0 ? device.value.ams.ams[0].id : undefined)
+const currentAms = computed(() => device.value?.ams.ams.find(ams => ams.id === currentAmsId.value))
 const showSettingsPopover = ref(false)
 const settingsActions: PopoverAction[] = [{ type: 'auto-refill', text: t('auto_refill') }]
 
@@ -158,6 +158,10 @@ const handleSettingsSelect = (action: PopoverAction) => {
   align-content: center;
   align-items: center;
   justify-content: space-around;
+}
+
+.filament-page-no-ams {
+  grid-template-columns: auto;
 }
 
 .ams-tab {
