@@ -18,7 +18,7 @@
 
       <template v-if="device && device.ams.ams.length > 0" >
         <div class="line"></div>
-        <div @click="router.push({ name: ROUTE_NAME.FILAMENT })">
+        <div @click="router.replace({ name: ROUTE_NAME.FILAMENT })">
           <template v-for="ams in device.ams.ams.slice(0, 2)" :key="ams.id">
             AMS-{{ amsPrefix(ams.id) }}
             <div class="ams">
@@ -31,13 +31,13 @@
       </template>
 
       <div class="line" ></div>
-      <div class="wifi-signal" @click="router.push({ name: ROUTE_NAME.SETTING_HOME })">
+      <div class="wifi-signal" @click="router.replace({ name: ROUTE_NAME.SETTING_HOME })">
         <img :src="wifiIcon"/>
         <div>Wi-Fi</div>
       </div>
 
       <div class="line" ></div>
-      <div class="hms" @click="router.push({ name: ROUTE_NAME.MESSAGE })">
+      <div class="hms" @click="router.replace({ name: ROUTE_NAME.MESSAGE })">
         <img :src="hmsIcon(!(device && device.hms.length > 0))"/>
         <div :style="{ color: device && device.hms.length > 0 ? 'orange' : undefined }">
           {{ device && device.hms.length > 0 ? device.hms.length : t('assistant') }}
@@ -96,7 +96,7 @@
       :label="device && device.hms.length > 0 ? String(device.hms.length) : t('assistant')"
       font-size="10px"
       :style="{ color: device && device.hms.length > 0 ? 'orange' : undefined }"
-      @click="router.push({ name: ROUTE_NAME.MESSAGE })"
+      @click="router.replace({ name: ROUTE_NAME.MESSAGE })"
       />
   </div>
   <!-- TODO: Error Popup -->
