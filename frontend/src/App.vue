@@ -103,6 +103,7 @@ const showPrintError = ref(false)
 
 watch(() => device.value?.print_error, () => {
   if (!device.value) return
+  if (device.value.print_error === 0) return
   showPrintError.value = true
 })
 
