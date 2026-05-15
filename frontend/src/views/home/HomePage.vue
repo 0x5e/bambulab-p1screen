@@ -15,20 +15,28 @@
           <span class="temp-unit">°C</span>
         </div>
       </div>
-      <div v-if="device && device.ams.ams.length > 0" @click="router.push({ name: ROUTE_NAME.FILAMENT })">
-        <template v-for="ams in device.ams.ams.slice(0, 2)" :key="ams.id">
-          AMS-{{ amsPrefix(ams.id) }}
-          <div class="ams">
-            <div v-for="slot in ams.tray.length" :key="slot" class="slot">
-              <div :style="{ backgroundColor: ams.tray[slot - 1].tray_color.length > 0 ? `#${ams.tray[slot - 1].tray_color}` : undefined, height: ams.tray[slot - 1].remain !== -1 ? `${ams.tray[slot - 1].remain}%`: undefined }"></div>
+
+      <template v-if="device && device.ams.ams.length > 0" >
+        <div class="line"></div>
+        <div @click="router.push({ name: ROUTE_NAME.FILAMENT })">
+          <template v-for="ams in device.ams.ams.slice(0, 2)" :key="ams.id">
+            AMS-{{ amsPrefix(ams.id) }}
+            <div class="ams">
+              <div v-for="slot in ams.tray.length" :key="slot" class="slot">
+                <div :style="{ backgroundColor: ams.tray[slot - 1].tray_color.length > 0 ? `#${ams.tray[slot - 1].tray_color}` : undefined, height: ams.tray[slot - 1].remain !== -1 ? `${ams.tray[slot - 1].remain}%`: undefined }"></div>
+              </div>
             </div>
-          </div>
-        </template>
-      </div>
+          </template>
+        </div>
+      </template>
+
+      <div class="line" ></div>
       <div class="wifi-signal" @click="router.push({ name: ROUTE_NAME.SETTING_HOME })">
         <img :src="wifiIcon"/>
         <div>Wi-Fi</div>
       </div>
+
+      <div class="line" ></div>
       <div class="hms" @click="router.push({ name: ROUTE_NAME.MESSAGE })">
         <img :src="hmsIcon(!(device && device.hms.length > 0))"/>
         <div :style="{ color: device && device.hms.length > 0 ? 'orange' : undefined }">
@@ -358,9 +366,19 @@ const handleStop = () => {
   flex: 1;
   text-align: center;
   color: var(--van-text-color-2);
+  height: 100%;
+  align-content: center;
 }
 .info-cards > div:active {
   filter: brightness(0.8);
+}
+.info-cards > .line {
+  width: 0.5px;
+  height: 80%;
+  background-color: var(--van-background-5);
+  flex: initial;
+  margin: -4px;
+  opacity: 0.3;
 }
 .info-cards > .nozzle-temp .temp-value {
   color: var(--van-text-color);
