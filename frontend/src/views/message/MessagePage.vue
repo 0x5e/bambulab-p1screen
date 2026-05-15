@@ -33,7 +33,7 @@ import { useI18n } from 'vue-i18n'
 import QRCode from 'qrcode'
 import { usePrinterStore } from '../../stores/printer'
 import { DeviceHMS } from '../../api/device'
-import hmsData from '../../assets/devicehms@202602042359/01S/hms.json'
+import hmsData from '../../assets/devicehms_01S.json'
 
 const { locale, t } = useI18n()
 const { device } = usePrinterStore()
