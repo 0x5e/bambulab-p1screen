@@ -13,6 +13,7 @@ Control screen software for the Bambu Lab P1 series.
 ## Screenshots
 <img src="./screenshoot/home-idle.png" alt="Home Idle" width="50%" />
 <img src="./screenshoot/home.png" alt="Home" width="50%" />
+<img src="./screenshoot/home-warning.png" alt="Home Warning" width="50%" />
 <img src="./screenshoot/control.png" alt="Controls" width="50%" />
 <img src="./screenshoot/printspeed.png" alt="PrintSpeed" width="50%" />
 <img src="./screenshoot/motion.png" alt="Motion" width="50%" />

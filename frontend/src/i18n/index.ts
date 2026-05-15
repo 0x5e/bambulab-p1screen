@@ -166,6 +166,9 @@ export const messages = {
     unloading_filament: '退料中',
     reload: '重读',
     empty_message_hint: '无助手信息',
+    print_error_warning: '警告',
+    print_error_continue: '继续（问题已解决）',
+    print_error_goto_assistant: '前往机器助手',
   },
   en: {
     developing: 'Coming soon',
@@ -304,6 +307,9 @@ export const messages = {
     unloading_filament: 'Unloading',
     reload: 'Re-Read',
     empty_message_hint: 'No assistant message',
+    print_error_warning: 'Warning',
+    print_error_continue: 'Resume (Problem solved)',
+    print_error_goto_assistant: 'Troubleshooting Assistant',
   },
 }
 

@@ -59,7 +59,7 @@ watch(selectedMsg, async () => {
 
 const msgLevel = (msg: DeviceHMS) => (msg.code >> 16)
 const ecode = (msg: DeviceHMS, readable: boolean) => {
-  let code = `${(msg.attr >> 16).toString(16).padStart(4, '0')}-${(msg.attr & 0xffff).toString(16).padStart(4, '0')}-${(msg.code >> 16).toString(16).padStart(4, '0')}-${(msg.code & 0xffff).toString(16).padStart(4, '0')}`
+  let code = `${(msg.attr >> 16).toString(16).padStart(4, '0')}-${(msg.attr & 0xffff).toString(16).padStart(4, '0')}-${(msg.code >> 16).toString(16).padStart(4, '0')}-${(msg.code & 0xffff).toString(16).padStart(4, '0')}`.toUpperCase()
   if (!readable) code = code.replace(/-/g, '')
   return code
 }

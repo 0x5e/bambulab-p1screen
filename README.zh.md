@@ -13,6 +13,7 @@
 ## 预览图
 <img src="./screenshoot/home-idle.png" alt="主页（空闲）" width="50%" />
 <img src="./screenshoot/home.png" alt="主页" width="50%" />
+<img src="./screenshoot/home-warning.png" alt="主页（警告）" width="50%" />
 <img src="./screenshoot/control.png" alt="控制页" width="50%" />
 <img src="./screenshoot/printspeed.png" alt="打印速度" width="50%" />
 <img src="./screenshoot/motion.png" alt="运动" width="50%" />

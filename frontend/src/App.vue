@@ -23,22 +23,54 @@
         <RouterView />
       </main>
     </div>
+
+    <van-popup
+      :show="showPrintError"
+      :overlay-style="{ position: 'absolute' }"
+      :style="{ position: 'absolute' }"
+    >
+      <div class="error-popover">
+        <i-material-symbols-cancel-outline class="close-icon" @click="showPrintError = false" />
+        <div class="col-left">
+          <img v-if="errorImage" :src="errorImage" class="error-image" />
+          <div class="error-title">
+            <i-material-symbols-error-outline />
+            {{ t('print_error_warning') }}
+          </div>
+          <div class="error-text">{{ errorText }}</div>
+          <div class="error-code">[{{ errorCode }}]</div>
+        </div>
+        <div class="col-right">
+          <van-button @click="showPrintError = false; handleResume()">{{ t('print_error_continue') }}</van-button>
+          <van-button @click="showPrintError = false; router.replace({ name: ROUTE_NAME.MESSAGE })">{{ t('print_error_goto_assistant') }}</van-button>
+        </div>
+      </div>
+    </van-popup>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onMounted, onUnmounted, watch, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import type { Component } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { bindPrinterClient, unbindPrinterClient, usePrinterStore } from './stores/printer'
+import { PrinterClient } from './api/PrinterClient'
+import { ROUTE_NAME } from './router/routes'
+import hmsData from './assets/devicehms_01S.json'
+import hmsActionData from './assets/erroractions_01S.json'
+
 import IconHome from '~icons/material-symbols/home-rounded'
 import IconTune from '~icons/material-symbols/tune-rounded'
 import IconDatabase from '~icons/material-symbols/database'
 import IconSettings from '~icons/material-symbols/settings-rounded'
 import IconSMS from '~icons/material-symbols/sms-rounded'
-import { bindPrinterClient, unbindPrinterClient, usePrinterStore } from './stores/printer'
 
 const route = useRoute()
+const router = useRouter()
 const { device } = usePrinterStore()
+const { locale, t } = useI18n()
+const client = PrinterClient.getInstance()
 
 type NavItem = {
   key: string
@@ -66,6 +98,33 @@ onMounted(() => {
 onUnmounted(() => {
   unbindPrinterClient()
 })
+
+const showPrintError = ref(false)
+
+watch(() => device.value?.print_error, () => {
+  if (!device.value) return
+  showPrintError.value = true
+})
+
+const errorImage = computed(() => {
+  if (!device.value) return ''
+  const errorInfo = hmsActionData['data'].find((item: any) => item.ecode === errorCode.value.replace(/-/g, ''))
+  if (!errorInfo) return ''
+  return `/hms/${errorInfo.image}`
+})
+
+const errorText = computed(() => {
+  if (!device.value) return ''
+  const hmsList = hmsData['data']['device_error'][locale.value.startsWith('zh') ? 'zh-cn' : 'en']
+  const hmsInfo = hmsList.find((item: any) => item.ecode === errorCode.value.replace(/-/g, ''))
+  return hmsInfo?.intro || ''
+})
+const errorCode = computed(() => device.value ? `${(device.value?.print_error >> 16).toString(16).padStart(4, '0')}-${(device.value?.print_error & 0xffff).toString(16).padStart(4, '0')}`.toUpperCase() : '')
+
+const handleResume = () => {
+  client.setResume()
+}
+
 </script>
 
 <style scoped>
@@ -145,6 +204,83 @@ onUnmounted(() => {
   overflow: auto;
 }
 
+.van-popup {
+  border-radius: 12px;
+}
+
+.error-popover {
+  position: relative;
+  display: grid;
+  grid-template-columns: 300px 200px;
+  background: var(--van-background-3);
+  overflow: hidden;
+  min-height: 200px;
+}
+
+.close-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--van-text-color-3);
+  font-size: 18px;
+}
+.close-icon:active {
+  filter: brightness(0.8);
+}
+
+.col-left {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  gap: 4px;
+  word-break: break-word;
+}
+
+.error-image {
+  max-width: 300px;
+  max-height: 200px;
+  align-self: center;
+  object-fit: contain;
+}
+
+.error-title {
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: orange;
+}
+
+.error-text {
+  font-size: 13px;
+  color: var(--van-text-color-2);
+}
+
+.error-code {
+  font-size: 12px;
+  color: var(--van-text-color-3);
+  font-family: monospace;
+}
+
+.col-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background: var(--van-background);
+}
+
+.col-right > .van-button {
+  width: 100%;
+  height: 40px;
+  border: 0;
+  background-color: var(--van-background-2);
+}
+
 @media (orientation: portrait) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -170,6 +306,12 @@ onUnmounted(() => {
     grid-row: 1;
     height: auto;
     padding-right: 0;
+  }
+
+  .error-popover {
+    grid-template-columns: 300px;
+    grid-template-rows: 300px 120px;
+    padding-top: 20px;
   }
 }
 </style>
