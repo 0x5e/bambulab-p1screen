@@ -38,10 +38,10 @@
 
       <div class="line" ></div>
       <div class="hms" @click="router.replace({ name: ROUTE_NAME.MESSAGE })">
-        <img :src="hmsIcon(!(device && device.hms.length > 0))"/>
-        <div :style="{ color: device && device.hms.length > 0 ? 'orange' : undefined }">
-          {{ device && device.hms.length > 0 ? device.hms.length : t('assistant') }}
-        </div>
+        <van-badge :content="device && device.hms.length > 0 ? device?.hms.length : undefined" :offset="[-2, 6]">
+          <img :src="hmsIcon(!(device && device.hms.length > 0))"/>
+        </van-badge>
+        {{ t('assistant') }}
       </div>
     </div>
   </div>
@@ -90,14 +90,12 @@
         <ControlButton :icon="stopIcon" :label="t('action_stop')" font-size="10px" @click="handleStop" :disabled="!showPrintActions" />
       </div>
     </div>
-    <ControlButton
-      class="card hms"
-      :icon="hmsIcon(!(device && device.hms.length > 0))"
-      :label="device && device.hms.length > 0 ? String(device.hms.length) : t('assistant')"
-      font-size="10px"
-      :style="{ color: device && device.hms.length > 0 ? 'orange' : undefined }"
-      @click="router.replace({ name: ROUTE_NAME.MESSAGE })"
-      />
+    <div class="card hms" @click="router.replace({ name: ROUTE_NAME.MESSAGE })">
+      <van-badge :content="device && device.hms.length > 0 ? device?.hms.length : undefined" :offset="[-2, 6]">
+        <img :src="hmsIcon(!(device && device.hms.length > 0))"/>
+      </van-badge>
+      {{ t('assistant') }}
+    </div>
   </div>
   <!-- TODO: Error Popup -->
 </template>
@@ -390,7 +388,7 @@ const handleStop = () => {
   padding-right: 4px;
 }
 .info-cards > .wifi-signal > img,
-.info-cards > .hms > img {
+.info-cards > .hms img {
   width: 32px;
   height: 32px;
   margin-bottom: 12px;
@@ -643,19 +641,23 @@ const handleStop = () => {
   margin-bottom: 2px;
 }
 
-.card.hms {
+.homepage-running > .card.hms {
   grid-column: 2;
   grid-row: 2;
   justify-self: end;
   width: 56px;
   /* height: 72px; */
   background-color: var(--van-background-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
 }
 
-:deep(.card.hms > img) {
-  width: 24px;
-  height: 24px;
-  /* margin-bottom: 0; */
+.homepage-running > .card.hms img {
+  width: 28px;
+  height: 28px;
 }
 
 @media (orientation: portrait) {
@@ -696,7 +698,7 @@ const handleStop = () => {
     justify-content: flex-start;
   }
 
-  .card.hms {
+  .homepage-running > .card.hms {
     display: none;
   }
 }
