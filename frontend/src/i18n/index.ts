@@ -169,6 +169,7 @@ export const messages = {
     print_error_warning: '警告',
     print_error_continue: '继续（问题已解决）',
     print_error_goto_assistant: '前往机器助手',
+    firmware_not_supported_warning: '固件版本过高，无法进行局域网控制，请降级至01.08.01.00或更低版本',
   },
   en: {
     developing: 'Coming soon',
@@ -310,6 +311,7 @@ export const messages = {
     print_error_warning: 'Warning',
     print_error_continue: 'Resume (Problem solved)',
     print_error_goto_assistant: 'Troubleshooting Assistant',
+    firmware_not_supported_warning: 'Firmware version too high, local network control not available. Please downgrade to 01.08.01.00 or lower.',
   },
 }
 

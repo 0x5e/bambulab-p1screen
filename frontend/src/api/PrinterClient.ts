@@ -384,9 +384,9 @@ export class PrinterClient {
     if (!module) return false
 
     const sw_ver = Number(module.sw_ver.split('.').slice(0,2).join('.')) 
-    if (['Bambu Lab P1P', 'Bambu Lab P1S', 'Bambu Lab X1E', 'Bambu Lab X1C'].includes(module.product_name) && sw_ver< 1.06) {
+    if (['Bambu Lab P1P', 'Bambu Lab P1S', 'Bambu Lab X1E', 'Bambu Lab X1C'].includes(module.product_name) && sw_ver < 1.06) {
       return true
-    } else if (['Bambu Lab A1', 'Bambu Lab A1 Mini'].includes(module.product_name) && sw_ver< 1.04) {
+    } else if (['Bambu Lab A1', 'Bambu Lab A1 Mini'].includes(module.product_name) && sw_ver < 1.04) {
       return true
     }
 

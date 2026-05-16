@@ -54,6 +54,7 @@ import { computed, onMounted, onUnmounted, watch, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { showDialog } from 'vant'
 import { bindPrinterClient, unbindPrinterClient, usePrinterStore } from './stores/printer'
 import { PrinterClient } from './api/PrinterClient'
 import { ROUTE_NAME } from './router/routes'
@@ -68,7 +69,7 @@ import IconSMS from '~icons/material-symbols/sms-rounded'
 
 const route = useRoute()
 const router = useRouter()
-const { device } = usePrinterStore()
+const { device, modules } = usePrinterStore()
 const { locale, t } = useI18n()
 const client = PrinterClient.getInstance()
 
@@ -97,6 +98,15 @@ onMounted(() => {
 
 onUnmounted(() => {
   unbindPrinterClient()
+})
+
+watch(modules, () => {
+  const module = modules.value?.find(item => item.name === 'ota')
+    if (!module) return
+    const sw_ver = Number(module.sw_ver.split('.').slice(0,2).join('.')) 
+    if (['Bambu Lab P1P', 'Bambu Lab P1S'].includes(module.product_name) && sw_ver >= 1.09) {
+      showDialog({ message: t('firmware_not_supported_warning') })
+    }
 })
 
 const showPrintError = ref(false)
