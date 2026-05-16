@@ -216,7 +216,7 @@ const handleResume = () => {
 }
 
 .van-popup {
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .error-popover {
