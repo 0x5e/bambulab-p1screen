@@ -168,8 +168,8 @@ const speedText = computed(() => {
   }, {
     label: t('speed_silent'),
     value: PrintSpeedLevel.Silent,
-  }].filter(item => item.value === device.value?.spd_lvl)
-  return (speed.length > 0) ? speed[0].label : ''
+  }].find(item => item.value === device.value?.spd_lvl)
+  return speed?.label || ''
 })
 
 const activeFanCount = () => [FanType.Part, FanType.Aux, FanType.Chamber].filter(type => client.getFanSpeed(type) > 0).length

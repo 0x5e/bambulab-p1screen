@@ -97,18 +97,12 @@ const isReadonly = computed(() => tray.value && tray.value?.tag_uid?.length > 0 
 type FilamentVendor = { filament_id: string, filament_name: string, manufacturer: string, material: string, min_temperature: number, max_temperature: number }
 
 const getCurrentFilament = () => {
-  const result = filamentList.filter(item => item.filament_id === tray.value?.tray_info_idx)
-  if (result.length > 0) {
-    return result[0] as FilamentVendor
-  }
-  return null
+  const result = filamentList.find(item => item.filament_id === tray.value?.tray_info_idx)
+  return result as FilamentVendor || null
 }
 const getSelectedFilament = () => {
-  const result = filamentList.filter(item => item.filament_id === filamentId.value)
-  if (result.length > 0) {
-    return result[0] as FilamentVendor
-  }
-  return null
+  const result = filamentList.find(item => item.filament_id === filamentId.value)
+  return result as FilamentVendor || null
 }
 const getFilamentListOf = (manufacturer: string) => filamentList.filter(item => item.manufacturer === manufacturer) as FilamentVendor[]
 const isCustomFilament = computed(() => getCurrentFilament() === null)

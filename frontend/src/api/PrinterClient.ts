@@ -380,13 +380,13 @@ export class PrinterClient {
 
   // https://github.com/BambuTools/bambulabs_api/blob/5bd1e84a9b0c21ab7cdfdccac9dab43994319b0d/bambulabs_api/mqtt_client.py#L25
   private setTemperatureSupport() {
-    const module = this.device.module?.filter(item => item.name === 'ota')
-    if (module?.length !== 1) return false
+    const module = this.device.module?.find(item => item.name === 'ota')
+    if (!module) return false
 
-    const sw_ver = Number(module[0].sw_ver.split('.').slice(0,2).join('.')) 
-    if (['Bambu Lab P1P', 'Bambu Lab P1S', 'Bambu Lab X1E', 'Bambu Lab X1C'].includes(module[0].product_name) && sw_ver< 1.06) {
+    const sw_ver = Number(module.sw_ver.split('.').slice(0,2).join('.')) 
+    if (['Bambu Lab P1P', 'Bambu Lab P1S', 'Bambu Lab X1E', 'Bambu Lab X1C'].includes(module.product_name) && sw_ver< 1.06) {
       return true
-    } else if (['Bambu Lab A1', 'Bambu Lab A1 Mini'].includes(module[0].product_name) && sw_ver< 1.04) {
+    } else if (['Bambu Lab A1', 'Bambu Lab A1 Mini'].includes(module.product_name) && sw_ver< 1.04) {
       return true
     }
 
