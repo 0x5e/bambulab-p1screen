@@ -364,10 +364,12 @@ const handleStop = () => {
 }
 .info-cards > div {
   flex: 1;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   color: var(--van-text-color-2);
   height: 100%;
-  align-content: center;
 }
 .info-cards > div:active {
   filter: brightness(0.8);
@@ -379,6 +381,9 @@ const handleStop = () => {
   flex: initial;
   margin: -4px;
   opacity: 0.3;
+}
+.info-cards > .nozzle-temp > img {
+  margin-bottom: 4px;
 }
 .info-cards > .nozzle-temp .temp-value {
   color: var(--van-text-color);
