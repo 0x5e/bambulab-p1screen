@@ -30,3 +30,5 @@ android/app/release/
 android/app/src/main/assets/web/*
 !android/app/src/main/assets/web/.gitkeep
 keystore.jks
+
+.claude/

@@ -28,7 +28,7 @@
 
     <div class="card list-item firmware-card" clickable @click="router.push({ name: ROUTE_NAME.SETTING_FIRMWARE })">
       <span class="item-label">{{ t('firmware') }}</span>
-      <div class="item-value">
+      <div v-if="modules" class="item-value">
         {{ deviceModule?.sw_ver }}
         <i-material-symbols-chevron-right-rounded />
       </div>
