@@ -38,11 +38,10 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { showDialog, showToast } from 'vant'
-import { PrinterClient } from '../../api/PrinterClient'
-import { TemperatureType } from '../../api/enums'
+import { TemperatureType } from '@bambulab-p1screen/printer-api'
+import { client } from '../../printer'
 import { usePrinterStore } from '../../stores/printer'
 
-const client = PrinterClient.getInstance()
 const { device } = usePrinterStore()
 const { t } = useI18n()
 const showTempPopup = ref(false)

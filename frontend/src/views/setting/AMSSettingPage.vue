@@ -32,13 +32,12 @@
 <script setup lang="tsx">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { PrinterClient } from '../../api/PrinterClient'
-import { HomeFlagBit } from '../../api/enums'
+import { HomeFlagBit } from '@bambulab-p1screen/printer-api'
+import { client } from '../../printer'
 import { showToast } from 'vant'
 import { usePrinterStore } from '../../stores/printer'
 
 const { t } = useI18n()
-const client = PrinterClient.getInstance()
 const { device } = usePrinterStore()
 const tray_read_option = ref(device.value?.ams.insert_flag === true)
 const startup_read_option = ref(device.value?.ams.power_on_flag === true)

@@ -1,4 +1,3 @@
-
 export enum FanType {
   Part = 1,
   Aux = 2,

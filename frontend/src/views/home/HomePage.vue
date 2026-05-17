@@ -5,7 +5,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { GcodeState } from '../../api/enums'
+import { GcodeState } from '@bambulab-p1screen/printer-api'
 import { usePrinterStore } from '../../stores/printer'
 import HomeIdlePage from './HomeIdlePage.vue'
 import HomePrintingPage from './HomePrintingPage.vue'

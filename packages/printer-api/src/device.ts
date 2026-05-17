@@ -9,7 +9,6 @@ import type {
 import { type Module } from './module'
 
 export type DevicePrint = {
-
   // device
   wifi_signal: string
   sdcard: boolean
@@ -38,7 +37,7 @@ export type DevicePrint = {
   ams_rfid_status: number
   ams: DeviceAMSInfo
   vt_tray: DeviceTray
-  
+
   // print state
   stg_cur: CurrentStage
   gcode_state: GcodeState
@@ -53,7 +52,6 @@ export type DevicePrint = {
   subtask_id: string
   subtask_name: string
   print_error: number
-
   home_flag: number
   hms: DeviceHMS[]
 }

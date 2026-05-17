@@ -67,7 +67,7 @@ import { computed, Ref, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { showToast, showConfirmDialog } from 'vant'
-import { PrinterClient } from '../../api/PrinterClient'
+import { client } from '../../printer'
 import filamentList from '../../assets/filament.json'
 import filamentColorList from '../../assets/colors.json'
 import { colord } from 'colord'
@@ -77,7 +77,6 @@ const manufacturerList = [...new Set(filamentList.map(item => item.manufacturer)
 
 const route = useRoute()
 const router = useRouter()
-const client = PrinterClient.getInstance()
 
 const { device } = usePrinterStore()
 const { t } = useI18n()

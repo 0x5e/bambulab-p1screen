@@ -64,18 +64,17 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { type DeviceTray } from '@bambulab-p1screen/printer-api'
 import { PopoverAction, showToast } from 'vant'
 import { useRouter } from 'vue-router'
+import { client } from '../../printer'
 import { ROUTE_NAME } from '../../router/routes'
-import { PrinterClient } from '../../api/PrinterClient'
-import { DeviceTray } from '../../api/device'
 import { amsPrefix } from '../../utils/ams'
 import { humIcon } from '../../utils/icon'
 import { usePrinterStore } from '../../stores/printer'
 
 const router = useRouter()
 const { t } = useI18n()
-const client = PrinterClient.getInstance()
 
 const { device } = usePrinterStore()
 const currentAmsId = ref<string | undefined>(device.value && device.value.ams.ams.length > 0 ? device.value.ams.ams[0].id : undefined)

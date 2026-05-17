@@ -1,6 +1,6 @@
 import { watch, type Ref } from 'vue'
 import { unzipSync } from 'fflate'
-import type { Project } from '../api/project'
+import type { Project } from '@bambulab-p1screen/printer-api'
 import { saveProject } from '../utils/project'
 
 import brokenThumbnail from '../assets/images/monitor_brokenimg.png'

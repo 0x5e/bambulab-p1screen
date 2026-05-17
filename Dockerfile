@@ -6,6 +6,7 @@ ENV TAG_NAME=$TAG_NAME
 COPY package*.json ./
 COPY frontend/package.json ./frontend/package.json
 COPY backend/package.json ./backend/package.json
+COPY packages/printer-api/package.json ./packages/printer-api/package.json
 RUN npm ci
 
 COPY . .

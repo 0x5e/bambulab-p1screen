@@ -13,12 +13,11 @@
 <script setup lang="tsx">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { PrinterClient } from '../../api/PrinterClient'
-import { HomeFlagBit } from '../../api/enums'
+import { HomeFlagBit } from '@bambulab-p1screen/printer-api'
+import { client } from '../../printer'
 import { usePrinterStore } from '../../stores/printer'
 
 const { t } = useI18n()
-const client = PrinterClient.getInstance()
 const { device } = usePrinterStore()
 const auto_recovery = ref(Boolean((device.value?.home_flag ?? 0) & (1 << HomeFlagBit.auto_recovery)))
 

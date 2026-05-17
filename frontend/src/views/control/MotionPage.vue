@@ -81,12 +81,11 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { PrinterClient } from '../../api/PrinterClient'
+import { client } from '../../printer'
 import bedUpImage from '../../assets/images/monitor_bed_up.svg'
 import bedDownImage from '../../assets/images/monitor_bed_down.svg'
 
 const { t } = useI18n()
-const client = PrinterClient.getInstance()
 
 const handleMove = (axis: 'home' | 'x' | 'y' | 'z', step: -10 | -1 | 0| 1 | 10) => {
   console.log(`[XYMotion] move axis=${axis}, step=${step}`)

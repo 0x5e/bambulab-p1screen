@@ -1,5 +1,4 @@
-import { PrinterClient } from '../api/PrinterClient'
-import { Project } from '../api/project'
+import { type Project } from '@bambulab-p1screen/printer-api'
 
 export const PROJECTS_STORAGE_KEY = 'projects'
 
@@ -30,10 +29,7 @@ export const getProjects = () => {
   }
 }
 
-export const getCurrentProject = () => {
-  const client = PrinterClient.getInstance()
-  const taskId = client.device.print?.task_id
-  const subtaskId = client.device.print?.subtask_id
+export const getCurrentProject = (taskId?: string, subtaskId?: string) => {
   if (!taskId || !subtaskId) {
     return null
   }

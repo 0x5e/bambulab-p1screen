@@ -58,11 +58,10 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { showToast } from 'vant'
 import { useRoute, useRouter } from 'vue-router'
-import { PrinterClient } from '../../api/PrinterClient'
+import { client, connectPrinter } from '../../printer'
 import { addDevice, getDevices, removeDevice, getCurrentDevice,setCurrentDevice } from '../../utils/device'
 
 const { t } = useI18n()
-const client = PrinterClient.getInstance()
 const route = useRoute()
 const router = useRouter()
 
@@ -79,9 +78,15 @@ const canSave = computed(() => Boolean(name.value && ip.value && serial.value &&
 
 const handleSave = () => {
   if (!canSave.value) return
-  addDevice({ name: name.value, ip: ip.value, serial: serial.value, code: code.value })
+  const device = {
+    name: name.value,
+    ip: ip.value,
+    serial: serial.value,
+    code: code.value,
+  }
+  addDevice(device)
   setCurrentDevice(serial.value)
-  client.connect(ip.value, serial.value, code.value)
+  connectPrinter(device)
   router.back()
   showToast({
     message: t('save_success'),
@@ -96,7 +101,7 @@ const handleDelete = () => {
   if (!current) {
     client.disconnect()
   } else {
-    client.connect(current.ip, current.serial, current.code)
+    connectPrinter(current)
   }
   router.back()
   showToast({

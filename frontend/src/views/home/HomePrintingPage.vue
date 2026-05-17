@@ -76,8 +76,8 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { showToast } from 'vant'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { CurrentStage } from '../../api/enums'
-import { PrinterClient } from '../../api/PrinterClient'
+import { CurrentStage } from '@bambulab-p1screen/printer-api'
+import { client } from '../../printer'
 import { usePrintStatus } from '../../composables/usePrintStatus'
 import { useProjectThumbnail } from '../../composables/useProjectThumbnail'
 import { ROUTE_NAME } from '../../router/routes'
@@ -99,7 +99,6 @@ import nozzleOcclusionThumbnail from '../../assets/images/indicator_occlusion_fi
 
 const { t } = useI18n()
 const router = useRouter()
-const client = PrinterClient.getInstance()
 const { device, project } = usePrinterStore()
 
 const taskCardRef = ref<HTMLElement | null>(null)

@@ -30,9 +30,9 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { type DeviceHMS } from '@bambulab-p1screen/printer-api'
 import QRCode from 'qrcode'
 import { usePrinterStore } from '../../stores/printer'
-import { DeviceHMS } from '../../api/device'
 import hmsData from '../../assets/devicehms_01S.json'
 
 const { locale, t } = useI18n()

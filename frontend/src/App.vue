@@ -55,8 +55,8 @@ import { useRoute, useRouter } from 'vue-router'
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { showDialog } from 'vant'
+import { client } from './printer'
 import { bindPrinterClient, unbindPrinterClient, usePrinterStore } from './stores/printer'
-import { PrinterClient } from './api/PrinterClient'
 import { ROUTE_NAME } from './router/routes'
 import hmsData from './assets/devicehms_01S.json'
 import hmsActionData from './assets/erroractions_01S.json'
@@ -71,7 +71,6 @@ const route = useRoute()
 const router = useRouter()
 const { device, modules } = usePrinterStore()
 const { locale, t } = useI18n()
-const client = PrinterClient.getInstance()
 
 type NavItem = {
   key: string

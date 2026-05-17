@@ -33,8 +33,8 @@
 import { colord } from 'colord'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { DeviceTray } from '@bambulab-p1screen/printer-api'
 import { type PopoverAction } from 'vant'
-import type { DeviceTray } from '../api/device'
 
 const { t } = useI18n()
 

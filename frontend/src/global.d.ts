@@ -1,5 +1,5 @@
 // src/global.d.ts
-import { PrinterClient } from "./api/PrinterClient";
+import { PrinterClient } from '@bambulab-p1screen/printer-api'
 
 export {};
 

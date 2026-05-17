@@ -2,8 +2,8 @@ import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { ActionSheet, Badge, Button, Checkbox, Slider, Progress, Popup, Popover, Overlay, Dialog, Cell, CellGroup, Empty, Tab, Tabs, Switch, Stepper, Field } from 'vant'
 import App from './App.vue'
-import { PrinterClient } from './api/PrinterClient'
 import { i18n } from './i18n'
+import { client, connectPrinter } from './printer'
 import { routes } from './router/routes'
 import { getCurrentDevice } from './utils/device'
 import 'vant/lib/index.css'
@@ -27,7 +27,7 @@ import './styles/theme.css'
 //   })
 // }
 
-window.client = PrinterClient.getInstance()
+window.client = client
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -63,5 +63,5 @@ window.addEventListener('contextmenu', (event) => {
 
 const storedDevice = getCurrentDevice()
 if (storedDevice) {
-  window.client.connect(storedDevice.ip, storedDevice.serial, storedDevice.code)
+  connectPrinter(storedDevice)
 }

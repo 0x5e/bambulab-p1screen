@@ -4,7 +4,8 @@
   "type": "module",
   "workspaces": [
     "frontend",
-    "backend"
+    "backend",
+    "packages/*"
   ],
   "scripts": {
     "dev": "concurrently \"npm:dev:web\" \"npm:dev:server\"",

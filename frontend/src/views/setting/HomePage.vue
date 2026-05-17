@@ -55,15 +55,14 @@ import { computed, ref, watch } from 'vue'
 import { showToast } from 'vant'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { client, connectPrinter } from '../../printer'
 import { ROUTE_NAME } from '../../router/routes'
 import { getCurrentDevice } from '../../utils/device'
-import { PrinterClient } from '../../api/PrinterClient'
 import { usePrinterStore } from '../../stores/printer'
 
 const router = useRouter()
 const { t } = useI18n()
 
-const client = PrinterClient.getInstance()
 const { device, modules } = usePrinterStore()
 
 const getStatusLabel = () => {
@@ -110,7 +109,7 @@ const handleManageDevice = () => {
 const handleReconnect = () => {
   const storedDevice = getCurrentDevice()
   if (!storedDevice) return
-  client.connect(storedDevice.ip, storedDevice.serial, storedDevice.code)
+  connectPrinter(storedDevice)
   updateConnectionStatus()
 }
 

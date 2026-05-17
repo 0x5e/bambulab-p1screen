@@ -78,14 +78,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { FanType } from '../api/enums'
-import { PrinterClient } from '../api/PrinterClient'
+import { FanType } from '@bambulab-p1screen/printer-api'
+import { client } from '../printer'
 import { usePrinterStore } from '../stores/printer'
 import fanOnIcon from '../assets/images/monitor_fan_on.svg'
 import fanOffIcon from '../assets/images/monitor_fan_off.svg'
 
 const { t } = useI18n()
-const client = PrinterClient.getInstance()
 const { device } = usePrinterStore()
 
 const getFanSpeedPercent = (type: FanType) => Math.round(client.getFanSpeed(type) / 255 * 10) * 10

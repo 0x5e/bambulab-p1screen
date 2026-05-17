@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { PrintSpeedLevel } from '../api/enums'
+import { PrintSpeedLevel } from '@bambulab-p1screen/printer-api'
 
 const { t } = useI18n()
 

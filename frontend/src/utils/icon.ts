@@ -1,4 +1,4 @@
-import { PrinterClient } from '../api/PrinterClient'
+import { client } from '../printer'
 import hmsOkIcon from '../assets/images/hms_ok.png'
 import hmsErrorIcon from '../assets/images/hms_error.png'
 import humLevel1Icon from '../assets/images/hum_level1_no_num_dark.svg'
@@ -12,8 +12,6 @@ import signalNoIcon from '../assets/images/monitor_signal_no.svg'
 import signalWeakIcon from '../assets/images/monitor_signal_weak.svg'
 import signalMiddleIcon from '../assets/images/monitor_signal_middle.svg'
 import signalStrongIcon from '../assets/images/monitor_signal_strong.svg'
-
-const client = PrinterClient.getInstance()
 
 export const hmsIcon = (ok: boolean) => ok ? hmsOkIcon : hmsErrorIcon
 

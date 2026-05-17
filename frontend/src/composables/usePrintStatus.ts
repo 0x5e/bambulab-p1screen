@@ -1,8 +1,7 @@
 import { computed, type Ref } from 'vue'
 import humanizeDuration from 'humanize-duration'
 import { useI18n } from 'vue-i18n'
-import { CurrentStage, GcodeState } from '../api/enums'
-import type { DevicePrint } from '../api/device'
+import { CurrentStage, GcodeState, type DevicePrint } from '@bambulab-p1screen/printer-api'
 
 const shortEnglishHumanizer = humanizeDuration.humanizer({
   language: 'shortEn',

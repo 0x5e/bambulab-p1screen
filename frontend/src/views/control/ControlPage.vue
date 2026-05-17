@@ -104,10 +104,10 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { FanType, GcodeState, LightType, PrintSpeedLevel, TemperatureType } from '@bambulab-p1screen/printer-api'
 import { ROUTE_NAME } from '../../router/routes'
 import { showDialog } from 'vant'
-import { FanType, GcodeState, LightType, PrintSpeedLevel, TemperatureType } from '../../api/enums'
-import { PrinterClient } from '../../api/PrinterClient'
+import { client } from '../../printer'
 import { lightIcon } from '../../utils/icon'
 import { usePrinterStore } from '../../stores/printer'
 
@@ -117,7 +117,6 @@ import bedOffIcon from '../../assets/images/monitor_bed_temp.svg'
 
 const router = useRouter()
 const { t } = useI18n()
-const client = PrinterClient.getInstance()
 const { device } = usePrinterStore()
 const lightState = computed(() => device.value?.lights_report?.find(item => item.node === LightType.Chamber)?.mode === 'on')
 const lightSwitchValue = ref(lightState.value)

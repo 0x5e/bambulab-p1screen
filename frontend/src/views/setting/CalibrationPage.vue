@@ -38,11 +38,10 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAME } from '../../router/routes'
 import { showConfirmDialog } from 'vant'
-import { PrinterClient } from '../../api/PrinterClient'
+import { client } from '../../printer'
 
 const { t } = useI18n()
 const router = useRouter()
-const client = PrinterClient.getInstance()
 
 const bedLevelling = ref(true)
 const vibrationCompensation = ref(true)

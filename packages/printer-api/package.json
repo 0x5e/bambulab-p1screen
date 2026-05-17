@@ -1,0 +1,11 @@
+{
+  "name": "@bambulab-p1screen/printer-api",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "mqtt": "^5.10.1"
+  }
+}

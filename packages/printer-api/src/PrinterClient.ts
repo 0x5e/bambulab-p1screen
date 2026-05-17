@@ -13,9 +13,14 @@ export enum PrinterEvent {
   PRINT_PROJECT_FILE = 'print.project_file',
 }
 
-export class PrinterClient {
-  private static instance: PrinterClient | null = null
+export type PrinterClientConnectOptions = {
+  ip: string
+  serial: string
+  code: string
+  mqttUrl: string
+}
 
+export class PrinterClient {
   private sequenceId = 0
   private reportTopic = ''
   private requestTopic = ''
@@ -28,17 +33,6 @@ export class PrinterClient {
   mqttClient: MqttClient | null = null
   lastError: Error | null = null
   device: DeviceState = {}
-
-  /**
-   * Returns the singleton PrinterClient instance.
-   * @returns The global PrinterClient instance.
-   */
-  static getInstance() {
-    if (!PrinterClient.instance) {
-      PrinterClient.instance = new PrinterClient()
-    }
-    return PrinterClient.instance
-  }
 
   on(event: PrinterEvent, callback: (params: any) => void) {
     if (!this.listeners[event]) {
@@ -64,11 +58,11 @@ export class PrinterClient {
    * @param code Printer access code.
    * @returns The MQTT client instance when connection is initiated, otherwise null.
    */
-  connect(ip: string, serial: string, code: string) {
+  connect({ ip, serial, code, mqttUrl }: PrinterClientConnectOptions) {
     console.info(`[PrintClient] connect to: ${ip}, serial: ${serial}, code: ${code}`)
     if (typeof window === 'undefined') return null
 
-    if (!ip || !serial || !code) {
+    if (!ip || !serial || !code || !mqttUrl) {
       console.warn('[PrintClient] missing connection parameters')
       return null
     }
@@ -79,10 +73,7 @@ export class PrinterClient {
     this.device.module = undefined
 
     try {
-      const wsProtocol = location.protocol === 'https:' ? 'wss' : 'ws'
-      const upstreamUrl = `mqtts://${ip}:8883`
-      const proxyUrl = `${wsProtocol}://${location.host}/mqtt?url=${encodeURIComponent(upstreamUrl)}`
-      const mqttClient = mqtt.connect(proxyUrl, {
+      const mqttClient = mqtt.connect(mqttUrl, {
         username: 'bblp',
         password: code,
         protocolVersion: 4,
@@ -227,7 +218,7 @@ export class PrinterClient {
     } else {
       const print: any = Object.assign({}, this.device.print)
       for (const key in printData) {
-        if (['ams', 'vt_tray'].includes(key)) { // incomplete data
+        if (['ams', 'vt_tray'].includes(key)) {
           print[key] = Object.assign({}, print[key])
           for (const key2 in printData[key]) {
             print[key][key2] = printData[key][key2]
@@ -246,7 +237,7 @@ export class PrinterClient {
    * @returns No return value.
    */
   async updateAllData() {
-    this.request('pushing.pushall') // no response
+    this.request('pushing.pushall')
 
     const result = await this.request('info.get_version')
     this.device.module = result.module
@@ -323,9 +314,6 @@ export class PrinterClient {
     const dbm = parseInt(wifiSignal)
     if (isNaN(dbm)) return 0
 
-    // Normalize dBm to percentage
-    // -30dBm or better -> 100%
-    // -100dBm or worse -> 0%
     const minDbm = -100
     const maxDbm = -30
     const percentage = Math.round(((dbm - minDbm) / (maxDbm - minDbm)) * 100)
@@ -339,7 +327,7 @@ export class PrinterClient {
    * @returns No return value.
    */
   async setFanSpeed(type: FanType, speed: number) {
-    if (!this.device.print) return;
+    if (!this.device.print) return
     const param = `M106 P${type as number} S${speed}\n`
     const result = await this.request('print.gcode_line', { param })
     if (result.param === param) {
@@ -355,7 +343,7 @@ export class PrinterClient {
    * @returns No return value.
    */
   async setPrintSpeedLevel(level: PrintSpeedLevel) {
-    if (!this.device.print) return;
+    if (!this.device.print) return
     const param = `${level}`
     const result = await this.request('print.print_speed', { param })
     if (result.param === param) {
@@ -370,20 +358,19 @@ export class PrinterClient {
    */
   async setLight(type: LightType, on: boolean) {
     const result = await this.request('system.ledctrl', {
-      "led_node": type,
-      "led_mode": on ? "on" : "off",
+      'led_node': type,
+      'led_mode': on ? 'on' : 'off',
     })
-    if (!this.device.print) return;
+    if (!this.device.print) return
     const light = this.device.print.lights_report?.find(item => item.node === result.led_node)
     if (light) light.mode = result.led_mode
   }
 
-  // https://github.com/BambuTools/bambulabs_api/blob/5bd1e84a9b0c21ab7cdfdccac9dab43994319b0d/bambulabs_api/mqtt_client.py#L25
   private setTemperatureSupport() {
     const module = this.device.module?.find(item => item.name === 'ota')
     if (!module) return false
 
-    const sw_ver = Number(module.sw_ver.split('.').slice(0,2).join('.')) 
+    const sw_ver = Number(module.sw_ver.split('.').slice(0, 2).join('.'))
     if (['Bambu Lab P1P', 'Bambu Lab P1S', 'Bambu Lab X1E', 'Bambu Lab X1C'].includes(module.product_name) && sw_ver < 1.06) {
       return true
     } else if (['Bambu Lab A1', 'Bambu Lab A1 Mini'].includes(module.product_name) && sw_ver < 1.04) {
@@ -417,7 +404,6 @@ export class PrinterClient {
         }
         break
       case TemperatureType.Chamber:
-        // not implemented
         return
     }
     this.request('print.gcode_line', { param })
@@ -446,5 +432,4 @@ export class PrinterClient {
   setStop() {
     this.request('print.stop', { 'param': '' })
   }
-
 }

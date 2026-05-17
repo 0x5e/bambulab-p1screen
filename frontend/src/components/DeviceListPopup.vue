@@ -43,13 +43,12 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { connectPrinter } from '../printer'
 import { getCurrentDevice, setCurrentDevice, getDevices } from '../utils/device'
-import { PrinterClient } from '../api/PrinterClient'
 import { showToast } from 'vant'
 import { ROUTE_NAME } from '../router/routes'
 
 const { t } = useI18n()
-const client = PrinterClient.getInstance()
 
 const props = defineProps<{
   show: boolean
@@ -82,7 +81,7 @@ const handleCellClick = (serial: string) => {
     setCurrentDevice(serial)
     const current = getCurrentDevice()
     if (current) {
-      client.connect(current.ip, current.serial, current.code)
+      connectPrinter(current)
     }
     showToast({
       message: t('switch_success'),
