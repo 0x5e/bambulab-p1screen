@@ -1,8 +1,11 @@
+export type DeviceSource = 'cloud' | 'lan'
+
 export type DeviceItem = {
   name: string
   ip: string
   serial: string
   code: string
+  from: DeviceSource
 }
 
 export const DEVICE_STORAGE_KEY = 'device'
@@ -13,6 +16,7 @@ const normalizeDevice = (value: unknown): DeviceItem => ({
   ip: String((value as Record<string, unknown>)?.ip ?? '').trim(),
   serial: String((value as Record<string, unknown>)?.serial ?? '').trim(),
   code: String((value as Record<string, unknown>)?.code ?? '').trim(),
+  from: (value as Record<string, unknown>)?.from === 'cloud' ? 'cloud' : 'lan',
 })
 
 const writeDevices = (devices: DeviceItem[]) => {

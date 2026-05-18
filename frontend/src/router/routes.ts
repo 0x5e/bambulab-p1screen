@@ -8,6 +8,7 @@ import FilamentPage from '../views/filament/FilamentPage.vue'
 import FilamentAutoRefillPage from '../views/filament/FilamentAutoRefillPage.vue'
 import FilamentEditPage from '../views/filament/FilamentEditPage.vue'
 import SettingHomePage from '../views/setting/HomePage.vue'
+import SettingDeviceAddPage from '../views/setting/DeviceAddPage.vue'
 import SettingDeviceEditPage from '../views/setting/DeviceEditPage.vue'
 import SettingFirmwarePage from '../views/setting/FirmwarePage.vue'
 import SettingCalibrationPage from '../views/setting/CalibrationPage.vue'
@@ -51,7 +52,7 @@ export const routes: RouteRecordRaw[] = [
   { path: '/filament/auto-refill', name: ROUTE_NAME.FILAMENT_AUTO_REFILL, component: FilamentAutoRefillPage },
   { path: '/filament/edit/:ams_id/:tray_id', name: ROUTE_NAME.FILAMENT_EDIT, component: FilamentEditPage, props: true },
   { path: '/setting', name: ROUTE_NAME.SETTING_HOME, component: SettingHomePage },
-  { path: '/setting/device/add', name: ROUTE_NAME.SETTING_DEVICE_ADD, component: SettingDeviceEditPage },
+  { path: '/setting/device/add', name: ROUTE_NAME.SETTING_DEVICE_ADD, component: SettingDeviceAddPage },
   { path: '/setting/device/edit/:serial', name: ROUTE_NAME.SETTING_DEVICE_EDIT, component: SettingDeviceEditPage, props: true },
   { path: '/setting/firmware', name: ROUTE_NAME.SETTING_FIRMWARE, component: SettingFirmwarePage },
   { path: '/setting/calibration', name: ROUTE_NAME.SETTING_CALIBRATION, component: SettingCalibrationPage },

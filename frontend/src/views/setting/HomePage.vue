@@ -57,7 +57,8 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { client, connectPrinter } from '../../printer'
 import { ROUTE_NAME } from '../../router/routes'
-import { getCurrentDevice } from '../../utils/device'
+import { getCurrentDevice, getDevices } from '../../utils/device'
+import { consumeDeviceListPopupRestore } from '../../utils/navigation'
 import { usePrinterStore } from '../../stores/printer'
 
 const router = useRouter()
@@ -80,7 +81,7 @@ const isConnected = ref(client.mqttClient?.connected || false)
 const statusLabel = ref(getStatusLabel())
 const deviceModule = computed(() => modules.value?.find(item => item.name === 'ota'))
 const deviceItem = ref(getCurrentDevice())
-const showDeviceListPopup = ref(false)
+const showDeviceListPopup = ref(consumeDeviceListPopupRestore() && getDevices().length > 0)
 
 watch(
   () => showDeviceListPopup.value,

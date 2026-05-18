@@ -26,8 +26,9 @@
 
     <van-action-sheet
       v-model:show="showLanguageSheet"
-      :actions="languageActions"
+      :description="t('language')"
       :cancel-text="t('cancel')"
+      :actions="languageActions"
       @select="handleLanguageSelect"
     />
   </BaseSubPage>

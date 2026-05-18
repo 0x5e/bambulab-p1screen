@@ -1,11 +1,14 @@
 <template>
-  <BaseSubPage :title="isEditMode ? t('edit_device') : t('add_device')">
+  <BaseSubPage :title="t('edit_device')">
   <div class="device-manage-page">
     <van-cell-group inset>
+      <van-cell :title="t('device_source')" :value="sourceLabel" />
       <van-field
         v-model.trim="name"
+        :readonly="isCloudDevice"
         :label="t('device_name')"
         :placeholder="t('device_name')"
+        autocomplete="off"
         input-align="right"
         enterkeyhint="next"
         @keydown.enter.prevent="ipInputRef?.focus()"
@@ -13,18 +16,20 @@
       <van-field
         ref="ipInputRef"
         v-model.trim="ip"
+        :readonly="isCloudDevice"
         :label="t('ip_address')"
         :placeholder="t('ip_address')"
+        autocomplete="off"
         input-align="right"
         enterkeyhint="next"
-        @keydown.enter.prevent="isEditMode ? codeInputRef?.focus() : serialInputRef?.focus()"
+        @keydown.enter.prevent="codeInputRef?.focus()"
       />
       <van-field
-        ref="serialInputRef"
         v-model.trim="serial"
-        :readonly="isEditMode"
+        readonly
         :label="t('serial_number')"
         :placeholder="t('serial_number')"
+        autocomplete="off"
         input-align="right"
         enterkeyhint="next"
         @keydown.enter.prevent="codeInputRef?.focus()"
@@ -32,8 +37,10 @@
       <van-field
         ref="codeInputRef"
         v-model.trim="code"
+        :readonly="isCloudDevice"
         :label="t('pairing_code')"
         :placeholder="t('pairing_code')"
+        autocomplete="off"
         input-align="right"
         enterkeyhint="done"
         @keydown.enter.prevent="codeInputRef?.blur()"
@@ -42,12 +49,13 @@
 
     <van-cell-group inset>
       <van-cell
+        v-if="!isCloudDevice"
         :title="t('save')"
         class="save-btn"
         :clickable="canSave"
         @click="handleSave"
       />
-      <van-cell v-if="isEditMode" :title="t('delete')" class="delete-btn" @click="handleDelete" />
+      <van-cell :title="t('delete')" class="delete-btn" @click="handleDelete" />
     </van-cell-group>
   </div>
   </BaseSubPage>
@@ -57,28 +65,39 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { showToast } from 'vant'
-import { useRoute, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { client, connectPrinter } from '../../printer'
-import { addDevice, getDevices, removeDevice, getCurrentDevice,setCurrentDevice } from '../../utils/device'
+import { ROUTE_NAME } from '../../router/routes'
+import { addDevice, getCurrentDevice, getDevices, removeDevice, setCurrentDevice } from '../../utils/device'
+import { markDeviceListPopupRestore } from '../../utils/navigation'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
-const isEditMode = computed(() => Boolean(route.params.serial as string | undefined))
-const stored = isEditMode.value ? getDevices().find(item => item.serial === route.params.serial as string) ?? null : null
+const routeSerial = route.params.serial as string
+const stored = getDevices().find(item => item.serial === routeSerial) ?? null
+const source = computed(() => stored?.from ?? 'lan')
+const isCloudDevice = computed(() => source.value === 'cloud')
+const sourceLabel = computed(() => source.value === 'cloud' ? t('device_source_cloud') : t('device_source_lan'))
 const name = ref(stored?.name || '')
 const ip = ref(stored?.ip || '')
-const serial = ref(stored?.serial || '')
+const serial = ref(stored?.serial || routeSerial || '')
 const code = ref(stored?.code || '')
 const ipInputRef = ref<HTMLElement | null>(null)
-const serialInputRef = ref<HTMLElement | null>(null)
 const codeInputRef = ref<HTMLElement | null>(null)
 const canSave = computed(() => Boolean(name.value && ip.value && serial.value && code.value))
 
+onBeforeRouteLeave((to) => {
+  if (to.name === ROUTE_NAME.SETTING_HOME) {
+    markDeviceListPopupRestore()
+  }
+})
+
 const handleSave = () => {
-  if (!canSave.value) return
+  if (isCloudDevice.value || !canSave.value) return
   const device = {
+    from: source.value,
     name: name.value,
     ip: ip.value,
     serial: serial.value,

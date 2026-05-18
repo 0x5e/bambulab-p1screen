@@ -1,19 +1,20 @@
 <template>
   <BasePopup
+    class="device-list-popup"
     :show="show"
     :title="t('device_list')"
     @update:show="emit('update:show', $event)"
   >
     <template #header-right>
-      <van-button
-        class="header-action-btn"
-        type="primary"
-        size="normal"
-        :disabled="devices.length === 0"
-        @click="toggleMode"
-      >
-        {{ isEditMode ? t('cancel') : t('edit') }}
-      </van-button>
+      <i-material-symbols-add-rounded
+        class="header-icon-btn"
+        :aria-label="t('add_device')"
+        role="button"
+        tabindex="0"
+        @click="handleAddDevice"
+        @keydown.enter.prevent="handleAddDevice"
+        @keydown.space.prevent="handleAddDevice"
+      />
     </template>
 
     <div class="device-list-content">
@@ -22,18 +23,25 @@
           v-for="device in devices"
           :key="device.serial"
           class="device-cell"
-          :title="device.name || device.serial"
-          :is-link="isEditMode"
           @click="handleCellClick(device.serial)"
         >
-          <template v-if="!isEditMode && device.serial === currentSerial" #right-icon>
-            <i-material-symbols-check-rounded class="check-icon" />
+          <template #icon>
+            <i-material-symbols-check-rounded
+              :class="{ 'check-icon': true, placeholder: device.serial !== currentSerial }"
+            />
+          </template>
+
+          <template #title>
+            <span class="device-title">{{ device.name || device.serial }}</span>
+          </template>
+
+          <template #right-icon>
+            <i-material-symbols-info-outline-rounded
+              class="info-icon"
+              @click.stop="handleEditDevice(device.serial)"
+            />
           </template>
         </van-cell>
-      </van-cell-group>
-
-      <van-cell-group inset>
-        <van-cell :title="t('add_device')" class="add-device-cell device-cell" @click="router.push({ name: ROUTE_NAME.SETTING_DEVICE_ADD })" />
       </van-cell-group>
     </div>
   </BasePopup>
@@ -59,7 +67,6 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
-const isEditMode = ref(false)
 const devices = ref(getDevices())
 const currentSerial = ref(getCurrentDevice()?.serial ?? '')
 
@@ -68,46 +75,68 @@ const refresh = () => {
   currentSerial.value = getCurrentDevice()?.serial ?? ''
 }
 
-const toggleMode = () => {
-  isEditMode.value = !isEditMode.value
+const handleAddDevice = () => {
+  router.push({ name: ROUTE_NAME.SETTING_DEVICE_ADD })
+}
+
+const handleEditDevice = (serial: string) => {
+  router.push({ name: ROUTE_NAME.SETTING_DEVICE_EDIT, params: { serial } })
 }
 
 const handleCellClick = (serial: string) => {
-  if (isEditMode.value) {
-    router.push({ name: ROUTE_NAME.SETTING_DEVICE_EDIT, params: { serial } })
-  } else {
-    if (currentSerial.value === serial) return
-    currentSerial.value = serial
-    setCurrentDevice(serial)
-    const current = getCurrentDevice()
-    if (current) {
-      connectPrinter(current)
-    }
-    showToast({
-      message: t('switch_success'),
-      position: 'bottom',
-    })
+  if (currentSerial.value === serial) return
+  currentSerial.value = serial
+  setCurrentDevice(serial)
+  const current = getCurrentDevice()
+  if (current) {
+    connectPrinter(current)
   }
+  showToast({
+    message: t('switch_success'),
+    position: 'bottom',
+  })
 }
 
 watch(
   () => props.show,
   (visible) => {
-    if (!visible) {
-      isEditMode.value = false
-      return
-    }
-    refresh()
+    if (visible) refresh()
   }
 )
 </script>
 
 <style scoped>
+:global(.device-list-popup.popup) {
+  width: 250px;
+}
+
+.device-title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .check-icon {
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   color: var(--van-primary-color);
   align-self: center;
+  flex: 0 0 auto;
+  margin-left: -4px;
+  margin-right: 4px;
+}
+
+.check-icon.placeholder {
+  opacity: 0;
+}
+
+.info-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--van-text-color-3);
+  align-self: center;
+  flex: 0 0 auto;
 }
 
 .device-list-content {
@@ -117,10 +146,9 @@ watch(
   margin-bottom: calc(12px + env(safe-area-inset-bottom));
 }
 
-.header-action-btn {
-  width: 80px;
-  height: 32px;
-  font-size: 16px;
+.header-icon-btn {
+  width: 26px;
+  height: 26px;
 }
 
 .van-cell-group {
@@ -132,13 +160,15 @@ watch(
   width: 220px;
 }
 
-.add-device-cell {
-  color: var(--van-blue);
-}
-
 @media (orientation: portrait) {
+  :global(.device-list-popup.popup-bottom) {
+    width: 100%;
+    min-height: 300px;
+  }
+
   .device-cell {
     width: auto;
   }
 }
+
 </style>
