@@ -17,11 +17,13 @@ public final class WebService extends NanoWSD {
 
   private final Context appContext;
   private final FetchHandler fetchHandler;
+  private final HttpProxyHandler httpProxyHandler;
 
   public WebService(int port, Context context) {
     super(port);
     appContext = context;
     fetchHandler = new FetchHandler();
+    httpProxyHandler = new HttpProxyHandler();
   }
 
   @Override
@@ -39,11 +41,16 @@ public final class WebService extends NanoWSD {
   @Override
   protected Response serveHttp(IHTTPSession session) {
     Log.d(TAG, "http " + session.getMethod() + " " + session.getUri());
+
+    String uri = session.getUri();
+    if (uri.startsWith("/api/https/")) {
+      return httpProxyHandler.handle(session);
+    }
+
     if (Method.GET != session.getMethod()) {
       return NanoHTTPD.newFixedLengthResponse(Response.Status.METHOD_NOT_ALLOWED, "text/plain", "Method Not Allowed");
     }
 
-    String uri = session.getUri();
     if ("/api/fetch".equals(uri)) {
       return fetchHandler.handle(session);
     }

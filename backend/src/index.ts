@@ -7,8 +7,70 @@ import { WebSocketServer } from 'ws'
 
 const WEB_PORT = Number(process.env.PORT ?? '8889')
 const WEB_ROOT = path.resolve(process.cwd(), 'dist/web')
+const HOP_BY_HOP_HEADERS = new Set([
+  'connection',
+  'content-encoding',
+  'content-length',
+  'expect',
+  'host',
+  'keep-alive',
+  'proxy-authenticate',
+  'proxy-authorization',
+  'te',
+  'trailer',
+  'transfer-encoding',
+  'upgrade',
+  'x-powered-by',
+])
+const DEFAULT_PROXY_HEADERS = {
+  'User-Agent': 'bambu_network_agent/01.09.05.01',
+  'Accept-Encoding': 'gzip, deflate',
+}
+const FORCED_PROXY_HEADERS = new Set(Object.keys(DEFAULT_PROXY_HEADERS).map(name => name.toLowerCase()))
 
 const app = express()
+app.disable('x-powered-by')
+
+const buildProxyTargetUrl = (req: express.Request) => {
+  const rawPath = req.originalUrl.split('?')[0] ?? ''
+  const encodedTarget = rawPath.slice('/api/https'.length).replace(/^\/+/, '')
+  if (!encodedTarget) {
+    throw new Error('Missing target host')
+  }
+
+  const [targetHost, ...targetPathParts] = encodedTarget.split('/')
+  if (!targetHost) {
+    throw new Error('Missing target host')
+  }
+
+  const targetPath = targetPathParts.length > 0 ? `/${targetPathParts.join('/')}` : '/'
+  const target = new URL(`https://${targetHost}${targetPath}`)
+
+  const queryIndex = req.originalUrl.indexOf('?')
+  if (queryIndex >= 0) {
+    target.search = req.originalUrl.slice(queryIndex)
+  }
+  return target
+}
+
+const buildProxyHeaders = (req: express.Request) => {
+  const headers = new Headers()
+  for (const [name, value] of Object.entries(DEFAULT_PROXY_HEADERS)) {
+    headers.set(name, value)
+  }
+  for (const [name, value] of Object.entries(req.headers)) {
+    const lowerName = name.toLowerCase()
+    if (HOP_BY_HOP_HEADERS.has(lowerName) || FORCED_PROXY_HEADERS.has(lowerName)) {
+      continue
+    }
+    if (Array.isArray(value)) {
+      value.forEach(item => headers.append(name, item))
+    } else if (value !== undefined) {
+      headers.set(name, value)
+    }
+  }
+  return headers
+}
 
 app.get('/api/fetch', async (req, res) => {
   const url = req.query.url as string
@@ -37,6 +99,46 @@ app.get('/api/fetch', async (req, res) => {
     res.status(500).send('Internal Server Error')
   }
 })
+
+const handleHttpProxy: express.RequestHandler = async (req, res) => {
+  let target: URL
+  try {
+    target = buildProxyTargetUrl(req)
+  } catch (err: any) {
+    res.status(400).send(err.message)
+    return
+  }
+
+  const method = req.method.toUpperCase()
+  const hasBody = method !== 'GET' && method !== 'HEAD'
+  try {
+    const response = await fetch(target, {
+      method,
+      headers: buildProxyHeaders(req),
+      body: hasBody ? req : undefined,
+      duplex: hasBody ? 'half' : undefined,
+      redirect: 'manual',
+    } as RequestInit & { duplex?: 'half' })
+
+    res.status(response.status)
+    response.headers.forEach((value, name) => {
+      if (!HOP_BY_HOP_HEADERS.has(name.toLowerCase())) {
+        res.append(name, value)
+      }
+    })
+
+    if (response.body) {
+      Readable.fromWeb(response.body as any).pipe(res)
+    } else {
+      res.end()
+    }
+  } catch (err) {
+    console.error('[server] http proxy error:', err)
+    res.status(502).send('Bad Gateway')
+  }
+}
+
+app.all('/api/https/*', handleHttpProxy)
 
 app.use('/', express.static(WEB_ROOT))
 

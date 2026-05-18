@@ -1,4 +1,13 @@
 export { PrinterClient, PrinterEvent, type PrinterClientConnectOptions } from './PrinterClient'
+export {
+  CloudClient,
+  CloudError,
+  CloudErrorCode,
+  type CloudClientOptions,
+  type CloudDevice,
+  type CloudPreference,
+  type LoginSuccessResult,
+} from './cloud'
 export * from './enums'
 export type {
   DeviceAMS,
