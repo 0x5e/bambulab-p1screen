@@ -14,12 +14,12 @@
       <span class="item-label">{{ t('network') }}</span>
       <div class="item-value">
         {{ getStatusLabel() }}
-        <i-material-symbols-cloud-outline
-          v-if="isConnected && deviceItem?.connect === 'cloud'"
+        <i-material-symbols-lan-outline-rounded
+          v-if="connectionMode === 'local'"
           class="connection-mode-icon"
         />
-        <i-material-symbols-lan-outline-rounded
-          v-else-if="isConnected && deviceItem?.connect === 'local'"
+        <i-material-symbols-cloud-outline
+          v-else-if="connectionMode === 'cloud'"
           class="connection-mode-icon"
         />
         <i-material-symbols-refresh-rounded class="refresh-btn" v-if="!isConnected" @click="handleReconnect"/>
@@ -88,6 +88,10 @@ const getStatusLabel = () => {
 const isConnected = ref(client.mqttClient?.connected || false)
 const statusLabel = ref(getStatusLabel())
 const deviceModule = computed(() => modules.value?.find(item => item.name === 'ota'))
+const connectionMode = computed(() => {
+  if (!isConnected.value || !client.connectOptions) return ''
+  return client.connectOptions.username === 'bblp' ? 'local' : 'cloud'
+})
 const deviceItem = ref(getCurrentDevice())
 const showDeviceListPopup = ref(consumeDeviceListPopupRestore() && getDevices().length > 0)
 

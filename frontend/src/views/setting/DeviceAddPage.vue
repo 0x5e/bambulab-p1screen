@@ -564,6 +564,8 @@ const handleAddCloudDevice = async (device: {
       code: device.code,
     }
     addDevice(deviceItem)
+    setCurrentDevice(device.serial)
+    connectPrinter(deviceItem)
     localDevices.value = getDevices()
     showToast({
       message: t('device_add_success'),

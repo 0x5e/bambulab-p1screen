@@ -32,6 +32,7 @@ export class PrinterClient {
   private listeners: Record<string, ((params: any) => void)[]> = {}
 
   mqttClient: MqttClient | null = null
+  connectOptions: PrinterClientConnectOptions | null = null
   lastError: Error | null = null
   device: DeviceState = {}
 
@@ -60,7 +61,8 @@ export class PrinterClient {
    * @param serial Printer serial number.
    * @returns The MQTT client instance when connection is initiated, otherwise null.
    */
-  connect({ mqttUrl, username, password, serial }: PrinterClientConnectOptions) {
+  connect(options: PrinterClientConnectOptions) {
+    const { mqttUrl, username, password, serial } = options
     console.info(`[PrintClient] connect to: ${mqttUrl}, username: ${username}, serial: ${serial}`)
     if (typeof window === 'undefined') return null
 
@@ -69,6 +71,7 @@ export class PrinterClient {
       return null
     }
     this.stopConnection('recreate connection')
+    this.connectOptions = options
     this.reportTopic = `device/${serial}/report`
     this.requestTopic = `device/${serial}/request`
     this.device.print = undefined
@@ -128,6 +131,7 @@ export class PrinterClient {
       this.mqttClient.end(true)
     }
     this.mqttClient = null
+    this.connectOptions = null
     this.reportTopic = ''
     this.requestTopic = ''
     this.device.print = undefined
