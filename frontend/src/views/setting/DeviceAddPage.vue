@@ -5,7 +5,7 @@
       <van-tab name="server">
         <template #title>
           <span class="device-mode-tab-title">
-            <i-material-symbols-cloud />
+            <i-material-symbols-cloud-outline />
             {{ t('server_mode') }}
           </span>
         </template>
@@ -47,7 +47,8 @@
                       v-else
                       class="cloud-device-add-btn"
                       type="button"
-                      @click="handleAddCloudDevice"
+                      :disabled="addingCloudDeviceSerial === device.serial"
+                      @click="handleAddCloudDevice(device)"
                     >
                       {{ t('add') }}
                     </button>
@@ -61,18 +62,19 @@
             </van-cell-group>
           </template>
           <template v-else>
-            <van-cell-group inset>
-              <van-cell :title="t('region')" class="region-cell">
-                <template #value>
-                  <van-tabs v-model:active="serverRegion" class="mode-tabs region-tabs">
-                    <van-tab name="china" :title="t('region_china')" />
-                    <van-tab name="global" :title="t('region_global')" />
-                  </van-tabs>
-                </template>
-              </van-cell>
+            <form class="cloud-login-form" @submit.prevent="handleServerLogin">
+              <van-cell-group inset>
+                <van-cell :title="t('region')" class="region-cell">
+                  <template #value>
+                    <van-tabs v-model:active="serverRegion" class="mode-tabs region-tabs">
+                      <van-tab name="china" :title="t('region_china')" />
+                      <van-tab name="global" :title="t('region_global')" />
+                    </van-tabs>
+                  </template>
+                </van-cell>
 
-              <template v-if="serverRegion === 'china'">
                 <van-field
+                  v-if="serverRegion === 'china'"
                   :model-value="phone"
                   :label="t('phone_number')"
                   :placeholder="t('phone_number')"
@@ -85,6 +87,17 @@
                   @keydown.enter.prevent="verificationCodeInputRef?.focus()"
                 />
                 <van-field
+                  v-else
+                  v-model.trim="email"
+                  :label="t('email')"
+                  :placeholder="t('email')"
+                  input-align="right"
+                  type="email"
+                  autocomplete="username"
+                  enterkeyhint="next"
+                  @keydown.enter.prevent="verificationCodeInputRef?.focus()"
+                />
+                <van-field
                   ref="verificationCodeInputRef"
                   :model-value="verificationCode"
                   :label="t('verification_code')"
@@ -93,9 +106,9 @@
                   type="tel"
                   inputmode="numeric"
                   maxlength="6"
+                  autocomplete="one-time-code"
                   enterkeyhint="done"
                   @update:model-value="verificationCode = normalizeDigits($event, VERIFICATION_CODE_LENGTH)"
-                  @keydown.enter.prevent="handleServerLogin"
                 >
                   <template #button>
                     <button
@@ -108,45 +121,24 @@
                     </button>
                   </template>
                 </van-field>
-              </template>
-              <template v-else>
-                <van-field
-                  v-model.trim="email"
-                  :label="t('email')"
-                  :placeholder="t('email')"
-                  input-align="right"
-                  type="email"
-                  enterkeyhint="next"
-                  @keydown.enter.prevent="passwordInputRef?.focus()"
-                />
-                <van-field
-                  ref="passwordInputRef"
-                  v-model="password"
-                  :label="t('password')"
-                  :placeholder="t('password')"
-                  input-align="right"
-                  type="password"
-                  enterkeyhint="done"
-                  @keydown.enter.prevent="handleServerLogin"
-                />
-              </template>
-            </van-cell-group>
+              </van-cell-group>
 
-            <van-cell-group inset>
-              <van-cell
-                :title="t('login')"
-                class="save-btn"
-                :clickable="canServerLogin"
-                @click="handleServerLogin"
-              />
-            </van-cell-group>
+              <van-cell-group inset>
+                <van-cell
+                  :title="t('login')"
+                  class="save-btn"
+                  :clickable="canServerLogin"
+                  @click="handleServerLogin"
+                />
+              </van-cell-group>
+            </form>
           </template>
         </div>
       </van-tab>
       <van-tab name="lan">
         <template #title>
           <span class="device-mode-tab-title">
-            <i-material-symbols-lan-rounded />
+            <i-material-symbols-lan-outline-rounded />
             {{ t('lan_mode') }}
           </span>
         </template>
@@ -205,6 +197,7 @@
       </van-tab>
     </van-tabs>
   </div>
+
   </BaseSubPage>
 </template>
 
@@ -217,20 +210,22 @@ import {
   CloudClient,
   CloudError,
   CloudErrorCode,
+  PrinterClient,
+  PrinterEvent,
   type CloudDevice,
   type CloudPreference,
   type LoginSuccessResult,
 } from '@bambulab-p1screen/printer-api'
-import { connectPrinter } from '../../printer'
+import { CLOUD_BASE_URLS, CLOUD_MQTT_BROKERS, connectPrinter, createApiUrl, createMqttUrl } from '../../printer'
 import { ROUTE_NAME } from '../../router/routes'
-import { addDevice, getDevices, setCurrentDevice } from '../../utils/device'
+import { addDevice, getDevices, removeDevice, setCurrentDevice } from '../../utils/device'
 import { markDeviceListPopupRestore } from '../../utils/navigation'
 import {
   getCloudUser,
   getCloudUserAvatarText,
   removeCloudUser,
   setCloudUser,
-  type CloudUserInfo,
+  type UserRecord,
   type ServerRegion,
 } from '../../utils/user'
 
@@ -242,11 +237,7 @@ type DeviceMode = 'server' | 'lan'
 const PHONE_LENGTH = 11
 const VERIFICATION_CODE_LENGTH = 6
 const SEND_CODE_COOLDOWN_SECONDS = 60
-const CLOUD_BASE_URLS: Record<ServerRegion, string> = {
-  china: '/api/https/api.bambulab.cn',
-  global: '/api/https/api.bambulab.com',
-}
-
+const CLOUD_DEVICE_ADD_TIMEOUT_MS = 10000
 const activeTab = ref<DeviceMode>('server')
 const cloudUser = ref(getCloudUser())
 const serverRegion = ref<ServerRegion>(cloudUser.value?.region ?? 'china')
@@ -257,16 +248,15 @@ const localDevices = ref(getDevices())
 const phone = ref('')
 const verificationCode = ref('')
 const email = ref('')
-const password = ref('')
 const isSendingCode = ref(false)
 const sendCodeCountdown = ref(0)
 const isLoggingIn = ref(false)
+const addingCloudDeviceSerial = ref('')
 const name = ref('')
 const ip = ref('')
 const serial = ref('')
 const code = ref('')
 const verificationCodeInputRef = ref<HTMLElement | null>(null)
-const passwordInputRef = ref<HTMLElement | null>(null)
 const ipInputRef = ref<HTMLElement | null>(null)
 const serialInputRef = ref<HTMLElement | null>(null)
 const codeInputRef = ref<HTMLElement | null>(null)
@@ -276,12 +266,15 @@ const canServerLogin = computed(() => {
   if (serverRegion.value === 'china') {
     return phone.value.length === PHONE_LENGTH && verificationCode.value.length === VERIFICATION_CODE_LENGTH
   }
-  return email.value.includes('@') && Boolean(password.value)
+  return email.value.includes('@') && verificationCode.value.length === VERIFICATION_CODE_LENGTH
 })
 let sendCodeTimer: number | null = null
 
 const sendCodeDisabled = computed(() => {
-  return phone.value.length !== PHONE_LENGTH || isSendingCode.value || sendCodeCountdown.value > 0
+  const isAccountInvalid = serverRegion.value === 'china'
+    ? phone.value.length !== PHONE_LENGTH
+    : !email.value.includes('@')
+  return isAccountInvalid || isSendingCode.value || sendCodeCountdown.value > 0
 })
 const sendVerificationCodeText = computed(() => {
   if (sendCodeCountdown.value > 0) {
@@ -300,14 +293,15 @@ const cloudUserHandle = computed(() => {
 const cloudDeviceItems = computed(() => {
   const localCloudSerials = new Set(
     localDevices.value
-      .filter(device => device.from === 'cloud')
+      .filter(device => device.from !== 'local')
       .map(device => device.serial)
   )
   return cloudDevices.value.map(device => {
     const serial = device.dev_id
     return {
+      code: device.dev_access_code ?? '',
       isAdded: localCloudSerials.has(serial),
-      name: device.name || device.dev_product_name || device.dev_model_name || serial,
+      name: device.name,
       serial,
     }
   })
@@ -331,7 +325,8 @@ onBeforeUnmount(() => {
 const handleSave = () => {
   if (!canSave.value) return
   const device = {
-    from: 'lan' as const,
+    connect: 'local' as const,
+    from: 'local' as const,
     name: name.value,
     ip: ip.value,
     serial: serial.value,
@@ -351,10 +346,10 @@ const normalizeDigits = (value: string, maxLength: number) => {
   return value.replace(/\D/g, '').slice(0, maxLength)
 }
 
-const createCloudClient = () => new CloudClient({ baseUrl: CLOUD_BASE_URLS[serverRegion.value] })
+const createCloudClient = () => new CloudClient({ baseUrl: createApiUrl(CLOUD_BASE_URLS[serverRegion.value]) })
 
-const createCloudClientForUser = (user: CloudUserInfo) => {
-  const cloud = new CloudClient({ baseUrl: CLOUD_BASE_URLS[user.region] })
+const createCloudClientForUser = (user: UserRecord) => {
+  const cloud = new CloudClient({ baseUrl: createApiUrl(CLOUD_BASE_URLS[user.region]) })
   cloud.email = user.account
   cloud.username = user.username
   cloud.authToken = user.accessToken
@@ -378,6 +373,7 @@ const getCloudErrorMessage = (error: unknown) => {
       [CloudErrorCode.CodeIncorrect]: t('cloud_error_code_incorrect'),
       [CloudErrorCode.CodeRequired]: t('cloud_error_code_required'),
       [CloudErrorCode.ConnectionFailed]: t('cloud_error_connection'),
+      [CloudErrorCode.LoginFailed]: t('cloud_error_login_failed'),
       [CloudErrorCode.UnsupportedLoginType]: t('cloud_error_unsupported_login_type'),
     }
     return cloudErrorMessages[error.code] ?? error.message
@@ -395,7 +391,7 @@ const getDisplayAccount = (account: string) => {
   return account
 }
 
-const buildCloudUser = (result: LoginSuccessResult): CloudUserInfo => {
+const buildCloudUser = (result: LoginSuccessResult): UserRecord => {
   const account = getServerAccount()
   return {
     accessToken: result.accessToken,
@@ -405,7 +401,22 @@ const buildCloudUser = (result: LoginSuccessResult): CloudUserInfo => {
   }
 }
 
-const getPreferenceUserPatch = (preference: CloudPreference): Pick<CloudUserInfo, 'avatar' | 'id' | 'nickname'> => {
+const saveCloudLoginResult = async (result: LoginSuccessResult) => {
+  const user = buildCloudUser(result)
+  setCloudUser(user)
+  cloudUser.value = user
+  await Promise.all([
+    refreshCloudPreference(),
+    refreshCloudDevices(),
+  ])
+  verificationCode.value = ''
+  showToast({
+    message: t('login_success'),
+    position: 'bottom',
+  })
+}
+
+const getPreferenceUserPatch = (preference: CloudPreference): Pick<UserRecord, 'avatar' | 'id' | 'nickname'> => {
   return {
     avatar: preference.avatar,
     id: preference.handle,
@@ -413,7 +424,7 @@ const getPreferenceUserPatch = (preference: CloudPreference): Pick<CloudUserInfo
   }
 }
 
-const getFallbackUserPatch = (user: CloudUserInfo): Pick<CloudUserInfo, 'nickname'> => {
+const getFallbackUserPatch = (user: UserRecord): Pick<UserRecord, 'nickname'> => {
   return {
     nickname: user.nickname || getDisplayAccount(user.account) || user.username,
   }
@@ -474,7 +485,7 @@ const startSendCodeCountdown = () => {
 const handleSendVerificationCode = async () => {
   if (sendCodeDisabled.value) return
   const cloud = createCloudClient()
-  cloud.email = getChinaAccount()
+  cloud.email = getServerAccount()
   isSendingCode.value = true
   try {
     await cloud.requestNewCode()
@@ -498,22 +509,8 @@ const handleServerLogin = async () => {
   const cloud = createCloudClient()
   isLoggingIn.value = true
   try {
-    const result = serverRegion.value === 'china'
-      ? await loginWithChinaVerificationCode(cloud)
-      : await cloud.login(email.value, password.value)
-    const user = buildCloudUser(result)
-    setCloudUser(user)
-    cloudUser.value = user
-    await Promise.all([
-      refreshCloudPreference(),
-      refreshCloudDevices(),
-    ])
-    verificationCode.value = ''
-    password.value = ''
-    showToast({
-      message: t('login_success'),
-      position: 'bottom',
-    })
+    const result = await loginWithVerificationCode(cloud)
+    await saveCloudLoginResult(result)
   } catch (error) {
     showToast({
       message: t('failed', { message: getCloudErrorMessage(error) }),
@@ -524,25 +521,111 @@ const handleServerLogin = async () => {
   }
 }
 
-const loginWithChinaVerificationCode = (cloud: CloudClient) => {
-  cloud.email = getChinaAccount()
+const loginWithVerificationCode = (cloud: CloudClient) => {
+  cloud.email = getServerAccount()
   return cloud.loginWithVerificationCode(verificationCode.value)
 }
 
 const handleLogout = () => {
   removeCloudUser()
+  getDevices()
+    .filter(device => device.from !== 'local')
+    .forEach(device => removeDevice(device.serial))
   cloudUser.value = null
   cloudDevices.value = []
+  localDevices.value = []
   showToast({
     message: t('logout_success'),
     position: 'bottom',
   })
 }
 
-const handleAddCloudDevice = () => {
+const handleAddCloudDevice = async (device: {
+  code: string
+  name: string
+  serial: string
+}) => {
+  const user = cloudUser.value
+  if (!user || addingCloudDeviceSerial.value) return
   showToast({
-    message: t('developing'),
+    message: t('device_adding'),
     position: 'bottom',
+  })
+  const tempClient = new PrinterClient()
+  addingCloudDeviceSerial.value = device.serial
+  try {
+    const lanIP = await getCloudDeviceLANIP(tempClient, user, device.serial)
+    const deviceItem = {
+      connect: 'cloud' as const,
+      from: user.region,
+      name: device.name,
+      ip: lanIP,
+      serial: device.serial,
+      code: device.code,
+    }
+    addDevice(deviceItem)
+    localDevices.value = getDevices()
+    showToast({
+      message: t('device_add_success'),
+      position: 'bottom',
+    })
+  } catch (error) {
+    showToast({
+      message: t('failed', { message: getCloudErrorMessage(error) }),
+      position: 'bottom',
+    })
+  } finally {
+    tempClient.disconnect()
+    addingCloudDeviceSerial.value = ''
+  }
+}
+
+const getCloudDeviceLANIP = (tempClient: PrinterClient, user: UserRecord, serial: string) => {
+  return new Promise<string>((resolve, reject) => {
+    let settled = false
+    const cleanup = () => {
+      window.clearTimeout(timer)
+      tempClient.off(PrinterEvent.MQTT_STATE_CHANGE, handleMqttStateChange)
+      tempClient.off(PrinterEvent.PRINT_PUSH_STATUS, handlePrintPushStatus)
+    }
+    const finish = (callback: () => void) => {
+      if (settled) return
+      settled = true
+      cleanup()
+      callback()
+    }
+    const resolveIfReady = () => {
+      const lanIP = tempClient.getLocalIPAddress()
+      if (lanIP) {
+        finish(() => resolve(lanIP))
+      }
+    }
+    const handleMqttStateChange = () => {
+      const error = tempClient.lastError
+      if (error) {
+        finish(() => reject(error))
+        return
+      }
+      resolveIfReady()
+    }
+    const handlePrintPushStatus = () => {
+      resolveIfReady()
+    }
+    const timer = window.setTimeout(() => {
+      finish(() => reject(new Error(t('cloud_error_connection'))))
+    }, CLOUD_DEVICE_ADD_TIMEOUT_MS)
+
+    tempClient.on(PrinterEvent.MQTT_STATE_CHANGE, handleMqttStateChange)
+    tempClient.on(PrinterEvent.PRINT_PUSH_STATUS, handlePrintPushStatus)
+    const mqttClient = tempClient.connect({
+      mqttUrl: createMqttUrl(CLOUD_MQTT_BROKERS[user.region]),
+      username: user.username,
+      password: user.accessToken,
+      serial,
+    })
+    if (!mqttClient) {
+      finish(() => reject(new Error(t('cloud_error_connection'))))
+    }
   })
 }
 
@@ -643,6 +726,7 @@ const handleAddCloudDevice = () => {
 
 .verification-code-btn {
   height: 30px;
+  width: 85px;
   padding: 0 8px;
   border: 0;
   border-radius: 6px;
@@ -650,6 +734,7 @@ const handleAddCloudDevice = () => {
   color: #000;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   font-size: 13px;
 }
 
@@ -684,6 +769,7 @@ const handleAddCloudDevice = () => {
 
 .cloud-user-cell {
   align-items: center;
+  padding: var(--van-cell-horizontal-padding);
 }
 
 .cloud-avatar {
@@ -735,6 +821,12 @@ const handleAddCloudDevice = () => {
 .device-tab-content {
   display: grid;
   gap: 10px;
+}
+
+.cloud-login-form {
+  display: grid;
+  gap: 10px;
+  margin: 0;
 }
 
 :deep(.van-field__control) {

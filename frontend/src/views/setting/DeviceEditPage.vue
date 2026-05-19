@@ -2,10 +2,10 @@
   <BaseSubPage :title="t('edit_device')">
   <div class="device-manage-page">
     <van-cell-group inset>
-      <van-cell :title="t('device_source')" :value="sourceLabel" />
       <van-field
         v-model.trim="name"
         :readonly="isCloudDevice"
+        :class="{ 'readonly-cell': isCloudDevice }"
         :label="t('device_name')"
         :placeholder="t('device_name')"
         autocomplete="off"
@@ -14,21 +14,32 @@
         @keydown.enter.prevent="ipInputRef?.focus()"
       />
       <van-field
-        ref="ipInputRef"
-        v-model.trim="ip"
-        :readonly="isCloudDevice"
-        :label="t('ip_address')"
-        :placeholder="t('ip_address')"
+        v-model.trim="serial"
+        readonly
+        class="readonly-cell"
+        :label="t('serial_number')"
+        :placeholder="t('serial_number')"
         autocomplete="off"
         input-align="right"
         enterkeyhint="next"
-        @keydown.enter.prevent="codeInputRef?.focus()"
+        @keydown.enter.prevent="ipInputRef?.focus()"
+      />
+      <van-cell v-if="isCloudDevice" :title="t('region')" :value="sourceLabel" class="readonly-cell" />
+      <van-cell
+        :title="t('connection_mode')"
+        :value="connectionModeLabel"
+        :class="{ 'readonly-cell': !isCloudDevice }"
+        :is-link="isCloudDevice"
+        :clickable="isCloudDevice"
+        @click="handleConnectionModeClick"
       />
       <van-field
-        v-model.trim="serial"
-        readonly
-        :label="t('serial_number')"
-        :placeholder="t('serial_number')"
+        ref="ipInputRef"
+        v-model.trim="ip"
+        :readonly="isCloudDevice"
+        :class="{ 'readonly-cell': isCloudDevice }"
+        :label="t('ip_address')"
+        :placeholder="t('ip_address')"
         autocomplete="off"
         input-align="right"
         enterkeyhint="next"
@@ -38,6 +49,7 @@
         ref="codeInputRef"
         v-model.trim="code"
         :readonly="isCloudDevice"
+        :class="{ 'readonly-cell': isCloudDevice }"
         :label="t('pairing_code')"
         :placeholder="t('pairing_code')"
         autocomplete="off"
@@ -49,7 +61,6 @@
 
     <van-cell-group inset>
       <van-cell
-        v-if="!isCloudDevice"
         :title="t('save')"
         class="save-btn"
         :clickable="canSave"
@@ -58,6 +69,14 @@
       <van-cell :title="t('delete')" class="delete-btn" @click="handleDelete" />
     </van-cell-group>
   </div>
+
+  <van-action-sheet
+    v-model:show="showConnectionModeSheet"
+    :description="t('connection_mode')"
+    :cancel-text="t('cancel')"
+    :actions="connectionModeActions"
+    @select="handleConnectionModeSelect"
+  />
   </BaseSubPage>
 </template>
 
@@ -68,7 +87,14 @@ import { showToast } from 'vant'
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { client, connectPrinter } from '../../printer'
 import { ROUTE_NAME } from '../../router/routes'
-import { addDevice, getCurrentDevice, getDevices, removeDevice, setCurrentDevice } from '../../utils/device'
+import {
+  addDevice,
+  getCurrentDevice,
+  getDevices,
+  removeDevice,
+  setCurrentDevice,
+  type DeviceConnectionMode,
+} from '../../utils/device'
 import { markDeviceListPopupRestore } from '../../utils/navigation'
 
 const { t } = useI18n()
@@ -77,16 +103,30 @@ const router = useRouter()
 
 const routeSerial = route.params.serial as string
 const stored = getDevices().find(item => item.serial === routeSerial) ?? null
-const source = computed(() => stored?.from ?? 'lan')
-const isCloudDevice = computed(() => source.value === 'cloud')
-const sourceLabel = computed(() => source.value === 'cloud' ? t('device_source_cloud') : t('device_source_lan'))
+const source = computed(() => stored?.from ?? 'local')
+const isCloudDevice = computed(() => source.value !== 'local')
+const sourceLabel = computed(() => {
+  if (source.value === 'china') return t('region_china')
+  if (source.value === 'global') return t('region_global')
+  return ''
+})
 const name = ref(stored?.name || '')
 const ip = ref(stored?.ip || '')
 const serial = ref(stored?.serial || routeSerial || '')
 const code = ref(stored?.code || '')
+const connectMode = ref<DeviceConnectionMode>(isCloudDevice.value ? stored?.connect ?? 'cloud' : 'local')
+const showConnectionModeSheet = ref(false)
 const ipInputRef = ref<HTMLElement | null>(null)
 const codeInputRef = ref<HTMLElement | null>(null)
 const canSave = computed(() => Boolean(name.value && ip.value && serial.value && code.value))
+const connectionModeLabel = computed(() => {
+  if (!isCloudDevice.value || connectMode.value === 'local') return t('device_source_local')
+  return t('device_source_cloud')
+})
+const connectionModeActions = computed(() => [
+  { name: t('device_source_cloud'), value: 'cloud' as const },
+  { name: t('device_source_local'), value: 'local' as const },
+])
 
 onBeforeRouteLeave((to) => {
   if (to.name === ROUTE_NAME.SETTING_HOME) {
@@ -95,8 +135,9 @@ onBeforeRouteLeave((to) => {
 })
 
 const handleSave = () => {
-  if (isCloudDevice.value || !canSave.value) return
+  if (!canSave.value) return
   const device = {
+    connect: connectMode.value,
     from: source.value,
     name: name.value,
     ip: ip.value,
@@ -111,6 +152,16 @@ const handleSave = () => {
     message: t('save_success'),
     position: 'bottom',
   })
+}
+
+const handleConnectionModeClick = () => {
+  if (!isCloudDevice.value) return
+  showConnectionModeSheet.value = true
+}
+
+const handleConnectionModeSelect = (action: { name: string, value: DeviceConnectionMode }) => {
+  connectMode.value = action.value
+  showConnectionModeSheet.value = false
 }
 
 const handleDelete = () => {
@@ -138,14 +189,13 @@ const handleDelete = () => {
   padding-bottom: 16px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
   overflow: auto;
+
+  --van-cell-value-color: var(--van-text-color);
 }
 
-:deep(.van-field__control) {
-  color: var(--van-text-color-2);
-}
-
-:deep(.van-field__control:read-only) {
-  color: var(--van-text-color-3);
+.readonly-cell {
+  --van-cell-value-color: var(--van-text-color-3);
+  --van-field-input-text-color: var(--van-text-color-3);
 }
 
 .save-btn {

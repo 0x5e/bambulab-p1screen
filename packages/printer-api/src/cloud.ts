@@ -77,6 +77,7 @@ export enum CloudErrorCode {
   CodeIncorrect = 'code_incorrect',
   CodeRequired = 'code_required',
   ConnectionFailed = 'connection_failed',
+  LoginFailed = 'login_failed',
   UnsupportedLoginType = 'unsupported_login_type',
   UnknownResponse = 'unknown_response',
 }
@@ -141,8 +142,14 @@ export class CloudClient {
         apiError: '',
       },
       method: 'POST',
+      return400: true,
     })
-    const authJson = await response.json()
+
+    const authJson = await readResponseJson(response)
+    if (response.status === 400) {
+      throwLoginResponseError(authJson, response.status)
+    }
+
     const accessToken = authJson?.accessToken ?? ''
     if (accessToken !== '') {
       this.authToken = accessToken
@@ -150,17 +157,7 @@ export class CloudClient {
       return { type: 'success', accessToken: this.authToken, username: this.username }
     }
 
-    const loginType = authJson?.loginType
-    if (loginType === 'verifyCode') {
-      throw new CloudError(CloudErrorCode.CodeRequired, 'Email code required', 400)
-    }
-    if (loginType === 'tfa') {
-      throw new CloudError(
-        CloudErrorCode.UnsupportedLoginType,
-        'Two factor authentication is not supported',
-        400,
-      )
-    }
+    throwKnownLoginTypeError(authJson, 400)
     throw new CloudError(CloudErrorCode.UnknownResponse, `Response not understood: ${JSON.stringify(authJson)}`)
   }
 
@@ -384,6 +381,42 @@ const pickString = (...values: unknown[]) => {
     if (text) return text
   }
   return ''
+}
+
+const readResponseJson = async (response: Response) => {
+  try {
+    return await response.json()
+  } catch {
+    return null
+  }
+}
+
+const throwKnownLoginTypeError = (value: unknown, httpStatus: number) => {
+  const data = value && typeof value === 'object'
+    ? value as Record<string, unknown>
+    : {}
+  const loginType = pickString(data.loginType)
+  if (loginType === 'verifyCode') {
+    throw new CloudError(CloudErrorCode.CodeRequired, 'Email code required', httpStatus)
+  }
+  if (loginType === 'tfa') {
+    throw new CloudError(
+      CloudErrorCode.UnsupportedLoginType,
+      'Two factor authentication is not supported',
+      httpStatus,
+    )
+  }
+}
+
+const throwLoginResponseError = (value: unknown, httpStatus: number) => {
+  const data = value && typeof value === 'object'
+    ? value as Record<string, unknown>
+    : {}
+  throwKnownLoginTypeError(data, httpStatus)
+  if (httpStatus === 400) {
+    const message = pickString(data.message, data.error, data.msg, data.reason, 'Login failed')
+    throw new CloudError(CloudErrorCode.LoginFailed, message, httpStatus, JSON.stringify(data))
+  }
 }
 
 const normalizeCloudPreference = (value: unknown): CloudPreference => {

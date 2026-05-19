@@ -12,6 +12,7 @@ export type DevicePrint = {
   // device
   wifi_signal: string
   sdcard: boolean
+  net: DeviceNet
 
   // nozzle
   nozzle_diameter: '0.2' | '0.4' | '0.6' | '0.8'
@@ -54,6 +55,15 @@ export type DevicePrint = {
   print_error: number
   home_flag: number
   hms: DeviceHMS[]
+}
+
+export type DeviceNet = {
+  info: DeviceNetInfo[]
+}
+
+export type DeviceNetInfo = {
+  ip: number
+  mask: number
 }
 
 export type DeviceAMSInfo = {

@@ -14,6 +14,14 @@
       <span class="item-label">{{ t('network') }}</span>
       <div class="item-value">
         {{ getStatusLabel() }}
+        <i-material-symbols-cloud-outline
+          v-if="isConnected && deviceItem?.connect === 'cloud'"
+          class="connection-mode-icon"
+        />
+        <i-material-symbols-lan-outline-rounded
+          v-else-if="isConnected && deviceItem?.connect === 'local'"
+          class="connection-mode-icon"
+        />
         <i-material-symbols-refresh-rounded class="refresh-btn" v-if="!isConnected" @click="handleReconnect"/>
       </div>
     </div>
@@ -212,6 +220,13 @@ const handleReconnect = () => {
 }
 
 .refresh-btn {
+  margin-left: 6px;
+  color: var(--van-text-color-2);
+}
+
+.connection-mode-icon {
+  width: 18px;
+  height: 18px;
   margin-left: 6px;
   color: var(--van-text-color-2);
 }

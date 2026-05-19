@@ -1,6 +1,6 @@
 export type ServerRegion = 'china' | 'global'
 
-export type CloudUserInfo = {
+export type UserRecord = {
   accessToken: string
   account: string
   avatar?: string
@@ -12,7 +12,7 @@ export type CloudUserInfo = {
 
 export const CLOUD_USER_STORAGE_KEY = 'user'
 
-const normalizeCloudUser = (value: unknown): CloudUserInfo => {
+const normalizeCloudUser = (value: unknown): UserRecord => {
   const data = value as Record<string, unknown>
   const region = data?.region === 'global' ? 'global' : 'china'
 
@@ -24,7 +24,7 @@ const normalizeCloudUser = (value: unknown): CloudUserInfo => {
   }
 }
 
-export const getCloudUser = (): CloudUserInfo | null => {
+export const getCloudUser = (): UserRecord | null => {
   try {
     const raw = localStorage.getItem(CLOUD_USER_STORAGE_KEY)
     if (!raw) return null
@@ -41,7 +41,7 @@ export const getCloudUser = (): CloudUserInfo | null => {
   }
 }
 
-export const setCloudUser = (user: CloudUserInfo) => {
+export const setCloudUser = (user: UserRecord) => {
   localStorage.setItem(CLOUD_USER_STORAGE_KEY, JSON.stringify(normalizeCloudUser(user)))
 }
 
@@ -54,6 +54,6 @@ export const getCloudUserId = (username: string) => {
   return id || username
 }
 
-export const getCloudUserAvatarText = (user: CloudUserInfo) => {
+export const getCloudUserAvatarText = (user: UserRecord) => {
   return (user.nickname || user.id || user.username || user.account).slice(0, 1).toUpperCase()
 }

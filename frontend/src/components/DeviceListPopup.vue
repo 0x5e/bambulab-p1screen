@@ -36,10 +36,13 @@
           </template>
 
           <template #right-icon>
-            <i-material-symbols-info-outline-rounded
-              class="info-icon"
-              @click.stop="handleEditDevice(device.serial)"
-            />
+            <div class="device-cell-actions">
+              <i-material-symbols-cloud-outline v-if="device.from !== 'local'" class="cloud-icon" />
+              <i-material-symbols-info-outline-rounded
+                class="info-icon"
+                @click.stop="handleEditDevice(device.serial)"
+              />
+            </div>
           </template>
         </van-cell>
       </van-cell-group>
@@ -131,11 +134,17 @@ watch(
   opacity: 0;
 }
 
+.device-cell-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cloud-icon,
 .info-icon {
   width: 22px;
   height: 22px;
   color: var(--van-text-color-3);
-  align-self: center;
   flex: 0 0 auto;
 }
 

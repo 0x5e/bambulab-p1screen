@@ -167,6 +167,19 @@ describe('CloudClient', () => {
     )
   })
 
+  it('reports verify-code login requirement from password-login 400 responses', async () => {
+    createFetchMock([
+      jsonResponse({ loginType: 'verifyCode' }, { status: 400 }),
+    ])
+    const cloud = createCloudClient()
+
+    await expectCloudError(
+      () => cloud.login('user@example.com', 'secret'),
+      CloudErrorCode.CodeRequired,
+      400,
+    )
+  })
+
   it('reports 2FA login as unsupported for now', async () => {
     createFetchMock([
       jsonResponse({ loginType: 'tfa', tfaKey: 'tfa-key' }),
@@ -190,6 +203,21 @@ describe('CloudClient', () => {
       () => cloud.login('user@example.com', 'secret'),
       CloudErrorCode.UnknownResponse,
     )
+  })
+
+  it('reports password login 400 responses as login failures', async () => {
+    createFetchMock([
+      jsonResponse({ code: 1002, message: 'Wrong password' }, { status: 400 }),
+    ])
+    const cloud = createCloudClient()
+
+    const err = await expectCloudError(
+      () => cloud.login('user@example.com', 'wrong-password'),
+      CloudErrorCode.LoginFailed,
+      400,
+    )
+    expect(err.message).toBe('Wrong password')
+    expect(err.responseText).toBe(JSON.stringify({ code: 1002, message: 'Wrong password' }))
   })
 
   it('requests email verification codes for email accounts', async () => {

@@ -1,29 +1,34 @@
-export type DeviceSource = 'cloud' | 'lan'
+export type DeviceSource = 'china' | 'global' | 'local'
+export type DeviceConnectionMode = 'cloud' | 'local'
 
-export type DeviceItem = {
+export type DeviceRecord = {
   name: string
   ip: string
   serial: string
   code: string
   from: DeviceSource
+  connect: DeviceConnectionMode
 }
 
 export const DEVICE_STORAGE_KEY = 'device'
 export const CURRENT_DEVICE_KEY = 'current_device'
 
-const normalizeDevice = (value: unknown): DeviceItem => ({
+const normalizeDevice = (value: unknown): DeviceRecord => ({
   name: String((value as Record<string, unknown>)?.name ?? '').trim(),
   ip: String((value as Record<string, unknown>)?.ip ?? '').trim(),
   serial: String((value as Record<string, unknown>)?.serial ?? '').trim(),
   code: String((value as Record<string, unknown>)?.code ?? '').trim(),
-  from: (value as Record<string, unknown>)?.from === 'cloud' ? 'cloud' : 'lan',
+  from: ['china', 'global'].includes(String((value as Record<string, unknown>)?.from))
+    ? String((value as Record<string, unknown>)?.from) as DeviceSource
+    : 'local',
+  connect: (value as Record<string, unknown>)?.connect === 'local' ? 'local' : 'cloud',
 })
 
-const writeDevices = (devices: DeviceItem[]) => {
+const writeDevices = (devices: DeviceRecord[]) => {
   localStorage.setItem(DEVICE_STORAGE_KEY, JSON.stringify(devices))
 }
 
-export const getDevices = (): DeviceItem[] => {
+export const getDevices = (): DeviceRecord[] => {
   try {
     const raw = localStorage.getItem(DEVICE_STORAGE_KEY)
     if (!raw) return []
@@ -40,7 +45,7 @@ export const getDevices = (): DeviceItem[] => {
   }
 }
 
-export const addDevice = (device: DeviceItem) => {
+export const addDevice = (device: DeviceRecord) => {
   const next = normalizeDevice(device)
   const devices = getDevices()
   const index = devices.findIndex(item => item.serial === next.serial)
@@ -57,7 +62,7 @@ export const removeDevice = (serial: string) => {
   writeDevices(next)
 }
 
-export const getCurrentDevice = (): DeviceItem | null => {
+export const getCurrentDevice = (): DeviceRecord | null => {
   const devices = getDevices()
   if (devices.length === 0) return null
 

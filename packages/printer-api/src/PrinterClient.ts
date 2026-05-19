@@ -1,4 +1,5 @@
 import mqtt, { type MqttClient } from 'mqtt'
+import ipaddr from 'ipaddr.js'
 import { type DeviceState } from './device'
 import {
   FanType,
@@ -14,10 +15,10 @@ export enum PrinterEvent {
 }
 
 export type PrinterClientConnectOptions = {
-  ip: string
-  serial: string
-  code: string
   mqttUrl: string
+  username: string
+  password: string
+  serial: string
 }
 
 export class PrinterClient {
@@ -53,16 +54,17 @@ export class PrinterClient {
 
   /**
    * Opens an MQTT-over-WebSocket connection to the backend tunnel.
-   * @param ip Printer IP address.
+   * @param mqttUrl MQTT-over-WebSocket backend tunnel URL.
+   * @param username MQTT username.
+   * @param password MQTT password.
    * @param serial Printer serial number.
-   * @param code Printer access code.
    * @returns The MQTT client instance when connection is initiated, otherwise null.
    */
-  connect({ ip, serial, code, mqttUrl }: PrinterClientConnectOptions) {
-    console.info(`[PrintClient] connect to: ${ip}, serial: ${serial}, code: ${code}`)
+  connect({ mqttUrl, username, password, serial }: PrinterClientConnectOptions) {
+    console.info(`[PrintClient] connect to: ${mqttUrl}, username: ${username}, serial: ${serial}`)
     if (typeof window === 'undefined') return null
 
-    if (!ip || !serial || !code || !mqttUrl) {
+    if (!mqttUrl || !username || !password || !serial) {
       console.warn('[PrintClient] missing connection parameters')
       return null
     }
@@ -74,8 +76,8 @@ export class PrinterClient {
 
     try {
       const mqttClient = mqtt.connect(mqttUrl, {
-        username: 'bblp',
-        password: code,
+        username,
+        password,
         protocolVersion: 4,
         reconnectPeriod: 5000,
         reconnectOnConnackError: true,
@@ -102,6 +104,22 @@ export class PrinterClient {
    */
   disconnect() {
     this.stopConnection('manual disconnect')
+  }
+
+  /**
+   * Returns the printer LAN IPv4 address reported by `print.net.info`.
+   * Bambu stores the address as a little-endian uint32.
+   * @returns A dotted-decimal IPv4 string, or an empty string when unavailable.
+   */
+  getLocalIPAddress() {
+    const ip = this.device.print?.net?.info?.find(item => item.ip)?.ip
+    if (typeof ip !== 'number' || !Number.isInteger(ip) || ip <= 0 || ip > 0xFFFFFFFF) return ''
+    return ipaddr.fromByteArray([
+      ip & 0xFF,
+      (ip >>> 8) & 0xFF,
+      (ip >>> 16) & 0xFF,
+      (ip >>> 24) & 0xFF,
+    ]).toString()
   }
 
   private stopConnection(reason: string) {
@@ -237,7 +255,7 @@ export class PrinterClient {
    * @returns No return value.
    */
   async updateAllData() {
-    this.request('pushing.pushall')
+    this.requestWithoutResponse('pushing.pushall')
 
     const result = await this.request('info.get_version')
     this.device.module = result.module
@@ -271,6 +289,12 @@ export class PrinterClient {
       throw err
     }
     return response
+  }
+
+  private requestWithoutResponse(command: string, params?: Record<string, any>) {
+    this.request(command, params).catch((err: any) => {
+      console.debug(`[PrintClient] ignored request error: ${err.message}`)
+    })
   }
 
   private resolvePublishResponse(sequenceId: string, result?: string, reason?: string, params?: Record<string, any>) {
@@ -406,7 +430,7 @@ export class PrinterClient {
       case TemperatureType.Chamber:
         return
     }
-    this.request('print.gcode_line', { param })
+    this.requestWithoutResponse('print.gcode_line', { param })
   }
 
   /**
@@ -414,7 +438,7 @@ export class PrinterClient {
    * @returns No return value.
    */
   setPause() {
-    this.request('print.pause', { 'param': '' })
+    this.requestWithoutResponse('print.pause', { 'param': '' })
   }
 
   /**
@@ -422,7 +446,7 @@ export class PrinterClient {
    * @returns No return value.
    */
   setResume() {
-    this.request('print.resume', { 'param': '' })
+    this.requestWithoutResponse('print.resume', { 'param': '' })
   }
 
   /**
@@ -430,6 +454,6 @@ export class PrinterClient {
    * @returns No return value.
    */
   setStop() {
-    this.request('print.stop', { 'param': '' })
+    this.requestWithoutResponse('print.stop', { 'param': '' })
   }
 }
