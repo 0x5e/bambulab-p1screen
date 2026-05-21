@@ -27,7 +27,41 @@ import './styles/theme.css'
 //   })
 // }
 
+type AppLifecycleState = 'foreground' | 'background'
+const BACKGROUND_DISCONNECT_DELAY_MS = 3000
+let backgroundDisconnectTimer: number | undefined
+
 window.client = client
+
+const connectCurrentPrinter = () => {
+  const storedDevice = getCurrentDevice()
+  if (storedDevice) {
+    connectPrinter(storedDevice)
+  }
+}
+
+window.__P1ScreenOnAppLifecycle = (state: AppLifecycleState) => {
+  if (state === 'background') {
+    if (backgroundDisconnectTimer !== undefined) {
+      window.clearTimeout(backgroundDisconnectTimer)
+    }
+    backgroundDisconnectTimer = window.setTimeout(() => {
+      console.info('[AppLifecycle] background: disconnect printer')
+      client.disconnect()
+      backgroundDisconnectTimer = undefined
+    }, BACKGROUND_DISCONNECT_DELAY_MS)
+    return
+  }
+
+  if (backgroundDisconnectTimer !== undefined) {
+    window.clearTimeout(backgroundDisconnectTimer)
+    backgroundDisconnectTimer = undefined
+  }
+  if (!client.mqttClient?.connected) {
+    console.info('[AppLifecycle] foreground: connect printer')
+    connectCurrentPrinter()
+  }
+}
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -61,7 +95,4 @@ window.addEventListener('contextmenu', (event) => {
   event.preventDefault()
 })
 
-const storedDevice = getCurrentDevice()
-if (storedDevice) {
-  connectPrinter(storedDevice)
-}
+connectCurrentPrinter()

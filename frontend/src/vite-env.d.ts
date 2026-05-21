@@ -7,3 +7,8 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+declare module 'semver/functions/gt' {
+  const gt: (version: string, otherVersion: string, loose?: boolean) => boolean
+  export default gt
+}

@@ -4,11 +4,11 @@
   "type": "module",
   "dependencies": {
     "@bambulab-p1screen/printer-api": "*",
-    "bowser": "^2.14.1",
     "colord": "^2.9.3",
     "fflate": "^0.8.2",
     "humanize-duration": "^3.33.2",
     "qrcode": "^1.5.4",
+    "semver": "^7.7.4",
     "vant": "^4.9.13",
     "vue": "^3.5.12",
     "vue-i18n": "^11.4.2",

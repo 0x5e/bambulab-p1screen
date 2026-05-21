@@ -10,6 +10,8 @@ import fi.iki.elonen.NanoWSD;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 public final class WebService extends NanoWSD {
@@ -18,12 +20,14 @@ public final class WebService extends NanoWSD {
   private final Context appContext;
   private final FetchHandler fetchHandler;
   private final HttpProxyHandler httpProxyHandler;
+  private final DeviceInfoProvider deviceInfoProvider;
 
-  public WebService(int port, Context context) {
+  public WebService(int port, Context context, DeviceInfoProvider deviceInfoProvider) {
     super(port);
     appContext = context;
     fetchHandler = new FetchHandler();
     httpProxyHandler = new HttpProxyHandler();
+    this.deviceInfoProvider = deviceInfoProvider;
   }
 
   @Override
@@ -49,6 +53,25 @@ public final class WebService extends NanoWSD {
 
     if (Method.GET != session.getMethod()) {
       return NanoHTTPD.newFixedLengthResponse(Response.Status.METHOD_NOT_ALLOWED, "text/plain", "Method Not Allowed");
+    }
+
+    if ("/api/getDeviceInfo".equals(uri)) {
+      try {
+        Response response = NanoHTTPD.newFixedLengthResponse(
+          Response.Status.OK,
+          "text/plain; charset=utf-8",
+          deviceInfoProvider.getDeviceInfoJson()
+        );
+        response.addHeader(
+          "Content-Disposition",
+          "attachment; filename=\"deviceInfo-" + new SimpleDateFormat("yyyyMMddHHmm", Locale.US).format(new Date()) + ".json\""
+        );
+        response.addHeader("Cache-Control", "no-store");
+        return response;
+      } catch (IOException e) {
+        Log.e(TAG, "failed to serve device info", e);
+        return NanoHTTPD.newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "Failed to export device info");
+      }
     }
 
     if ("/api/fetch".equals(uri)) {
@@ -110,6 +133,10 @@ public final class WebService extends NanoWSD {
     if (lower.endsWith(".json")) return "application/json; charset=utf-8";
     if (lower.endsWith(".ico")) return "image/x-icon";
     return "application/octet-stream";
+  }
+
+  public interface DeviceInfoProvider {
+    String getDeviceInfoJson() throws IOException;
   }
 
   private static final class AssetResult {
