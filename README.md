@@ -28,6 +28,7 @@ Control screen software for the Bambu Lab P1 series.
 - Display: >= 568x320 (iPhone 5 resolution)
 - Browser/System version: Chrome >= 57，iOS >= 10.3
 - Printer firmware version: P1S <= 01.08.01.00 (above this version, MQTT control protocol was encrypted, not available anymore)
+- Local control: P1S firmware version <= 01.08.01.00, or enable "LAN Only" and "Developer Mode"
 
 ## Usage
 ### Android App
