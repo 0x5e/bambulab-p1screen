@@ -111,7 +111,7 @@ public final class MainActivity extends Activity {
 
       @Override
       public void onPageFinished(WebView view, String url) {
-        webView.postDelayed(() -> webView.setVisibility(View.VISIBLE), 800);
+        view.postDelayed(() -> view.setVisibility(View.VISIBLE), 800);
       }
     });
 
@@ -321,6 +321,7 @@ public final class MainActivity extends Activity {
       return;
     }
     webService.stop();
+    webService = null;
   }
 
   private static String getBaseUrl() {

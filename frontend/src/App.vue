@@ -55,6 +55,7 @@ import { useRoute, useRouter } from 'vue-router'
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { showDialog } from 'vant'
+import semverGt from 'semver/functions/gt'
 import { client, getPrinterConnectionMode } from './printer'
 import { bindPrinterClient, unbindPrinterClient, usePrinterStore } from './stores/printer'
 import { ROUTE_NAME } from './router/routes'
@@ -91,6 +92,8 @@ const activeNavKey = computed(() => {
   return firstSegment ?? ''
 })
 
+const toFirmwareSemver = (version: string) => version.split('.').slice(0, 3).map(Number).join('.')
+
 onMounted(() => {
   bindPrinterClient()
 })
@@ -104,8 +107,10 @@ watch(modules, () => {
 
   const module = modules.value?.find(item => item.name === 'ota')
   if (!module) return
-  const sw_ver = Number(module.sw_ver.split('.').slice(0,2).join('.'))
-  if (['Bambu Lab P1P', 'Bambu Lab P1S'].includes(module.product_name) && sw_ver >= 1.09) {
+  if (
+    ['Bambu Lab P1P', 'Bambu Lab P1S'].includes(module.product_name)
+    && semverGt(toFirmwareSemver(module.sw_ver), toFirmwareSemver('01.08.01.00'))
+  ) {
     showDialog({ message: t('firmware_not_supported_warning') })
   }
 })
