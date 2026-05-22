@@ -63,7 +63,7 @@ import { computed, ref, watch } from 'vue'
 import { showToast } from 'vant'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { client, connectPrinter } from '../../printer'
+import { client, connectPrinter, getPrinterConnectionMode } from '../../printer'
 import { ROUTE_NAME } from '../../router/routes'
 import { getCurrentDevice, getDevices } from '../../utils/device'
 import { consumeDeviceListPopupRestore } from '../../utils/navigation'
@@ -88,10 +88,7 @@ const getStatusLabel = () => {
 const isConnected = ref(client.mqttClient?.connected || false)
 const statusLabel = ref(getStatusLabel())
 const deviceModule = computed(() => modules.value?.find(item => item.name === 'ota'))
-const connectionMode = computed(() => {
-  if (!isConnected.value || !client.connectOptions) return ''
-  return client.connectOptions.username === 'bblp' ? 'local' : 'cloud'
-})
+const connectionMode = ref(getPrinterConnectionMode())
 const deviceItem = ref(getCurrentDevice())
 const showDeviceListPopup = ref(consumeDeviceListPopupRestore() && getDevices().length > 0)
 
@@ -107,6 +104,7 @@ watch(
 const updateConnectionStatus = () => {
   isConnected.value = client.mqttClient?.connected || false
   statusLabel.value = getStatusLabel()
+  connectionMode.value = getPrinterConnectionMode()
 }
 
 watch([device, modules], updateConnectionStatus, { immediate: true })

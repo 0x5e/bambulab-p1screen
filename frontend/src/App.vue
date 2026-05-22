@@ -55,7 +55,7 @@ import { useRoute, useRouter } from 'vue-router'
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { showDialog } from 'vant'
-import { client } from './printer'
+import { client, getPrinterConnectionMode } from './printer'
 import { bindPrinterClient, unbindPrinterClient, usePrinterStore } from './stores/printer'
 import { ROUTE_NAME } from './router/routes'
 import hmsData from './assets/devicehms_01S.json'
@@ -100,12 +100,14 @@ onUnmounted(() => {
 })
 
 watch(modules, () => {
+  if (getPrinterConnectionMode() !== 'local') return
+
   const module = modules.value?.find(item => item.name === 'ota')
-    if (!module) return
-    const sw_ver = Number(module.sw_ver.split('.').slice(0,2).join('.')) 
-    if (['Bambu Lab P1P', 'Bambu Lab P1S'].includes(module.product_name) && sw_ver >= 1.09) {
-      showDialog({ message: t('firmware_not_supported_warning') })
-    }
+  if (!module) return
+  const sw_ver = Number(module.sw_ver.split('.').slice(0,2).join('.'))
+  if (['Bambu Lab P1P', 'Bambu Lab P1S'].includes(module.product_name) && sw_ver >= 1.09) {
+    showDialog({ message: t('firmware_not_supported_warning') })
+  }
 })
 
 const showPrintError = ref(false)

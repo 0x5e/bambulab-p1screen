@@ -25,6 +25,11 @@ export const createApiUrl = (host: string) => {
   return `/api/https/${host}`
 }
 
+export const getPrinterConnectionMode = () => {
+  if (!client.mqttClient?.connected || !client.connectOptions) return ''
+  return client.connectOptions.username === 'bblp' ? 'local' : 'cloud'
+}
+
 export const connectPrinter = (device: DeviceRecord) => {
   if (device.connect === 'cloud' && device.from !== 'local') {
     const user = getCloudUser()
