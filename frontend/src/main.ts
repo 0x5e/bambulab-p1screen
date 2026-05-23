@@ -8,6 +8,7 @@ import { routes } from './router/routes'
 import { getCurrentDevice } from './utils/device'
 import 'vant/lib/index.css'
 import './styles/theme.css'
+import { installChromeLayoutDiffRuntime } from './chrome-layout-diff/runtime'
 
 // import { showDialog } from 'vant'
 // import Bowser from 'bowser'
@@ -32,6 +33,8 @@ const BACKGROUND_DISCONNECT_DELAY_MS = 3000
 let backgroundDisconnectTimer: number | undefined
 
 window.client = client
+
+installChromeLayoutDiffRuntime()
 
 const connectCurrentPrinter = () => {
   const storedDevice = getCurrentDevice()

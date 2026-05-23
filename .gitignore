@@ -1,6 +1,7 @@
 dist/
 node_modules/
 coverage/
+chrome-layout-diff-results/
 
 # Logs
 npm-debug.log*

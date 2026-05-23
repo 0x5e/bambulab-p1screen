@@ -17,6 +17,8 @@
     "lint:server": "eslint \"backend/src/**/*.ts\"",
     "lint:apk": "cd android && ./gradlew :app:lint",
     "test": "vitest run",
+    "test:layout": "tsx tools/chrome-layout-diff/run.ts",
+    "test:layout:smoke": "tsx tools/chrome-layout-diff/run.ts --smoke",
     "test:coverage": "vitest run --coverage",
     "typecheck": "npm run typecheck:web && npm run typecheck:server",
     "typecheck:web": "vue-tsc --noEmit -p frontend/tsconfig.json",
