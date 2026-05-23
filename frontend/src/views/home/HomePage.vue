@@ -1,6 +1,6 @@
 <template>
-  <HomeIdlePage v-if="isIdle" />
-  <HomePrintingPage v-else-if="isPrinting" />
+  <HomePrintingPage v-if="isPrinting" />
+  <HomeIdlePage v-else />
 </template>
 
 <script setup lang="ts">
@@ -12,9 +12,9 @@ import HomePrintingPage from './HomePrintingPage.vue'
 
 const { device } = usePrinterStore()
 
-const isIdle = computed(() => !device.value || device.value.gcode_state === GcodeState.Idle)
 const isPrinting = computed(() =>
   [
+    GcodeState.Slicing,
     GcodeState.Prepare,
     GcodeState.Running,
     GcodeState.Pause,
