@@ -61,7 +61,8 @@ const actions = computed<PopoverAction[]>(() => {
     { type: 'edit', text: readonly.value ? t('view') : t('edit') },
   ]
 
-  if (isLoading.value) { // 换料中
+  // if (isLoading.value) { // 换料中
+  if (!isExt.value && isLoading.value) { // TODO: temporary solution, need test
     if (props.trayTar !== 255 && isTarget.value) {
       menu.push({ type: 'load', text: t('loading_filament'), disabled: true })
     } else if (props.trayTar === 255 && isPrev.value) {
