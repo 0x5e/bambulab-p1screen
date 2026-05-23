@@ -25,10 +25,9 @@ export const usePrintStatus = (device: Ref<DevicePrint | undefined>) => {
   const { t } = useI18n()
 
   const printPercent = computed(() => {
-    if (device.value?.gcode_state === GcodeState.Prepare) {
-      return 0
-    }
-    return device.value?.mc_percent || 0
+    if (!device.value) return 0
+    if ([GcodeState.Slicing, GcodeState.Prepare].includes(device.value.gcode_state)) return 0
+    return device.value.mc_percent
   })
 
   const printSubStateLabel = computed(() => {
@@ -52,6 +51,8 @@ export const usePrintStatus = (device: Ref<DevicePrint | undefined>) => {
     switch (device.value?.gcode_state) {
       case GcodeState.Idle:
         return t('print_state_idle')
+      case GcodeState.Slicing:
+        return t('print_state_slicing', { percent: device.value?.gcode_file_prepare_percent })
       case GcodeState.Prepare:
         return t('print_state_preparing', { percent: device.value?.gcode_file_prepare_percent })
       case GcodeState.Running:

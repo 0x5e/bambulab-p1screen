@@ -30,6 +30,7 @@ const handlePrintPushStatus = () => {
   // print.value!.gcode_state = 'FINISH'
   // print.value!.gcode_state = 'FAILED'
   // print.value!.gcode_state = 'RUNNING'
+  // print.value!.gcode_state = 'SLICING'
   // print.value!.print_error = 117473297
   // print.value!.hms = [
   //   {"attr":117448704,"code":131073,"action":0,"timestamp":1777383334}, // AMS耗材用尽。请把耗材放入同一个AMS槽位后继续。

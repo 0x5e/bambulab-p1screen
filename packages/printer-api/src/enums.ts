@@ -21,6 +21,7 @@ export enum LightMode {
 
 export enum GcodeState {
   Idle = 'IDLE',
+  Slicing = 'SLICING',
   Prepare = 'PREPARE',
   Running = 'RUNNING',
   Pause = 'PAUSE',

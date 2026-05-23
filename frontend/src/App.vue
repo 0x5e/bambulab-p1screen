@@ -12,7 +12,7 @@
           draggable="false"
           @dragstart.prevent
         >
-          <van-badge v-if="item.key === 'message'" :content="device && device.hms.length > 0 ? device?.hms.length : undefined" class="nav-icon">
+          <van-badge v-if="item.key === 'message'" :content="device && device.hms.length > 0 ? device.hms.length : undefined" class="nav-icon">
             <component :is="item.icon" class="nav-icon" />
           </van-badge>
           <component v-else :is="item.icon" class="nav-icon" />
