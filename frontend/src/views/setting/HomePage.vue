@@ -134,7 +134,7 @@ const handleReconnect = () => {
 
   display: grid;
   grid-template-columns: minmax(0, 34fr) minmax(0, 33fr) minmax(0, 33fr);
-  grid-template-rows: repeat(3, minmax(0, 60px)) minmax(auto, 220px);
+  grid-template-rows: repeat(3, 44px) minmax(0, 1fr);
   gap: 10px;
 }
 
@@ -273,6 +273,12 @@ const handleReconnect = () => {
   .settings-card {
     grid-column: 2;
     grid-row: 5;
+  }
+}
+
+@media (orientation: landscape) and (min-height: 350px) {
+  .settings-container {
+    grid-template-rows: repeat(3, 60px) minmax(0, 1fr);
   }
 }
 

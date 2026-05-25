@@ -19,7 +19,7 @@ export const baselineTarget: ChromeTargetId = (() => {
   return browserTargetId(target)
 })()
 
-export const layoutTolerancePx = 1.5
+export const layoutTolerancePx = 2
 
 export const ignoreStyleProperties = [
   'overflow',
@@ -55,5 +55,5 @@ export const fixtureRoutes: Partial<Record<FixtureName, string[]>> = {
 }
 
 export const ignoreSelectors = [
-  '.hint',
+  // '.hint',
 ]

@@ -67,6 +67,8 @@ export const installChromeLayoutDiffRuntime = () => {
   const fixtureName = getFixtureName()
   if (!fixtureName) return
 
+  Math.random = () => 0
+
   const fixture = normalizeFixture(fixtureName, loadFixturePayload(fixtureName))
   window.sessionStorage.clear()
   window.sessionStorage.setItem(STORAGE_KEY, fixture.name)
