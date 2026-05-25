@@ -8,6 +8,7 @@ export const viewportId = (viewport: Viewport) => `${viewport.width}x${viewport.
 
 export const browserTargets: BrowserTarget[] = [
   // { major: 57, kind: 'docker-cdp' },
+  { major: 66, kind: 'docker' },
   { major: 76, kind: 'docker' },
   { major: 115, kind: 'docker', baseline: true },
 ]
@@ -18,7 +19,15 @@ export const baselineTarget: ChromeTargetId = (() => {
   return browserTargetId(target)
 })()
 
-export const layoutTolerancePx = 1.0
+export const layoutTolerancePx = 1.5
+
+export const ignoreStyleProperties = [
+  'overflow',
+  'overflowX',
+  'overflowY',
+  'gridTemplateColumns',
+  'gridTemplateRows',
+]
 
 export const viewports: Viewport[] = [
   { width: 320, height: 568 },

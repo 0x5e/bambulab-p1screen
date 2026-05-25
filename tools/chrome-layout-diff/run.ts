@@ -56,6 +56,13 @@ const writeBase64 = (filePath: string, value: string) => {
   fs.writeFileSync(filePath, Buffer.from(value, 'base64'))
 }
 
+const formatDuration = (durationMs: number) => {
+  const seconds = durationMs / 1000
+  if (seconds < 60) return `${seconds.toFixed(1)}s`
+  const minutes = Math.floor(seconds / 60)
+  return `${minutes}m ${(seconds - minutes * 60).toFixed(1)}s`
+}
+
 const makeUrl = (baseUrl: string, route: RouteCase, fixture: FixtureName, caseKey: string) => {
   const url = new URL(baseUrl)
   url.searchParams.set('__chromeLayoutDiffFixture', fixture)
@@ -189,7 +196,11 @@ const main = async () => {
   }
 }
 
+const startedAt = Date.now()
+
 main().catch(error => {
   console.error(error)
   process.exitCode = 1
+}).finally(() => {
+  console.log(`[layout] total time ${formatDuration(Date.now() - startedAt)}`)
 })

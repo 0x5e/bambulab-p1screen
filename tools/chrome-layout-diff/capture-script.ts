@@ -17,6 +17,8 @@ var styleProps = [
   'overflowY',
   'flexDirection',
   'flexWrap',
+  'rowGap',
+  'columnGap',
   'alignItems',
   'justifyContent',
   'gridTemplateColumns',
