@@ -19,8 +19,6 @@
     "test": "vitest run",
     "pretest:layout": "npm run build:web",
     "test:layout": "tsx tools/chrome-layout-diff/run.ts",
-    "pretest:layout:smoke": "npm run build:web",
-    "test:layout:smoke": "tsx tools/chrome-layout-diff/run.ts --smoke",
     "test:coverage": "vitest run --coverage",
     "typecheck": "npm run typecheck:web && npm run typecheck:server",
     "typecheck:web": "vue-tsc --noEmit -p frontend/tsconfig.json",

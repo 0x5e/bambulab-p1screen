@@ -7,10 +7,10 @@ export const browserTargetImage = (target: BrowserTarget) => `selenoid/chrome:${
 export const viewportId = (viewport: Viewport) => `${viewport.width}x${viewport.height}`
 
 export const browserTargets: BrowserTarget[] = [
-  // { major: 57, kind: 'docker-cdp' },
-  { major: 66, kind: 'docker' },
-  { major: 76, kind: 'docker' },
   { major: 115, kind: 'docker', baseline: true },
+  { major: 76, kind: 'docker' },
+  { major: 66, kind: 'docker' },
+  // { major: 57, kind: 'docker-cdp' },
 ]
 
 export const baselineTarget: ChromeTargetId = (() => {
@@ -39,25 +39,6 @@ export const viewports: Viewport[] = [
   // { width: 667, height: 375 },
   // { width: 844, height: 390 },
   { width: 932, height: 430 },
-]
-
-export const defaultSmokeRoutes = [
-  '/home',
-  '/control',
-  '/control/motion',
-  '/control/nozzle',
-  '/filament',
-  '/filament/edit/0/0',
-  '/setting',
-  '/setting/device/add',
-  '/setting/device/edit/chrome-layout-diff-device',
-  '/setting/firmware',
-  '/setting/calibration',
-  '/setting/setting',
-  '/setting/print-option',
-  '/setting/ams-setting',
-  '/setting/serial',
-  '/message',
 ]
 
 export const outputDir = 'chrome-layout-diff-results'

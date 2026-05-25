@@ -7,14 +7,13 @@ Chrome 115 is used as the baseline.
 
 ```bash
 npm run build:web
-npm run test:layout:smoke
 npm run test:layout
 ```
 
 Useful filters:
 
 ```bash
-npm run test:layout:smoke -- --targets=115,76 --fixtures=P1S_IDLE --viewports=320x568 --routes=/home
+npm run test:layout -- --targets=115,76 --fixtures=P1S_IDLE --viewports=320x568 --routes=/home
 ```
 
 ## Fixtures
@@ -64,7 +63,7 @@ correct full-page geometry.
 You can also point a target at an existing WebDriver endpoint:
 
 ```bash
-CHROME_LAYOUT_DIFF_WEBDRIVER_57=http://127.0.0.1:4457/wd/hub npm run test:layout:smoke
+CHROME_LAYOUT_DIFF_WEBDRIVER_57=http://127.0.0.1:4457/wd/hub npm run test:layout
 ```
 
 ## Output

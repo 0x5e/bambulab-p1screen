@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { baselineTarget, browserTargetId, browserTargets, dockerHostAlias, outputDir, viewportId, viewports, defaultSmokeRoutes } from './config'
+import { baselineTarget, browserTargetId, browserTargets, dockerHostAlias, outputDir, viewportId, viewports } from './config'
 import { diffSnapshots } from './diff'
 import { getFixtureNames, validateFixtureFiles } from './fixture-loader'
 import { buildMatrix } from './matrix'
@@ -11,7 +11,6 @@ import { startDriver, startLayoutCaptureSession, type LayoutCaptureSession } fro
 import type { CaseResult, ChromeTargetId, DomSnapshot, FixtureName, RouteCase, Viewport } from './types'
 
 type CliOptions = {
-  mode: 'smoke' | 'full'
   targets?: ChromeTargetId[]
   routes?: string[]
   fixtures?: FixtureName[]
@@ -24,10 +23,8 @@ const parseList = <T extends string>(value: string | undefined) => (
 
 const parseCliOptions = (): CliOptions => {
   const args = process.argv.slice(2)
-  const options: CliOptions = { mode: 'full' }
+  const options: CliOptions = {}
   for (const arg of args) {
-    if (arg === '--smoke') options.mode = 'smoke'
-    if (arg === '--full') options.mode = 'full'
     if (arg.startsWith('--targets=')) options.targets = parseList<ChromeTargetId>(arg.slice('--targets='.length))
     if (arg.startsWith('--routes=')) options.routes = parseList(arg.slice('--routes='.length))
     if (arg.startsWith('--fixtures=')) options.fixtures = parseList<FixtureName>(arg.slice('--fixtures='.length))
@@ -93,7 +90,7 @@ const main = async () => {
   ].filter((target, index, list) => list.indexOf(target) === index)
   const selectedFixtures = options.fixtures ?? getFixtureNames(rootDir)
   const selectedViewports = selectViewports(options.viewports)
-  const selectedRoutes = filterRoutes(options.routes ?? (options.mode === 'smoke' ? defaultSmokeRoutes : undefined))
+  const selectedRoutes = filterRoutes(options.routes)
 
   validateFixtureFiles(rootDir, selectedFixtures)
 
