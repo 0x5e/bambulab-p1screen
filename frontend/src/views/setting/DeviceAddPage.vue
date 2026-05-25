@@ -717,7 +717,10 @@ const getCloudDeviceLANIP = (tempClient: PrinterClient, user: UserRecord, serial
 .device-mode-tab-title {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+}
+
+.device-mode-tab-title > * + * {
+  margin-left: 4px;
 }
 
 .device-mode-tab-title > svg {

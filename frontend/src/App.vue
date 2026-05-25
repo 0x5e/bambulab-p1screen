@@ -216,6 +216,7 @@ const handleResume = () => {
 }
 
 .main {
+  height: 100%;
   min-height: 320px;
   padding-right: env(safe-area-inset-right);
   overflow: auto;
@@ -250,8 +251,11 @@ const handleResume = () => {
   display: flex;
   flex-direction: column;
   align-items: left;
-  gap: 4px;
   word-break: break-word;
+}
+
+.col-left > * + * {
+  margin-top: 4px;
 }
 
 .error-image {
@@ -266,8 +270,11 @@ const handleResume = () => {
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 4px;
   color: orange;
+}
+
+.error-title > * + * {
+  margin-left: 4px;
 }
 
 .error-text {
@@ -286,9 +293,12 @@ const handleResume = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   padding: 10px;
   background: var(--van-background);
+}
+
+.col-right > * + * {
+  margin-top: 8px;
 }
 
 .col-right > .van-button {

@@ -137,7 +137,10 @@ watch(
 .device-cell-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+}
+
+.device-cell-actions > * + * {
+  margin-left: 8px;
 }
 
 .cloud-icon,

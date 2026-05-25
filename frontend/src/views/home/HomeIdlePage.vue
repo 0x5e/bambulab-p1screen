@@ -128,16 +128,19 @@ const nozzleTemp = computed(() => Math.floor(device.value?.nozzle_temper ?? 0))
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
 }
 
 .homepage-idle > .files > img {
   height: 50%;
+  margin-right: 20px;
 }
 
 .info-cards {
   align-items: center;
-  gap: 8px;
+}
+
+.info-cards > * + * {
+  margin-left: 8px;
 }
 
 .info-cards > div {
@@ -159,7 +162,10 @@ const nozzleTemp = computed(() => Math.floor(device.value?.nozzle_temper ?? 0))
   height: 80%;
   background-color: var(--van-background-5);
   flex: initial;
-  margin: -4px;
+  margin-top: -4px;
+  margin-right: -4px;
+  margin-bottom: -4px;
+  margin-left: 4px;
   opacity: 0.3;
 }
 
@@ -184,7 +190,10 @@ const nozzleTemp = computed(() => Math.floor(device.value?.nozzle_temper ?? 0))
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 4px;
+}
+
+.ams .slot + .slot {
+  margin-left: 4px;
 }
 
 .ams .slot {

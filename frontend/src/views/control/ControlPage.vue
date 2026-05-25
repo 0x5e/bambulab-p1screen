@@ -322,10 +322,13 @@ const fanStatusText = computed(() => {
   margin: 4px 0;
   display: flex;
   align-items: center;
-  gap: 4px;
   color: var(--van-text-color);
   font-size: 16px;
   line-height: 20px;
+}
+
+.nozzle-temp > * + * {
+  margin-left: 4px;
 }
 
 .nozzle-image {
@@ -346,9 +349,12 @@ const fanStatusText = computed(() => {
 .light-left {
   display: flex;
   align-items: center;
-  gap: 6px;
   font-size: 14px;
   color: var(--van-text-color);
+}
+
+.light-left > * + * {
+  margin-left: 6px;
 }
 
 .lightbulb {
