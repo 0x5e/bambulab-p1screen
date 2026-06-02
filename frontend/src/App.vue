@@ -33,8 +33,8 @@
         class="tabbar"
         :model-value="activeNavPath"
         placeholder
-        route
         safe-area-inset-bottom
+        @change="onTabChange"
       >
         <van-tabbar-item
           v-for="item in navItems"
@@ -121,6 +121,10 @@ const activeNavKey = computed(() => {
   return firstSegment ?? ''
 })
 const activeNavPath = computed(() => `/${activeNavKey.value}`)
+const onTabChange = (path: string) => {
+  router.replace(path)
+}
+
 const isFirstLevelPage = computed(() => route.path.split('/').length === 2)
 const navBarTitle = computed(() => navItems.value.find(item => item.key === activeNavKey.value)?.title ?? '')
 const messageBadgeContent = computed(() => device.value && device.value.hms.length > 0 ? device.value.hms.length : undefined)
