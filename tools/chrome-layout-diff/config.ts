@@ -27,6 +27,10 @@ export const ignoreStyleProperties = [
   'overflowY',
   'gridTemplateColumns',
   'gridTemplateRows',
+  'marginTop',
+  'marginRight',
+  'marginBottom',
+  'marginLeft',
 ]
 
 export const viewports: Viewport[] = [
