@@ -2,26 +2,54 @@
   <div class="app-root">
     <div class="unsupported">你的浏览器内核版本过低，请升级。</div>
     <div class="app-shell">
-      <aside class="side-nav">
+      <aside class="sidebar">
         <RouterLink
           v-for="item in navItems"
           :key="item.key"
-          :class="{ 'nav-item': true, 'nav-item-active': item.key === activeNavKey }"
+          :class="{ 'sidebar-item': true, 'sidebar-item-active': item.key === activeNavKey }"
           :to="item.to"
           replace
           draggable="false"
           @dragstart.prevent
         >
-          <van-badge v-if="item.key === 'message'" :content="device && device.hms.length > 0 ? device.hms.length : undefined" class="nav-icon">
-            <component :is="item.icon" class="nav-icon" />
+          <van-badge v-if="item.key === 'message'" :content="messageBadgeContent" class="sidebar-icon">
+            <component :is="item.icon" class="sidebar-icon" />
           </van-badge>
-          <component v-else :is="item.icon" class="nav-icon" />
+          <component v-else :is="item.icon" class="sidebar-icon" />
         </RouterLink>
       </aside>
 
+      <van-nav-bar
+        v-if="isFirstLevelPage"
+        class="navbar"
+        :title="navBarTitle"
+        safe-area-inset-top
+      />
       <main class="main">
         <RouterView />
       </main>
+
+      <van-tabbar
+        class="tabbar"
+        :model-value="activeNavPath"
+        placeholder
+        route
+        safe-area-inset-bottom
+      >
+        <van-tabbar-item
+          v-for="item in navItems"
+          :key="item.key"
+          :to="item.to"
+          replace
+          :name="item.to"
+          :badge="item.key === 'message' ? messageBadgeContent : undefined"
+        >
+          <template #icon>
+            <component :is="item.icon" />
+          </template>
+          {{ item.title }}
+        </van-tabbar-item>
+      </van-tabbar>
     </div>
 
     <van-popup
@@ -76,21 +104,26 @@ const { locale, t } = useI18n()
 type NavItem = {
   key: string
   to: string
+  title: string
   icon: Component
 }
 
-const navItems: NavItem[] = [
-  { key: 'home', to: '/home', icon: IconHome },
-  { key: 'control', to: '/control', icon: IconTune },
-  { key: 'filament', to: '/filament', icon: IconDatabase },
-  { key: 'setting', to: '/setting', icon: IconSettings },
-  { key: 'message', to: '/message', icon: IconSMS },
-]
+const navItems = computed<NavItem[]>(() => [
+  { key: 'home', to: '/home', title: t('home'), icon: IconHome },
+  { key: 'control', to: '/control', title: t('control'), icon: IconTune },
+  { key: 'filament', to: '/filament', title: t('filament'), icon: IconDatabase },
+  { key: 'setting', to: '/setting', title: t('settings'), icon: IconSettings },
+  { key: 'message', to: '/message', title: t('assistant'), icon: IconSMS },
+])
 
 const activeNavKey = computed(() => {
   const firstSegment = route.path.split('/')[1]
   return firstSegment ?? ''
 })
+const activeNavPath = computed(() => `/${activeNavKey.value}`)
+const isFirstLevelPage = computed(() => route.path.split('/').length === 2)
+const navBarTitle = computed(() => navItems.value.find(item => item.key === activeNavKey.value)?.title ?? '')
+const messageBadgeContent = computed(() => device.value && device.value.hms.length > 0 ? device.value.hms.length : undefined)
 
 const toFirmwareSemver = (version: string) => version.split('.').slice(0, 3).map(Number).join('.')
 
@@ -180,7 +213,11 @@ const handleResume = () => {
   }
 }
 
-.side-nav {
+.navbar {
+  display: none;
+}
+
+.sidebar {
   display: grid;
   padding: 8px;
   padding-left: calc(8px + env(safe-area-inset-left));
@@ -189,7 +226,7 @@ const handleResume = () => {
   align-items: center;
 }
 
-.nav-item {
+.sidebar-item {
   width: 48px;
   height: 48px;
   display: grid;
@@ -202,17 +239,21 @@ const handleResume = () => {
   color: var(--van-text-color-2);
 }
 
-.nav-icon {
+.sidebar-icon {
   width: 24px;
   height: 24px;
 }
 
-.nav-item.router-link-active {
+.sidebar-item.router-link-active {
   color: var(--van-primary-color);
 }
 
-.nav-item.nav-item-active {
+.sidebar-item.sidebar-item-active {
   color: var(--van-primary-color);
+}
+
+.tabbar {
+  display: none;
 }
 
 .main {
@@ -311,27 +352,31 @@ const handleResume = () => {
 @media (orientation: portrait) {
   .app-shell {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
   }
 
-  .side-nav {
-    grid-row: 2;
-    grid-auto-flow: column;
-    grid-auto-columns: 48px;
-    justify-content: space-between;
-    justify-items: center;
-    padding-bottom: calc(8px + env(safe-area-inset-bottom));
-    border-top: var(--van-background-3) 1px solid;
+  .navbar {
+    grid-row: 1;
+    display: block;
   }
 
-  .nav-item {
-    width: 40px;
-    height: 40px;
+  .sidebar {
+    display: none;
+  }
+
+  .tabbar {
+    grid-row: 3;
+    display: block;
+  }
+
+  .tabbar :deep(.van-tabbar-item__icon > svg) {
+    display: block;
+    width: 1em;
+    height: 1em;
   }
 
   .main {
-    grid-row: 1;
-    height: auto;
+    grid-row: 2;
     padding-right: 0;
   }
 

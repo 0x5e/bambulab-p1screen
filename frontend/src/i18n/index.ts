@@ -31,6 +31,8 @@ const resolveLocale = (): AppLocale => {
 export const messages = {
   zh: {
     developing: '开发中',
+    home: '主页',
+    control: '控制',
     print_files: '打印文件',
     file_list: '文件列表',
     file_link: '文件 >',
@@ -213,6 +215,8 @@ export const messages = {
   },
   en: {
     developing: 'Coming soon',
+    home: 'Home',
+    control: 'Control',
     print_files: 'Print Files',
     file_list: 'Files',
     file_link: 'Files >',
