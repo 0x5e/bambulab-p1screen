@@ -179,7 +179,6 @@ const handleStop = () => {
 .homepage {
   display: grid;
   height: 100%;
-  padding: 10px;
   gap: 10px;
   font-size: 14px;
 }

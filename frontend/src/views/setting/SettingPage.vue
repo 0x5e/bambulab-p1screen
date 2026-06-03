@@ -1,5 +1,5 @@
 <template>
-  <BaseSubPage :title="t('settings')">
+  <BasePage :title="t('settings')">
     <div class="settings-page">
       <van-cell-group inset>
         <van-cell :title="t('print_options')" is-link to="/setting/print-option" />
@@ -38,7 +38,7 @@
       :actions="languageActions"
       @select="handleLanguageSelect"
     />
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="ts">

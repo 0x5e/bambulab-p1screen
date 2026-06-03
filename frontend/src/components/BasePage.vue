@@ -1,9 +1,9 @@
 <template>
-  <div class="base-sub-page">
+  <div class="page" :class="{ 'first-level-page': isFirstLevelPage }">
     <div class="navbar">
       <van-nav-bar
         :title="title"
-        left-arrow
+        :left-arrow="!isFirstLevelPage"
         safe-area-inset-top
         @click-left="router.back"
       >
@@ -12,32 +12,35 @@
         </template>
       </van-nav-bar>
     </div>
-    <div class="base-sub-page-content">
+    <div class="content">
       <slot></slot>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router'
 
 defineProps<{
   title: string
 }>()
 
+const route = useRoute()
 const router = useRouter()
+const isFirstLevelPage = computed(() => route.path.split('/').length === 2)
 </script>
 
 <style scoped>
-.base-sub-page {
+.page {
   width: 100%;
   height: 100%;
   display: grid;
   grid-template-rows: auto 1fr;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
-.base-sub-page-content {
+.content {
   width: 100%;
   height: 100%;
   min-height: 0;
@@ -58,6 +61,14 @@ const router = useRouter()
     --van-nav-bar-arrow-size: 20px;
     --van-nav-bar-title-font-size: 18px;
     margin-bottom: -10px;
+  }
+
+  .first-level-page {
+    grid-template-rows: 1fr;
+  }
+
+  .first-level-page .navbar {
+    display: none;
   }
 
   :deep(.van-nav-bar__title) {

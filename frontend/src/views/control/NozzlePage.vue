@@ -1,5 +1,5 @@
 <template>
-  <BaseSubPage :title="t('nozzle_extruder')">
+  <BasePage :title="t('nozzle_extruder')">
     <div class="nozzle-container">
       <img src="../../assets/images/extruder_normal_23.png" />
       <div>
@@ -31,7 +31,7 @@
       @confirm="handleTempConfirm"
     />
 
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="ts">

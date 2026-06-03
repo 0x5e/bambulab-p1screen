@@ -1,7 +1,7 @@
 <template>
-  <BaseSubPage :title="t('toolbox')">
+  <BasePage :title="t('toolbox')">
     <van-empty :description="t('developing')" />
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="ts">

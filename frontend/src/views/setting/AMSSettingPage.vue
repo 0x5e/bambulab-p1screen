@@ -1,5 +1,5 @@
 <template>
-  <BaseSubPage :title="t('ams_settings')">
+  <BasePage :title="t('ams_settings')">
     <div v-if="device">
       <SettingCell
         :title="t('ams_tray_read')"
@@ -26,7 +26,7 @@
         @click="onChangePrintOption('auto_switch_filament', $event)"
       />
     </div>
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="tsx">

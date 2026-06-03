@@ -1,7 +1,7 @@
 <template>
-  <BaseSubPage :title="t('auto_refill')">
+  <BasePage :title="t('auto_refill')">
     <van-empty :description="t('developing')" />
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="ts">

@@ -1,7 +1,7 @@
 <template>
-  <BaseSubPage :title="t('file_list')">
+  <BasePage :title="t('file_list')">
     <van-empty :description="t('developing')" />
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="ts">

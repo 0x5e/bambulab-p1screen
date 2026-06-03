@@ -1,5 +1,5 @@
 <template>
-  <BaseSubPage :title="t('edit_filament')">
+  <BasePage :title="t('edit_filament')">
     <div class="filament-edit-card">
       <div class="form-row form-filament">
         <label class="form-label">{{ t('filament') }}</label>
@@ -59,7 +59,7 @@
         </div>
       </div>
     </van-overlay>
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="ts">

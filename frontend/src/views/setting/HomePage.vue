@@ -1,62 +1,64 @@
 <template>
-  <div class="settings-container">
-    <div class="card square-card account-card" clickable @click="handleManageDevice">
-      <i-material-symbols-devices-rounded class="icon-large" />
-      <div class="card-label">{{ !deviceItem ? t('add_device') : t('device_management') }}</div>
-      <div v-if="deviceItem" class="item-value">
-        {{ t('printer_label') }}: {{ deviceItem?.name }}
-        <i-material-symbols-chevron-right-rounded />
+  <BasePage :title="t('settings')">
+    <div class="settings-page">
+      <div class="card square-card account-card" clickable @click="handleManageDevice">
+        <i-material-symbols-devices-rounded class="icon-large" />
+        <div class="card-label">{{ !deviceItem ? t('add_device') : t('device_management') }}</div>
+        <div v-if="deviceItem" class="item-value">
+          {{ t('printer_label') }}: {{ deviceItem?.name }}
+          <i-material-symbols-chevron-right-rounded />
+        </div>
+      </div>
+      <DeviceListPopup v-model:show="showDeviceListPopup" />
+
+      <div class="card list-item wifi-card">
+        <span class="item-label">{{ t('network') }}</span>
+        <div class="item-value">
+          {{ getStatusLabel() }}
+          <i-material-symbols-lan-outline-rounded
+            v-if="connectionMode === 'local'"
+            class="connection-mode-icon"
+          />
+          <i-material-symbols-cloud-outline
+            v-else-if="connectionMode === 'cloud'"
+            class="connection-mode-icon"
+          />
+          <i-material-symbols-refresh-rounded class="refresh-btn" v-if="!isConnected" @click="handleReconnect"/>
+        </div>
+      </div>
+
+      <div class="card list-item usb-card" clickable @click="showToast({ message: t('developing'), position: 'bottom' })">
+        <span class="item-label">{{ t('sdcard_storage') }}</span>
+        <div v-if="device" class="item-value">
+          {{ device?.sdcard ? t('mounted') : t('unmounted') }}
+          <i-material-symbols-chevron-right-rounded />
+        </div>
+      </div>
+
+      <div class="card list-item firmware-card" clickable @click="router.push({ name: ROUTE_NAME.SETTING_FIRMWARE })">
+        <span class="item-label">{{ t('firmware') }}</span>
+        <div v-if="modules" class="item-value">
+          {{ deviceModule?.sw_ver }}
+          <i-material-symbols-chevron-right-rounded />
+        </div>
+      </div>
+
+      <div class="card square-card calibration-card" clickable @click="router.push({ name: ROUTE_NAME.SETTING_CALIBRATION })">
+        <i-material-symbols-home-storage-gear-rounded class="icon-large" />
+        <div class="card-label">{{ t('calibration') }}</div>
+      </div>
+
+      <div class="card square-card toolbox-card" clickable @click="showToast({ message: t('developing'), position: 'bottom' })">
+        <i-material-symbols-handyman class="icon-large" />
+        <div class="card-label">{{ t('toolbox') }}</div>
+      </div>
+
+      <div class="card square-card settings-card" clickable @click="router.push({ name: ROUTE_NAME.SETTING_SETTING })">
+        <i-material-symbols-settings-rounded class="icon-large" />
+        <div class="card-label">{{ t('settings') }}</div>
       </div>
     </div>
-    <DeviceListPopup v-model:show="showDeviceListPopup" />
-
-    <div class="card list-item wifi-card">
-      <span class="item-label">{{ t('network') }}</span>
-      <div class="item-value">
-        {{ getStatusLabel() }}
-        <i-material-symbols-lan-outline-rounded
-          v-if="connectionMode === 'local'"
-          class="connection-mode-icon"
-        />
-        <i-material-symbols-cloud-outline
-          v-else-if="connectionMode === 'cloud'"
-          class="connection-mode-icon"
-        />
-        <i-material-symbols-refresh-rounded class="refresh-btn" v-if="!isConnected" @click="handleReconnect"/>
-      </div>
-    </div>
-
-    <div class="card list-item usb-card" clickable @click="showToast({ message: t('developing'), position: 'bottom' })">
-      <span class="item-label">{{ t('sdcard_storage') }}</span>
-      <div v-if="device" class="item-value">
-        {{ device?.sdcard ? t('mounted') : t('unmounted') }}
-        <i-material-symbols-chevron-right-rounded />
-      </div>
-    </div>
-
-    <div class="card list-item firmware-card" clickable @click="router.push({ name: ROUTE_NAME.SETTING_FIRMWARE })">
-      <span class="item-label">{{ t('firmware') }}</span>
-      <div v-if="modules" class="item-value">
-        {{ deviceModule?.sw_ver }}
-        <i-material-symbols-chevron-right-rounded />
-      </div>
-    </div>
-
-    <div class="card square-card calibration-card" clickable @click="router.push({ name: ROUTE_NAME.SETTING_CALIBRATION })">
-      <i-material-symbols-home-storage-gear-rounded class="icon-large" />
-      <div class="card-label">{{ t('calibration') }}</div>
-    </div>
-
-    <div class="card square-card toolbox-card" clickable @click="showToast({ message: t('developing'), position: 'bottom' })">
-      <i-material-symbols-handyman class="icon-large" />
-      <div class="card-label">{{ t('toolbox') }}</div>
-    </div>
-
-    <div class="card square-card settings-card" clickable @click="router.push({ name: ROUTE_NAME.SETTING_SETTING })">
-      <i-material-symbols-settings-rounded class="icon-large" />
-      <div class="card-label">{{ t('settings') }}</div>
-    </div>
-  </div>
+  </BasePage>
 </template>
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
@@ -126,10 +128,9 @@ const handleReconnect = () => {
 
 </script>
 <style scoped>
-.settings-container {
+.settings-page {
   width: 100%;
   height: 100%;
-  padding: 10px;
   color: var(--van-text-color);
 
   display: grid;
@@ -234,7 +235,7 @@ const handleReconnect = () => {
 }
 
 @media (orientation: portrait) {
-  .settings-container {
+  .settings-page {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-rows: repeat(3, 50px) repeat(2, 150px);
     gap: 10px;
@@ -277,7 +278,7 @@ const handleReconnect = () => {
 }
 
 @media (orientation: landscape) and (min-height: 350px) {
-  .settings-container {
+  .settings-page {
     grid-template-rows: repeat(3, 60px) minmax(0, 1fr);
   }
 }

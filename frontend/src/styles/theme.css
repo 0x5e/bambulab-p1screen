@@ -47,6 +47,11 @@
   color: var(--van-text-color-3);
 }
 
+.van-empty {
+  padding: 0;
+  height: 100%;
+}
+
 * {
   box-sizing: border-box;
   user-select: none;

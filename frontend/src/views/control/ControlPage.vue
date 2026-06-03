@@ -1,103 +1,105 @@
 <template>
-  <div class="control-page">
-    <img src="../../assets/images/printer-inside.png" class="background-image" />
-    <div class="control-grid">
-      <div class="card fan-card" clickable @click="showFanSpeedPopup = true">
-        <div class="card-icon">
-          <img :src="fanOffIcon" />
-        </div>
-        <div class="card-title">{{ t('fan') }}</div>
-        <div class="card-label">{{ fanStatusText }}</div>
-        <i-material-symbols-chevron-right-rounded class="arrow" />
-      </div>
-
-      <div class="card speed-card" clickable @click="showPrintSpeedPopup = true">
-        <div class="card-icon">
-          <i-material-symbols-swap-driving-apps-wheel />
-          <!-- <img src="../../assets/images/monitor_speed.svg" /> -->
-        </div>
-        <div class="card-title">{{ t('speed') }}</div>
-        <div class="card-label">{{ speedText }}</div>
-        <i-material-symbols-chevron-right-rounded class="arrow" />
-      </div>
-
-      <div class="card motion-card" clickable @click="router.push({ name: ROUTE_NAME.CONTROL_MOTION })">
-        <div class="card-icon">
-          <i-material-symbols-open-with-rounded />
-        </div>
-        <div class="card-title">{{ t('motion') }}</div>
-        <div class="card-label">XYZ</div>
-        <i-material-symbols-chevron-right-rounded class="arrow" />
-      </div>
-
-      <div class="card nozzle-card" clickable @click="router.push({ name: ROUTE_NAME.CONTROL_NOZZLE })">
-        <div class="card-head">
+  <BasePage :title="t('control')">
+    <div class="control-page">
+      <img src="../../assets/images/printer-inside.png" class="background-image" />
+      <div class="control-grid">
+        <div class="card fan-card" clickable @click="showFanSpeedPopup = true">
           <div class="card-icon">
-            <img :src="nozzleOffIcon" />
+            <img :src="fanOffIcon" />
           </div>
-          <div class="card-title">{{ t('nozzle_extruder') }}</div>
+          <div class="card-title">{{ t('fan') }}</div>
+          <div class="card-label">{{ fanStatusText }}</div>
           <i-material-symbols-chevron-right-rounded class="arrow" />
         </div>
-        <div class="nozzle-temp">
-          <img class="nozzle-image" src="../../assets/images/extruder_normal_23.png" />
+
+        <div class="card speed-card" clickable @click="showPrintSpeedPopup = true">
+          <div class="card-icon">
+            <i-material-symbols-swap-driving-apps-wheel />
+            <!-- <img src="../../assets/images/monitor_speed.svg" /> -->
+          </div>
+          <div class="card-title">{{ t('speed') }}</div>
+          <div class="card-label">{{ speedText }}</div>
+          <i-material-symbols-chevron-right-rounded class="arrow" />
+        </div>
+
+        <div class="card motion-card" clickable @click="router.push({ name: ROUTE_NAME.CONTROL_MOTION })">
+          <div class="card-icon">
+            <i-material-symbols-open-with-rounded />
+          </div>
+          <div class="card-title">{{ t('motion') }}</div>
+          <div class="card-label">XYZ</div>
+          <i-material-symbols-chevron-right-rounded class="arrow" />
+        </div>
+
+        <div class="card nozzle-card" clickable @click="router.push({ name: ROUTE_NAME.CONTROL_NOZZLE })">
+          <div class="card-head">
+            <div class="card-icon">
+              <img :src="nozzleOffIcon" />
+            </div>
+            <div class="card-title">{{ t('nozzle_extruder') }}</div>
+            <i-material-symbols-chevron-right-rounded class="arrow" />
+          </div>
+          <div class="nozzle-temp">
+            <img class="nozzle-image" src="../../assets/images/extruder_normal_23.png" />
+            <div class="card-label">
+              <div v-if="device && device?.nozzle_target_temper - device?.nozzle_temper > 2" :style="{ color: 'orange' }">
+                <span class="current-temp">{{ Math.floor(device?.nozzle_temper ?? 0) }}°C</span>
+                <i-material-symbols-arrow-upward-rounded class="temp-arrow" />
+              </div>
+              <span v-else class="current-temp">{{ Math.floor(device?.nozzle_temper ?? 0) }}°C</span>
+              /{{ Math.floor(Number(device?.nozzle_target_temper ?? '0')) }}°C
+            </div>
+          </div>
+        </div>
+
+        <div class="card heatbed-card" clickable @click="openTempPopup">
+          <div class="card-icon">
+            <img :src="bedOffIcon" />
+          </div>
+          <div class="card-title">{{ t('heatbed') }}</div>
           <div class="card-label">
-            <div v-if="device && device?.nozzle_target_temper - device?.nozzle_temper > 2" :style="{ color: 'orange' }">
-              <span class="current-temp">{{ Math.floor(device?.nozzle_temper ?? 0) }}°C</span>
+            <div v-if="device && device?.bed_target_temper - device?.bed_temper > 2" :style="{ color: 'orange' }">
+              <span class="current-temp">{{ Math.floor(device?.bed_temper ?? 0) }}°C</span>
               <i-material-symbols-arrow-upward-rounded class="temp-arrow" />
             </div>
-            <span v-else class="current-temp">{{ Math.floor(device?.nozzle_temper ?? 0) }}°C</span>
-            /{{ Math.floor(Number(device?.nozzle_target_temper ?? '0')) }}°C
+            <span v-else class="current-temp">{{ Math.floor(device?.bed_temper ?? 0) }}°C</span>
+            /{{ Math.floor(Number(device?.bed_target_temper ?? '0')) }}°C
           </div>
+          <i-material-symbols-chevron-right-rounded class="arrow" />
         </div>
-      </div>
 
-      <div class="card heatbed-card" clickable @click="openTempPopup">
-        <div class="card-icon">
-          <img :src="bedOffIcon" />
-        </div>
-        <div class="card-title">{{ t('heatbed') }}</div>
-        <div class="card-label">
-          <div v-if="device && device?.bed_target_temper - device?.bed_temper > 2" :style="{ color: 'orange' }">
-            <span class="current-temp">{{ Math.floor(device?.bed_temper ?? 0) }}°C</span>
-            <i-material-symbols-arrow-upward-rounded class="temp-arrow" />
+      </div>
+      <div class="card light-card">
+        <div class="light-content">
+          <div class="light-left">
+            <img class="lightbulb" :src="lightIcon(lightSwitchValue)" />
+            <span>{{ t('light') }}</span>
           </div>
-          <span v-else class="current-temp">{{ Math.floor(device?.bed_temper ?? 0) }}°C</span>
-          /{{ Math.floor(Number(device?.bed_target_temper ?? '0')) }}°C
+          <van-switch
+            :model-value="lightSwitchValue"
+            size="22"
+            @update:model-value="handleLightSwitch"
+          />
         </div>
-        <i-material-symbols-chevron-right-rounded class="arrow" />
       </div>
 
+      <TempKeypadPopup
+        v-model:show="showTempPopup"
+        :type="TemperatureType.Heatbed"
+        @confirm="handleTempConfirm"
+      />
+
+      <FanSpeedPopup
+        v-model:show="showFanSpeedPopup"
+      />
+
+      <PrintSpeedPopup
+        v-model:show="showPrintSpeedPopup"
+        :value="printSpeedLevel"
+        @confirm="handlePrintSpeedConfirm"
+      />
     </div>
-    <div class="card light-card">
-      <div class="light-content">
-        <div class="light-left">
-          <img class="lightbulb" :src="lightIcon(lightSwitchValue)" />
-          <span>{{ t('light') }}</span>
-        </div>
-        <van-switch
-          :model-value="lightSwitchValue"
-          size="22"
-          @update:model-value="handleLightSwitch"
-        />
-      </div>
-    </div>
-
-    <TempKeypadPopup
-      v-model:show="showTempPopup"
-      :type="TemperatureType.Heatbed"
-      @confirm="handleTempConfirm"
-    />
-
-    <FanSpeedPopup
-      v-model:show="showFanSpeedPopup"
-    />
-
-    <PrintSpeedPopup
-      v-model:show="showPrintSpeedPopup"
-      :value="printSpeedLevel"
-      @confirm="handlePrintSpeedConfirm"
-    />
-  </div>
+  </BasePage>
 </template>
 
 <script setup lang="ts">
@@ -186,7 +188,6 @@ const fanStatusText = computed(() => {
   width: 100%;
   height: 100%;
   max-width: 100%;
-  padding: 10px;
   box-sizing: border-box;
   overflow: hidden;
 }

@@ -19,12 +19,6 @@
         </RouterLink>
       </aside>
 
-      <van-nav-bar
-        v-if="isFirstLevelPage"
-        class="navbar"
-        :title="navBarTitle"
-        safe-area-inset-top
-      />
       <main class="main">
         <RouterView />
       </main>
@@ -125,8 +119,6 @@ const onTabChange = (path: string) => {
   router.replace(path)
 }
 
-const isFirstLevelPage = computed(() => route.path.split('/').length === 2)
-const navBarTitle = computed(() => navItems.value.find(item => item.key === activeNavKey.value)?.title ?? '')
 const messageBadgeContent = computed(() => device.value && device.value.hms.length > 0 ? device.value.hms.length : undefined)
 
 const toFirmwareSemver = (version: string) => version.split('.').slice(0, 3).map(Number).join('.')
@@ -215,10 +207,6 @@ const handleResume = () => {
   .unsupported {
     display: flex;
   }
-}
-
-.navbar {
-  display: none;
 }
 
 .sidebar {
@@ -356,12 +344,7 @@ const handleResume = () => {
 @media (orientation: portrait) {
   .app-shell {
     grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-  }
-
-  .navbar {
-    grid-row: 1;
-    display: block;
+    grid-template-rows: minmax(0, 1fr) auto;
   }
 
   .sidebar {
@@ -369,7 +352,6 @@ const handleResume = () => {
   }
 
   .tabbar {
-    grid-row: 3;
     display: block;
   }
 
@@ -380,7 +362,6 @@ const handleResume = () => {
   }
 
   .main {
-    grid-row: 2;
     padding-right: 0;
   }
 

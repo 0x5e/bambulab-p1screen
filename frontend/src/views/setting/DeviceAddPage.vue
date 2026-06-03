@@ -1,5 +1,5 @@
 <template>
-  <BaseSubPage :title="t('add_device')">
+  <BasePage :title="t('add_device')">
   <div class="device-manage-page">
     <van-tabs v-model:active="activeTab" class="mode-tabs device-mode-tabs">
       <van-tab name="server">
@@ -198,7 +198,7 @@
     </van-tabs>
   </div>
 
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="ts">

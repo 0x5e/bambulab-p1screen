@@ -1,5 +1,5 @@
 <template>
-  <BaseSubPage :title="t('motion_xyz')">
+  <BasePage :title="t('motion_xyz')">
     <div class="motion-card">
       <div>
         <span>{{ t('toolhead') }}</span>
@@ -76,7 +76,7 @@
         </div>
       </div>
     </div>
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="ts">

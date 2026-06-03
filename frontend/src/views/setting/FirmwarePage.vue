@@ -1,9 +1,9 @@
 <template>
-  <BaseSubPage :title="t('firmware')">
+  <BasePage :title="t('firmware')">
     <van-cell-group v-if="modules" inset>
       <van-cell v-for="module in modules" :key="module.sn" :title="module.product_name" :value="module.sw_ver" v-show="module.visible" />
     </van-cell-group>
-  </BaseSubPage>
+  </BasePage>
 </template>
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'

@@ -1,5 +1,5 @@
 <template>
-  <BaseSubPage :title="t('edit_device')">
+  <BasePage :title="t('edit_device')">
   <div class="device-manage-page">
     <van-cell-group inset>
       <van-field
@@ -77,7 +77,7 @@
     :actions="connectionModeActions"
     @select="handleConnectionModeSelect"
   />
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="ts">

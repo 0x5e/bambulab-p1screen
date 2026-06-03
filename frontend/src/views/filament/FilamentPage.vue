@@ -1,64 +1,66 @@
 <template>
-  <div class="filament-page" :class="{ 'filament-page-no-ams': device && device.ams.ams.length === 0 }">
-    <div>
-      <van-tabs v-if="device && device.ams.ams.length > 1" class="ams-tab" @click-tab="handleClickTab">
-        <van-tab
-          v-for="i in device.ams.ams.length"
-          :key="i"
-          :title="`AMS-${amsPrefix(device.ams.ams[i-1].id)}`"
-          :name="device.ams.ams[i-1].id"
-        />
-      </van-tabs>
-    </div>
-    <div v-if="device && currentAms" class="ams-card">
-      <Tray
-        v-for="slot in currentAms.tray.length"
-        :key="slot"
-        :name="`${amsPrefix(currentAms.id)}${slot}`"
-        :amsId="Number(currentAms.id)"
-        :tray="currentAms.tray[slot - 1]"
-        :trayNow="Number(device.ams.tray_now) ?? -1"
-        :trayTar="Number(device.ams.tray_tar) ?? -1"
-        :trayPrev="Number(device.ams.tray_pre) ?? -1"
-        :popoverAction="handleTrayAction"
-      />
-      <span class="ams-name" >AMS-{{ amsPrefix(currentAms.id) }}</span>
-      <div class="ams-info">
-        <img :src="humIcon(currentAms.humidity)"/>
-        <span>{{ currentAms.humidity_raw }}%</span>
-        <span>{{ Math.round(Number(currentAms.temp)).toFixed(0) }}°C</span>
+  <BasePage :title="t('filament')">
+    <div class="filament-page" :class="{ 'filament-page-no-ams': device && device.ams.ams.length === 0 }">
+      <div>
+        <van-tabs v-if="device && device.ams.ams.length > 1" class="ams-tab" @click-tab="handleClickTab">
+          <van-tab
+            v-for="i in device.ams.ams.length"
+            :key="i"
+            :title="`AMS-${amsPrefix(device.ams.ams[i-1].id)}`"
+            :name="device.ams.ams[i-1].id"
+          />
+        </van-tabs>
       </div>
-      
+      <div v-if="device && currentAms" class="ams-card">
+        <Tray
+          v-for="slot in currentAms.tray.length"
+          :key="slot"
+          :name="`${amsPrefix(currentAms.id)}${slot}`"
+          :amsId="Number(currentAms.id)"
+          :tray="currentAms.tray[slot - 1]"
+          :trayNow="Number(device.ams.tray_now) ?? -1"
+          :trayTar="Number(device.ams.tray_tar) ?? -1"
+          :trayPrev="Number(device.ams.tray_pre) ?? -1"
+          :popoverAction="handleTrayAction"
+        />
+        <span class="ams-name" >AMS-{{ amsPrefix(currentAms.id) }}</span>
+        <div class="ams-info">
+          <img :src="humIcon(currentAms.humidity)"/>
+          <span>{{ currentAms.humidity_raw }}%</span>
+          <span>{{ Math.round(Number(currentAms.temp)).toFixed(0) }}°C</span>
+        </div>
+        
+      </div>
+      <div v-if="device && device.vt_tray" class="ext-card">
+        <Tray
+          name="Ext"
+          :amsId="255"
+          :tray="device.vt_tray"
+          :trayNow="Number(device.ams.tray_now) ?? -1"
+          :trayTar="Number(device.ams.tray_tar) ?? -1"
+          :trayPrev="Number(device.ams.tray_pre) ?? -1"
+          :popoverAction="handleTrayAction"
+        />
+        <span class="ext-name" >{{ t('external_spool') }}</span>
+      </div>
+      <div class="setting">
+        <van-popover
+          v-model:show="showSettingsPopover"
+          trigger="manual"
+          placement="top-end"
+          :actions="settingsActions"
+          style="--van-popover-action-width: 100px;"
+          @select="handleSettingsSelect"
+        >
+          <template #reference>
+            <button type="button" @click.stop="showSettingsPopover = !showSettingsPopover">
+              <i-material-symbols-handyman />
+            </button>
+          </template>
+        </van-popover>
+      </div>
     </div>
-    <div v-if="device && device.vt_tray" class="ext-card">
-      <Tray
-        name="Ext"
-        :amsId="255"
-        :tray="device.vt_tray"
-        :trayNow="Number(device.ams.tray_now) ?? -1"
-        :trayTar="Number(device.ams.tray_tar) ?? -1"
-        :trayPrev="Number(device.ams.tray_pre) ?? -1"
-        :popoverAction="handleTrayAction"
-      />
-      <span class="ext-name" >{{ t('external_spool') }}</span>
-    </div>
-    <div class="setting">
-      <van-popover
-        v-model:show="showSettingsPopover"
-        trigger="manual"
-        placement="top-end"
-        :actions="settingsActions"
-        style="--van-popover-action-width: 100px;"
-        @select="handleSettingsSelect"
-      >
-        <template #reference>
-          <button type="button" @click.stop="showSettingsPopover = !showSettingsPopover">
-            <i-material-symbols-handyman />
-          </button>
-        </template>
-      </van-popover>
-    </div>
-  </div>
+  </BasePage>
 </template>
 
 <script setup lang="ts">
@@ -147,9 +149,8 @@ const handleSettingsSelect = (action: PopoverAction) => {
 .filament-page {
   height: 100%;
   position: relative;
-  padding: 16px;
-  padding-bottom: calc(30px + 16px);
-  padding-bottom: calc(30px + 16px + env(safe-area-inset-bottom));
+  padding-bottom: 30px;
+  padding-bottom: calc(30px + env(safe-area-inset-bottom));
 
   display: grid;
   grid-template-rows: 30px 150px;
@@ -249,9 +250,9 @@ const handleSettingsSelect = (action: PopoverAction) => {
 
 .setting {
   position: absolute;
-  right: 16px;
-  bottom: 16px;
-  bottom: calc(16px + env(safe-area-inset-bottom));
+  right: 10px;
+  bottom: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
 }
 
 .setting button {

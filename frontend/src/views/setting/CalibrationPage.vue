@@ -1,5 +1,5 @@
 <template>
-  <BaseSubPage :title="t('print_calibration')">
+  <BasePage :title="t('print_calibration')">
     <template #right>
       <van-button
         class="header-action-btn"
@@ -29,7 +29,7 @@
       :selected="motorCancellation"
       @click="motorCancellation = $event"
     />
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="tsx">

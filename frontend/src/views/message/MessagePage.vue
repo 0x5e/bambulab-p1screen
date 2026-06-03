@@ -1,30 +1,32 @@
 <template>
-  <div class="msg-page">
-    <div class="card detail-panel" v-if="selectedMsg">
-      <canvas ref="qrCanvasRef" class="qr-canvas"></canvas>
-      <a class="detail-url" :href="url(selectedMsg)" target="_blank">{{ url(selectedMsg) }}</a>
-      <div class="detail-text">{{ text(selectedMsg) }}</div>
-    </div>
-    <van-empty v-else class="card" :description="t('empty_message_hint')" />
-
-    <div class="card list-panel">
-      <div class="list-header">
-        {{ t('assistant') }} {{ device && device.hms.length > 0 ? `(${device.hms.length})` : '' }}
+  <BasePage :title="t('assistant')">
+    <div class="msg-page">
+      <div class="card detail-panel" v-if="selectedMsg">
+        <canvas ref="qrCanvasRef" class="qr-canvas"></canvas>
+        <a class="detail-url" :href="url(selectedMsg)" target="_blank">{{ url(selectedMsg) }}</a>
+        <div class="detail-text">{{ text(selectedMsg) }}</div>
       </div>
-      <div class="list-body">
-        <div
-          v-for="item in device?.hms"
-          :key="item.attr + '-' + item.code"
-          class="msg-item"
-          :class="[`msg-level-${msgLevel(item)}`, { 'msg-selected': selectedMsg?.attr === item.attr && selectedMsg?.code === item.code }]"
-          @click="selectedMsg = item"
-        >
-          <div class="msg-item-text">{{ text(item) }}</div>
-          <div class="msg-item-code">[{{ ecode(item, true) }}]</div>
+      <van-empty v-else class="card" :description="t('empty_message_hint')" />
+
+      <div class="card list-panel">
+        <div class="list-header">
+          {{ t('assistant') }} {{ device && device.hms.length > 0 ? `(${device.hms.length})` : '' }}
+        </div>
+        <div class="list-body">
+          <div
+            v-for="item in device?.hms"
+            :key="item.attr + '-' + item.code"
+            class="msg-item"
+            :class="[`msg-level-${msgLevel(item)}`, { 'msg-selected': selectedMsg?.attr === item.attr && selectedMsg?.code === item.code }]"
+            @click="selectedMsg = item"
+          >
+            <div class="msg-item-text">{{ text(item) }}</div>
+            <div class="msg-item-code">[{{ ecode(item, true) }}]</div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </BasePage>
 </template>
 
 <script setup lang="ts">
@@ -78,7 +80,6 @@ const text = (msg: DeviceHMS) => {
   grid-template-columns: minmax(0, 2.7fr) minmax(0, 2.3fr);
   height: 100%;
   overflow: hidden;
-  padding: 10px;
   gap: 10px;
 }
 

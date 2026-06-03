@@ -1,5 +1,5 @@
 <template>
-  <BaseSubPage :title="t('print_options')">
+  <BasePage :title="t('print_options')">
     <SettingCell
       v-if="device"
       :title="t('auto_recovery')"
@@ -7,7 +7,7 @@
       :selected="auto_recovery"
       @click="onChange"
     />
-  </BaseSubPage>
+  </BasePage>
 </template>
 
 <script setup lang="tsx">
