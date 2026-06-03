@@ -204,7 +204,6 @@ const handleCheckForUpdates = async () => {
 <style scoped>
 .settings-page {
   display: grid;
-  gap: 12px;
-  padding-bottom: 16px;
+  gap: 10px;
 }
 </style>

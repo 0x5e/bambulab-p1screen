@@ -114,8 +114,7 @@ M211 R
 
 <style scoped>
 .motion-card {
-  height: calc(100% - 16px);
-  margin: 0 8px;
+  height: 100%;
   display: grid;
   grid-template-columns: repeat(2, auto);
   gap: 8px;
@@ -144,7 +143,7 @@ M211 R
   display: grid;
   place-items: center;
   position: relative;
-  max-width: calc(100vh - 40px - 16px);
+  max-width: calc(100vh - 40px - 20px);
   overflow: hidden;
 }
 

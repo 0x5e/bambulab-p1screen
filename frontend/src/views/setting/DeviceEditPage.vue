@@ -186,8 +186,6 @@ const handleDelete = () => {
 .device-manage-page {
   display: grid;
   gap: 10px;
-  padding-bottom: 16px;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom));
   overflow: auto;
 
   --van-cell-value-color: var(--van-text-color);

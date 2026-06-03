@@ -129,7 +129,7 @@ const handleReconnect = () => {
 .settings-container {
   width: 100%;
   height: 100%;
-  padding: 16px;
+  padding: 10px;
   color: var(--van-text-color);
 
   display: grid;
@@ -237,7 +237,7 @@ const handleReconnect = () => {
   .settings-container {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-rows: repeat(3, 50px) repeat(2, 150px);
-    gap: 16px;
+    gap: 10px;
   }
 
   .wifi-card {

@@ -232,8 +232,7 @@ const handleConfirm = async () => {
 
 <style scoped>
 .filament-edit-card {
-  height: calc(100% - 16px);
-  margin: 0 8px;
+  height: 100%;
   display: grid;
   grid-template-rows: repeat(3, auto) 1fr auto;
   gap: 8px;

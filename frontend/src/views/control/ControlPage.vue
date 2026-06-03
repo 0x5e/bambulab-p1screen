@@ -186,7 +186,7 @@ const fanStatusText = computed(() => {
   width: 100%;
   height: 100%;
   max-width: 100%;
-  padding: 12px;
+  padding: 10px;
   box-sizing: border-box;
   overflow: hidden;
 }
