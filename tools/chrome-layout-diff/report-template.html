@@ -1,0 +1,264 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Layout Test Report</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page-bg: #ffffff;
+      --text: #1f2937;
+      --table-border: #d1d5db;
+      --header-bg: #f3f4f6;
+      --pass-bg: #f0fdf4;
+      --fail-bg: #fef2f2;
+      --code-bg: #f3f4f6;
+      --code-text: #111827;
+      --screenshot-bg: #ffffff;
+      --muted: #6b7280;
+      --lightbox-bg: rgba(255, 255, 255, 0.88);
+      --lightbox-panel-bg: #ffffff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page-bg: #111827;
+        --text: #e5e7eb;
+        --table-border: #374151;
+        --header-bg: #1f2937;
+        --pass-bg: #123524;
+        --fail-bg: #3f1d1d;
+        --code-bg: #0f172a;
+        --code-text: #f9fafb;
+        --screenshot-bg: #111827;
+        --muted: #9ca3af;
+        --lightbox-bg: rgba(17, 24, 39, 0.88);
+        --lightbox-panel-bg: #111827;
+      }
+    }
+
+    body { background: var(--page-bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 24px; color: var(--text); }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid var(--table-border); padding: 8px; vertical-align: top; font-size: 12px; }
+    th { background: var(--header-bg); text-align: left; }
+    select { box-sizing: border-box; width: 100%; background: var(--page-bg); border: 1px solid var(--table-border); color: var(--text); font: inherit; padding: 4px 6px; }
+    tr.fail { background: var(--fail-bg); }
+    tr.pass { background: var(--pass-bg); }
+    code { background: var(--code-bg); color: var(--code-text); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .diff-list { max-height: 260px; overflow: auto; }
+    .muted { color: var(--muted); }
+    .screenshot-link { display: inline-block; }
+    .screenshot { background: var(--screenshot-bg); border: 1px solid var(--table-border); display: block; max-height: 240px; max-width: 180px; object-fit: contain; }
+    .lightbox { align-items: center; background: var(--lightbox-bg); display: none; inset: 0; justify-content: center; padding: 24px; position: fixed; z-index: 9999; }
+    .lightbox.open { display: flex; }
+    .lightbox-panel { background: var(--lightbox-panel-bg); border: 1px solid var(--table-border); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); max-height: calc(100vh - 48px); max-width: calc(100vw - 48px); padding: 12px; }
+    .lightbox-header { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin-bottom: 8px; }
+    .lightbox-title { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lightbox-close, .lightbox-baseline { background: var(--header-bg); border: 1px solid var(--table-border); color: var(--text); cursor: pointer; font: inherit; padding: 4px 8px; }
+    .lightbox-baseline:active { background: #3b82f6; color: #ffffff; }
+    .lightbox-image { background: var(--screenshot-bg); display: block; max-height: calc(100vh - 120px); max-width: calc(100vw - 72px); object-fit: contain; }
+    .loading { padding: 40px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Layout Test Report</h1>
+  <div class="loading">Loading results…</div>
+  <table hidden>
+    <thead>
+      <tr>
+        <th>Chrome</th>
+        <th>Viewport</th>
+        <th>Route</th>
+        <th>Fixture</th>
+        <th>Status</th>
+        <th>Diffs</th>
+        <th>Differences</th>
+        <th>Current screenshot</th>
+        <th>Baseline screenshot</th>
+      </tr>
+      <tr id="filter-row"></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div class="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot preview" hidden>
+    <div class="lightbox-panel">
+      <div class="lightbox-header">
+        <div class="lightbox-title"></div>
+        <button class="lightbox-baseline" type="button" hidden>Baseline</button>
+        <button class="lightbox-close" type="button">Close</button>
+      </div>
+      <img class="lightbox-image" alt="">
+    </div>
+  </div>
+  <script>
+    (() => {
+      /* ---- screenshot path helper ---- */
+      const relScreenshot = absPath => {
+        const idx = absPath.lastIndexOf('/screenshots/');
+        return idx >= 0 ? 'screenshots/' + absPath.slice(idx + '/screenshots/'.length) : absPath;
+      };
+
+      /* ---- UI refs ---- */
+      const loadingEl = document.querySelector('.loading');
+      const tableEl = document.querySelector('table');
+      const tbody = document.querySelector('tbody');
+      const filterRow = document.getElementById('filter-row');
+
+      const lightbox = document.querySelector('.lightbox');
+      const lightboxImage = document.querySelector('.lightbox-image');
+      const lightboxTitle = document.querySelector('.lightbox-title');
+      const lightboxClose = document.querySelector('.lightbox-close');
+      const lightboxBaseline = document.querySelector('.lightbox-baseline');
+      let lightboxCurrentSrc = '';
+      let lightboxBaselineSrc = '';
+
+      /* ---- lightbox ---- */
+      const closeLightbox = () => {
+        lightbox.classList.remove('open');
+        lightbox.hidden = true;
+        lightboxImage.removeAttribute('src');
+        lightboxImage.alt = '';
+        lightboxTitle.textContent = '';
+        lightboxBaseline.hidden = true;
+        lightboxCurrentSrc = '';
+        lightboxBaselineSrc = '';
+      };
+
+      lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+      lightboxClose.addEventListener('click', closeLightbox);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !lightbox.hidden) closeLightbox(); });
+
+      const showBaseline = () => { if (lightboxBaselineSrc) lightboxImage.src = lightboxBaselineSrc; };
+      const showCurrent = () => { if (lightboxCurrentSrc) lightboxImage.src = lightboxCurrentSrc; };
+      lightboxBaseline.addEventListener('mousedown', showBaseline);
+      lightboxBaseline.addEventListener('mouseup', showCurrent);
+      lightboxBaseline.addEventListener('mouseleave', showCurrent);
+      lightboxBaseline.addEventListener('touchstart', e => { e.preventDefault(); showBaseline(); });
+      lightboxBaseline.addEventListener('touchend', showCurrent);
+
+      const openLightbox = (currentSrc, baselineSrc, label) => {
+        lightboxCurrentSrc = currentSrc;
+        lightboxBaselineSrc = baselineSrc || '';
+        lightboxImage.src = currentSrc;
+        lightboxImage.alt = label;
+        lightboxTitle.textContent = label;
+        lightboxBaseline.hidden = !lightboxBaselineSrc;
+        lightbox.hidden = false;
+        lightbox.classList.add('open');
+      };
+
+      /* ---- diff rendering ---- */
+      const shortenSelector = sel => {
+        const parts = sel.split('>');
+        let lastClass = -1;
+        for (let i = parts.length - 1; i >= 0; i--) {
+          if (/\.[A-Za-z_-]/.test(parts[i])) { lastClass = i; break; }
+        }
+        return lastClass > 0 ? '...>' + parts.slice(lastClass).join('>') : sel;
+      };
+
+      const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+      /* ---- render ---- */
+      const render = results => {
+        const failed = results.filter(r => !r.passed);
+        document.querySelector('h1').insertAdjacentHTML('afterend',
+          '<p>' + results.length + ' comparisons, ' + failed.length + ' failed.</p>');
+
+        /* collect filter options */
+        const colValues = [[], [], [], [], []];
+        results.forEach(r => {
+          colValues[0].push(r.target);
+          colValues[1].push(r.viewport ? r.viewport.width + 'x' + r.viewport.height : '');
+          colValues[2].push(r.route ? r.route.path : '');
+          colValues[3].push(r.fixture);
+          colValues[4].push(r.passed ? 'PASS' : 'FAIL');
+        });
+
+        const labels = ['Chrome', 'Viewport', 'Route', 'Fixture', 'Status'];
+        filterRow.innerHTML = colValues.map((vals, i) => {
+          const uniq = [...new Set(vals)].sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+          return '<th><select data-filter-column="' + i + '" aria-label="Filter ' + labels[i] + '">'
+            + '<option value="">All</option>'
+            + uniq.map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join('')
+            + '</select></th>';
+        }).join('') + '<th></th><th></th><th></th><th></th>';
+
+        /* rows */
+        tbody.innerHTML = results.map(r => {
+          const diffs = r.differences.map(d =>
+            '<div><code title="' + esc(d.path) + '">' + esc(shortenSelector(d.path)) + '</code> '
+            + esc(d.metric ?? d.type) + ' ' + esc(d.expected ?? '') + ' -> ' + esc(d.actual ?? '')
+            + (d.delta === undefined ? '' : ' (' + d.delta.toFixed(3) + ')') + '</div>'
+          ).join('');
+          const vp = r.viewport ? r.viewport.width + 'x' + r.viewport.height : '';
+
+          const currentSrc = r.screenshotPath ? relScreenshot(r.screenshotPath) : '';
+          const baselineSrc = r.baselineScreenshotPath ? relScreenshot(r.baselineScreenshotPath) : '';
+
+          const screenshotHtml = src => src
+            ? '<img class="screenshot" src="' + esc(src) + '" alt="" loading="lazy">'
+            : '';
+
+          return '<tr class="' + (r.passed ? 'pass' : 'fail') + '">'
+            + '<td>' + esc(r.target) + '</td>'
+            + '<td>' + esc(vp) + '</td>'
+            + '<td>' + esc(r.route ? r.route.path : '') + '</td>'
+            + '<td>' + esc(r.fixture) + '</td>'
+            + '<td>' + (r.passed ? 'PASS' : 'FAIL') + '</td>'
+            + '<td>' + r.differences.length + '</td>'
+            + '<td><div class="diff-list">' + (diffs || '<span class="muted">None</span>') + '</div></td>'
+            + '<td>' + (currentSrc
+                ? '<a class="screenshot-link" href="#" data-current="' + esc(currentSrc) + '" data-baseline="' + esc(baselineSrc) + '" data-label="' + esc(r.target + ' screenshot') + '">' + screenshotHtml(currentSrc) + '</a>'
+                : '') + '</td>'
+            + '<td>' + (baselineSrc
+                ? '<a class="screenshot-link" href="#" data-current="' + esc(baselineSrc) + '" data-label="' + esc(r.baselineTarget + ' baseline screenshot') + '">' + screenshotHtml(baselineSrc) + '</a>'
+                : '') + '</td>'
+            + '</tr>';
+        }).join('');
+
+        /* filters */
+        const filters = Array.from(document.querySelectorAll('[data-filter-column]'));
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        filters.forEach(filter => filter.addEventListener('change', () => {
+          const active = filters.map(f => ({
+            col: Number(f.dataset.filterColumn),
+            val: f.value.trim().toLowerCase(),
+          })).filter(f => f.val);
+          rows.forEach(row => {
+            const match = active.every(f => row.children[f.col].textContent.trim().toLowerCase() === f.val);
+            row.hidden = !match;
+          });
+        }));
+
+        /* screenshot clicks */
+        tbody.querySelectorAll('.screenshot-link').forEach(link => {
+          link.addEventListener('click', e => {
+            e.preventDefault();
+            const current = link.dataset.current;
+            const baseline = link.dataset.baseline || '';
+            const label = link.dataset.label || 'Screenshot';
+            openLightbox(current, baseline, label);
+          });
+        });
+
+        loadingEl.hidden = true;
+        tableEl.hidden = false;
+      };
+
+      /* ---- boot ---- */
+      const boot = () => {
+        if (window.__RESULTS__) {
+          render(window.__RESULTS__);
+          return;
+        }
+        fetch('chrome-layout-diff-results.json')
+          .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(render)
+          .catch(err => { loadingEl.textContent = 'Failed to load results: ' + esc(err.message); });
+      };
+      boot();
+    })();
+  </script>
+</body>
+</html>

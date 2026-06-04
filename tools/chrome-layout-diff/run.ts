@@ -182,7 +182,7 @@ const main = async () => {
   const resultsPath = path.join(runOutputDir, 'chrome-layout-diff-results.json')
   const reportPath = path.join(runOutputDir, 'chrome-layout-diff-report.html')
   writeJson(resultsPath, results)
-  writeReport(reportPath, results)
+  writeReport(reportPath)
 
   const failures = results.filter(result => !result.passed)
   console.log(`[layout] wrote ${resultsPath}`)
