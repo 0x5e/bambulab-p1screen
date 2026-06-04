@@ -1,74 +1,72 @@
 <template>
-  <div class="app-root">
-    <div class="unsupported">你的浏览器内核版本过低，请升级。</div>
-    <div class="app-shell">
-      <aside class="sidebar">
-        <RouterLink
-          v-for="item in navItems"
-          :key="item.key"
-          :class="{ 'sidebar-item': true, 'sidebar-item-active': item.key === activeNavKey }"
-          :to="item.to"
-          replace
-          draggable="false"
-          @dragstart.prevent
-        >
-          <van-badge v-if="item.key === 'message'" :content="messageBadgeContent" class="sidebar-icon">
-            <component :is="item.icon" class="sidebar-icon" />
-          </van-badge>
-          <component v-else :is="item.icon" class="sidebar-icon" />
-        </RouterLink>
-      </aside>
-
-      <main class="main">
-        <RouterView />
-      </main>
-
-      <van-tabbar
-        class="tabbar"
-        :model-value="activeNavPath"
-        placeholder
-        safe-area-inset-bottom
-        @change="onTabChange"
+  <div class="unsupported">你的浏览器内核版本过低，请升级。</div>
+  <div class="root">
+    <aside class="sidebar">
+      <RouterLink
+        v-for="item in navItems"
+        :key="item.key"
+        :class="{ 'sidebar-item': true, 'sidebar-item-active': item.key === activeNavKey }"
+        :to="item.to"
+        replace
+        draggable="false"
+        @dragstart.prevent
       >
-        <van-tabbar-item
-          v-for="item in navItems"
-          :key="item.key"
-          :to="item.to"
-          replace
-          :name="item.to"
-          :badge="item.key === 'message' ? messageBadgeContent : undefined"
-        >
-          <template #icon>
-            <component :is="item.icon" />
-          </template>
-          {{ item.title }}
-        </van-tabbar-item>
-      </van-tabbar>
-    </div>
+        <van-badge v-if="item.key === 'message'" :content="messageBadgeContent" class="sidebar-icon">
+          <component :is="item.icon" class="sidebar-icon" />
+        </van-badge>
+        <component v-else :is="item.icon" class="sidebar-icon" />
+      </RouterLink>
+    </aside>
 
-    <van-popup
-      :show="showPrintError"
-      :overlay-style="{ position: 'absolute' }"
-      :style="{ position: 'absolute' }"
+    <main class="main">
+      <RouterView />
+    </main>
+
+    <van-tabbar
+      class="tabbar"
+      :model-value="activeNavPath"
+      placeholder
+      safe-area-inset-bottom
+      @change="onTabChange"
     >
-      <div class="error-popover">
-        <i-material-symbols-cancel-outline class="close-icon" @click="showPrintError = false" />
-        <div class="col-left">
-          <img v-if="errorImage" :src="errorImage" class="error-image" />
-          <div class="error-title">
-            <i-material-symbols-error-outline />
-            {{ t('print_error_warning') }}
-          </div>
-          <div class="error-text">{{ errorText }}</div>
-          <div class="error-code">[{{ errorCode }}]</div>
-        </div>
-        <div class="col-right">
-          <van-button @click="showPrintError = false; handleResume()">{{ t('print_error_continue') }}</van-button>
-          <van-button @click="showPrintError = false; router.replace({ name: ROUTE_NAME.MESSAGE })">{{ t('print_error_goto_assistant') }}</van-button>
-        </div>
-      </div>
-    </van-popup>
+      <van-tabbar-item
+        v-for="item in navItems"
+        :key="item.key"
+        :to="item.to"
+        replace
+        :name="item.to"
+        :badge="item.key === 'message' ? messageBadgeContent : undefined"
+      >
+        <template #icon>
+          <component :is="item.icon" />
+        </template>
+        {{ item.title }}
+      </van-tabbar-item>
+    </van-tabbar>
   </div>
+
+  <van-popup
+    :show="showPrintError"
+    :overlay-style="{ position: 'absolute' }"
+    :style="{ position: 'absolute' }"
+  >
+    <div class="error-popover">
+      <i-material-symbols-cancel-outline class="close-icon" @click="showPrintError = false" />
+      <div class="col-left">
+        <img v-if="errorImage" :src="errorImage" class="error-image" />
+        <div class="error-title">
+          <i-material-symbols-error-outline />
+          {{ t('print_error_warning') }}
+        </div>
+        <div class="error-text">{{ errorText }}</div>
+        <div class="error-code">[{{ errorCode }}]</div>
+      </div>
+      <div class="col-right">
+        <van-button @click="showPrintError = false; handleResume()">{{ t('print_error_continue') }}</van-button>
+        <van-button @click="showPrintError = false; router.replace({ name: ROUTE_NAME.MESSAGE })">{{ t('print_error_goto_assistant') }}</van-button>
+      </div>
+    </div>
+  </van-popup>
 </template>
 
 <script setup lang="ts">
@@ -174,17 +172,12 @@ const handleResume = () => {
 </script>
 
 <style scoped>
-.app-root {
+.root {
+  position: relative;
   width: 100%;
   height: 100%;
-}
-
-.app-shell {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  height: 100%;
-  overflow: hidden;
+  display: flex;
+  flex-direction: row;
 }
 
 .unsupported {
@@ -200,7 +193,7 @@ const handleResume = () => {
 }
 
 @supports not ((width: calc(1px + 1px)) and (color: var(--support-probe))) {
-  .app-shell {
+  .root {
     display: none;
   }
 
@@ -249,10 +242,10 @@ const handleResume = () => {
 }
 
 .main {
+  width: 100%;
   height: 100%;
   min-height: 320px;
   padding-right: env(safe-area-inset-right);
-  overflow: auto;
 }
 
 .van-popup {
@@ -342,9 +335,8 @@ const handleResume = () => {
 }
 
 @media (orientation: portrait) {
-  .app-shell {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr) auto;
+  .root {
+    flex-direction: column;
   }
 
   .sidebar {

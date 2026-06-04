@@ -35,9 +35,9 @@ const isFirstLevelPage = computed(() => route.path.split('/').length === 2)
 .page {
   width: 100%;
   height: 100%;
-  display: grid;
-  grid-template-rows: auto 1fr;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .content {

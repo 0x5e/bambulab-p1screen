@@ -60,4 +60,7 @@ export const fixtureRoutes: Partial<Record<FixtureName, string[]>> = {
 
 export const ignoreSelectors = [
   // '.hint',
+  '.homepage-idle > .files > img',
+  '.axis-home',
+  '.heatbed-btn',
 ]
