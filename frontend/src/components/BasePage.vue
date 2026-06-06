@@ -1,17 +1,16 @@
 <template>
   <div class="page" :class="{ 'first-level-page': isFirstLevelPage }">
-    <div class="navbar">
-      <van-nav-bar
-        :title="title"
-        :left-arrow="!isFirstLevelPage"
-        safe-area-inset-top
-        @click-left="router.back"
-      >
-        <template #right>
-          <slot name="right"></slot>
-        </template>
-      </van-nav-bar>
-    </div>
+    <van-nav-bar
+      class="navbar"
+      :title="title"
+      :left-arrow="!isFirstLevelPage"
+      safe-area-inset-top
+      @click-left="router.back"
+    >
+      <template #right>
+        <slot name="right"></slot>
+      </template>
+    </van-nav-bar>
     <div class="content">
       <slot></slot>
     </div>
@@ -55,11 +54,11 @@ const isFirstLevelPage = computed(() => route.path.split('/').length === 2)
 
 @media (orientation: landscape) {
   .navbar {
-    --van-nav-bar-height: 50px;
+    --van-nav-bar-height: 44px;
     --van-nav-bar-background: transparent;
     --van-nav-bar-arrow-size: 20px;
     --van-nav-bar-title-font-size: 18px;
-    margin-bottom: -10px;
+    padding-top: 0px;
   }
 
   .first-level-page {

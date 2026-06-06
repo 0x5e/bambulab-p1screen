@@ -20,9 +20,14 @@
       </van-cell-group>
 
       <van-cell-group inset :title="t('about_project')">
+        <van-cell v-if="isAndroidApp()" :title="t('landscape_hide_status_bar')" center>
+          <template #right-icon>
+            <van-switch v-model="landscapeHideStatusBar" @change="onLandscapeHideStatusBarChange" size="24px" />
+          </template>
+        </van-cell>
         <van-cell v-if="showExportDeviceInfo" :title="t('export_device_info')" is-link @click="handleExportDeviceInfo" />
         <van-cell
-          v-if="showCheckForUpdates"
+          v-if="isAndroidApp()"
           :title="t('check_for_updates')"
           is-link
           @click="handleCheckForUpdates"
@@ -56,6 +61,7 @@ const LATEST_RELEASE_URL = 'https://api.github.com/repos/0x5e/bambulab-p1screen/
 
 const { device, modules } = usePrinterStore()
 const languagePref = ref<LocalePreference>(getLocalePreference())
+const landscapeHideStatusBar = ref(false)
 const showLanguageSheet = ref(false)
 
 type GitHubRelease = {
@@ -70,6 +76,8 @@ type GitHubReleaseAsset = {
 
 type P1ScreenBridge = {
   isAvailable?: () => boolean
+  getLandscapeHideStatusBar?: () => boolean
+  setLandscapeHideStatusBar?: (hide: boolean) => void
 }
 
 type P1ScreenWindow = Window & {
@@ -79,7 +87,6 @@ type P1ScreenWindow = Window & {
 
 const getNativeBridge = () => (window as P1ScreenWindow).P1ScreenBridge
 const isAndroidApp = () => !!getNativeBridge()
-const showCheckForUpdates = isAndroidApp()
 const showExportDeviceInfo = computed(() => !!device.value && !!modules.value?.length)
 
 const resolveLocale = (pref: LocalePreference) => {
@@ -146,7 +153,14 @@ const handleExportDeviceInfo = () => {
 
 onMounted(() => {
   ;(window as P1ScreenWindow).__P1ScreenGetDeviceInfo = getDeviceInfo
+  if (isAndroidApp()) {
+    landscapeHideStatusBar.value = !!getNativeBridge()?.getLandscapeHideStatusBar?.()
+  }
 })
+
+const onLandscapeHideStatusBarChange = (value: boolean) => {
+  getNativeBridge()?.setLandscapeHideStatusBar?.(value)
+}
 
 onUnmounted(() => {
   delete (window as P1ScreenWindow).__P1ScreenGetDeviceInfo

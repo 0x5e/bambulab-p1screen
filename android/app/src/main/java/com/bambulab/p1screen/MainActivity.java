@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -37,6 +38,7 @@ public final class MainActivity extends Activity {
   private static final long EXIT_INTERVAL_MS = 2000L;
   private static final String APP_LIFECYCLE_FOREGROUND = "foreground";
   private static final String APP_LIFECYCLE_BACKGROUND = "background";
+  private static final String PREF_LANDSCAPE_HIDE_STATUS_BAR = "landscape_hide_status_bar";
   private static final String GET_DEVICE_INFO_SCRIPT =
       "(function(){"
     + "try{"
@@ -51,12 +53,14 @@ public final class MainActivity extends Activity {
   private WebService webService;
   private long lastBackPressedAt;
   private Toast exitToast;
+  private SharedPreferences prefs;
   private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
   @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    prefs = getPreferences(MODE_PRIVATE);
 
     startWebService();
 
@@ -203,6 +207,20 @@ public final class MainActivity extends Activity {
     public boolean isAvailable() {
       return true;
     }
+
+    @JavascriptInterface
+    public boolean getLandscapeHideStatusBar() {
+      return prefs.getBoolean(PREF_LANDSCAPE_HIDE_STATUS_BAR, false);
+    }
+
+    @JavascriptInterface
+    public void setLandscapeHideStatusBar(boolean hide) {
+      prefs.edit().putBoolean(PREF_LANDSCAPE_HIDE_STATUS_BAR, hide).apply();
+      mainHandler.post(() -> {
+        applyFullscreen();
+        getWindow().getDecorView().requestApplyInsets();
+      });
+    }
   }
 
   private String getDeviceInfoJsonFromWebView() throws IOException {
@@ -279,10 +297,12 @@ public final class MainActivity extends Activity {
     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
       int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+      if (prefs != null && prefs.getBoolean(PREF_LANDSCAPE_HIDE_STATUS_BAR, false)) {
+        flags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+               | View.SYSTEM_UI_FLAG_FULLSCREEN;
+      }
       decorView.setSystemUiVisibility(flags);
     } else {
       int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -299,7 +319,9 @@ public final class MainActivity extends Activity {
       if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
 //        v.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
 //        return insets.consumeSystemWindowInsets();
-        v.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
+        boolean hideStatusBar = prefs != null && prefs.getBoolean(PREF_LANDSCAPE_HIDE_STATUS_BAR, false);
+        int topPadding = hideStatusBar ? 0 : insets.getSystemWindowInsetTop();
+        v.setPadding(0, topPadding, 0, 0);
       } else {
         v.setPadding(0, 0, 0, 0);
       }

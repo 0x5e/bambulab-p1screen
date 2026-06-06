@@ -212,6 +212,7 @@ export const messages = {
     print_error_continue: '继续（问题已解决）',
     print_error_goto_assistant: '前往机器助手',
     firmware_not_supported_warning: '固件版本过高，大于 01.08.01.00 固件版本，需要开启“仅局域网”和“开发者模式”才能进行局域网控制。',
+    landscape_hide_status_bar: '横屏隐藏状态栏',
   },
   en: {
     developing: 'Coming soon',
@@ -396,6 +397,7 @@ export const messages = {
     print_error_continue: 'Resume (Problem solved)',
     print_error_goto_assistant: 'Troubleshooting Assistant',
     firmware_not_supported_warning: 'The firmware version is too high. For firmware versions later than 01.08.01.00, LAN-only mode and Developer Mode must be enabled to use LAN control.',
+    landscape_hide_status_bar: 'Hide Status Bar in Landscape',
   },
 }
 
