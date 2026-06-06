@@ -111,6 +111,7 @@ watch(
 <style scoped>
 :global(.device-list-popup.popup) {
   width: 250px;
+  background-color: var(--van-background-2);
 }
 
 .device-title {
@@ -169,7 +170,8 @@ watch(
 
 .device-cell {
   height: 44px;
-  width: 220px;
+  width: 230px;
+  background-color: var(--van-background-3);
 }
 
 @media (orientation: portrait) {
