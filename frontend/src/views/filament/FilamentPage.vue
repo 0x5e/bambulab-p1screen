@@ -150,7 +150,6 @@ const handleSettingsSelect = (action: PopoverAction) => {
   height: 100%;
   position: relative;
   padding-bottom: 30px;
-  padding-bottom: calc(30px + env(safe-area-inset-bottom));
 
   display: grid;
   grid-template-rows: 30px 150px;
@@ -252,7 +251,6 @@ const handleSettingsSelect = (action: PopoverAction) => {
   position: absolute;
   right: 10px;
   bottom: 10px;
-  bottom: calc(10px + env(safe-area-inset-bottom));
 }
 
 .setting button {

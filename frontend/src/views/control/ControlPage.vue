@@ -369,7 +369,6 @@ const fanStatusText = computed(() => {
   position: absolute;
   right: 10px;
   bottom: 10px;
-  bottom: calc(10px + env(safe-area-inset-bottom));
   width: 140px;
   height: 40px;
   padding: 8px 10px;

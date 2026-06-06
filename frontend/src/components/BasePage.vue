@@ -47,7 +47,6 @@ const isFirstLevelPage = computed(() => route.path.split('/').length === 2)
   overflow-y: auto;
   overflow-x: hidden;
   padding: 10px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
 }
 
 .navbar {

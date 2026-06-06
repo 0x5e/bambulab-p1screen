@@ -636,7 +636,6 @@ const getCloudDeviceLANIP = (tempClient: PrinterClient, user: UserRecord, serial
 <style scoped>
 .device-manage-page {
   padding-bottom: 16px;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom));
   overflow: auto;
 }
 

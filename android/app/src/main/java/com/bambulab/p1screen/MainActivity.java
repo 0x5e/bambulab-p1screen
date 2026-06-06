@@ -285,7 +285,10 @@ public final class MainActivity extends Activity {
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
       decorView.setSystemUiVisibility(flags);
     } else {
-      decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+      int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+      decorView.setSystemUiVisibility(flags);
     }
   }
 
@@ -294,11 +297,13 @@ public final class MainActivity extends Activity {
     decorView.setOnApplyWindowInsetsListener((v, insets) -> {
       int orientation = getResources().getConfiguration().orientation;
       if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        v.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
+//        v.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
+//        return insets.consumeSystemWindowInsets();
+        v.setPadding(0, insets.getSystemWindowInsetTop(), 0, 0);
       } else {
-        v.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
+        v.setPadding(0, 0, 0, 0);
       }
-        return insets.consumeSystemWindowInsets();
+      return insets;
     });
   }
 
