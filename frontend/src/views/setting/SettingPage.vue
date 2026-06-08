@@ -25,6 +25,16 @@
             <van-switch v-model="landscapeHideStatusBar" @change="onLandscapeHideStatusBarChange" size="24px" />
           </template>
         </van-cell>
+        <van-cell v-if="isAndroidApp()" :title="t('force_landscape')" center>
+          <template #right-icon>
+            <van-switch v-model="forceLandscape" @change="onForceLandscapeChange" size="24px" />
+          </template>
+        </van-cell>
+        <van-cell v-if="isAndroidApp()" :title="t('keep_screen_on')" center>
+          <template #right-icon>
+            <van-switch v-model="keepScreenOn" @change="onKeepScreenOnChange" size="24px" />
+          </template>
+        </van-cell>
         <van-cell v-if="showExportDeviceInfo" :title="t('export_device_info')" is-link @click="handleExportDeviceInfo" />
         <van-cell
           v-if="isAndroidApp()"
@@ -62,6 +72,8 @@ const LATEST_RELEASE_URL = 'https://api.github.com/repos/0x5e/bambulab-p1screen/
 const { device, modules } = usePrinterStore()
 const languagePref = ref<LocalePreference>(getLocalePreference())
 const landscapeHideStatusBar = ref(false)
+const forceLandscape = ref(false)
+const keepScreenOn = ref(false)
 const showLanguageSheet = ref(false)
 
 type GitHubRelease = {
@@ -78,6 +90,10 @@ type P1ScreenBridge = {
   isAvailable?: () => boolean
   getLandscapeHideStatusBar?: () => boolean
   setLandscapeHideStatusBar?: (hide: boolean) => void
+  getForceLandscape?: () => boolean
+  setForceLandscape?: (force: boolean) => void
+  getKeepScreenOn?: () => boolean
+  setKeepScreenOn?: (keepOn: boolean) => void
 }
 
 type P1ScreenWindow = Window & {
@@ -155,11 +171,21 @@ onMounted(() => {
   ;(window as P1ScreenWindow).__P1ScreenGetDeviceInfo = getDeviceInfo
   if (isAndroidApp()) {
     landscapeHideStatusBar.value = !!getNativeBridge()?.getLandscapeHideStatusBar?.()
+    forceLandscape.value = !!getNativeBridge()?.getForceLandscape?.()
+    keepScreenOn.value = !!getNativeBridge()?.getKeepScreenOn?.()
   }
 })
 
 const onLandscapeHideStatusBarChange = (value: boolean) => {
   getNativeBridge()?.setLandscapeHideStatusBar?.(value)
+}
+
+const onForceLandscapeChange = (value: boolean) => {
+  getNativeBridge()?.setForceLandscape?.(value)
+}
+
+const onKeepScreenOnChange = (value: boolean) => {
+  getNativeBridge()?.setKeepScreenOn?.(value)
 }
 
 onUnmounted(() => {

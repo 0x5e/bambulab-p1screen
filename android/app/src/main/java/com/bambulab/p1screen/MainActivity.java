@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.view.WindowManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -39,6 +41,8 @@ public final class MainActivity extends Activity {
   private static final String APP_LIFECYCLE_FOREGROUND = "foreground";
   private static final String APP_LIFECYCLE_BACKGROUND = "background";
   private static final String PREF_LANDSCAPE_HIDE_STATUS_BAR = "landscape_hide_status_bar";
+  private static final String PREF_FORCE_LANDSCAPE = "force_landscape";
+  private static final String PREF_KEEP_SCREEN_ON = "keep_screen_on";
   private static final String GET_DEVICE_INFO_SCRIPT =
       "(function(){"
     + "try{"
@@ -54,6 +58,7 @@ public final class MainActivity extends Activity {
   private long lastBackPressedAt;
   private Toast exitToast;
   private SharedPreferences prefs;
+  private NativeBridge nativeBridge;
   private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
   @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
@@ -61,6 +66,13 @@ public final class MainActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     prefs = getPreferences(MODE_PRIVATE);
+    nativeBridge = new NativeBridge();
+    if (nativeBridge.getForceLandscape()) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+    }
+    if (nativeBridge.getKeepScreenOn()) {
+      getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
 
     startWebService();
 
@@ -125,7 +137,7 @@ public final class MainActivity extends Activity {
     settings.setAllowFileAccess(false);
     settings.setAllowContentAccess(false);
     settings.setLoadsImagesAutomatically(true);
-    webView.addJavascriptInterface(new NativeBridge(), "P1ScreenBridge");
+    webView.addJavascriptInterface(nativeBridge, "P1ScreenBridge");
     logRuntimeInfo(settings);
 
     WebView.setWebContentsDebuggingEnabled(true);
@@ -221,6 +233,40 @@ public final class MainActivity extends Activity {
         getWindow().getDecorView().requestApplyInsets();
       });
     }
+
+    @JavascriptInterface
+    public boolean getForceLandscape() {
+      return prefs.getBoolean(PREF_FORCE_LANDSCAPE, false);
+    }
+
+    @JavascriptInterface
+    public void setForceLandscape(boolean force) {
+      prefs.edit().putBoolean(PREF_FORCE_LANDSCAPE, force).apply();
+      mainHandler.post(() -> {
+        if (force) {
+          setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        } else {
+          setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
+      });
+    }
+
+    @JavascriptInterface
+    public boolean getKeepScreenOn() {
+      return prefs.getBoolean(PREF_KEEP_SCREEN_ON, false);
+    }
+
+    @JavascriptInterface
+    public void setKeepScreenOn(boolean keepOn) {
+      prefs.edit().putBoolean(PREF_KEEP_SCREEN_ON, keepOn).apply();
+      mainHandler.post(() -> {
+        if (keepOn) {
+          getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+          getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+      });
+    }
   }
 
   private String getDeviceInfoJsonFromWebView() throws IOException {
@@ -299,7 +345,7 @@ public final class MainActivity extends Activity {
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-      if (prefs != null && prefs.getBoolean(PREF_LANDSCAPE_HIDE_STATUS_BAR, false)) {
+      if (nativeBridge.getLandscapeHideStatusBar()) {
         flags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                | View.SYSTEM_UI_FLAG_FULLSCREEN;
       }
@@ -319,7 +365,7 @@ public final class MainActivity extends Activity {
       if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
 //        v.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
 //        return insets.consumeSystemWindowInsets();
-        boolean hideStatusBar = prefs != null && prefs.getBoolean(PREF_LANDSCAPE_HIDE_STATUS_BAR, false);
+        boolean hideStatusBar = nativeBridge.getLandscapeHideStatusBar();
         int topPadding = hideStatusBar ? 0 : insets.getSystemWindowInsetTop();
         v.setPadding(0, topPadding, 0, 0);
       } else {
