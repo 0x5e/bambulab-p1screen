@@ -151,6 +151,7 @@ public final class MainActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
+    applyFullscreen();
     dispatchAppLifecycleEvent(APP_LIFECYCLE_FOREGROUND);
   }
 
