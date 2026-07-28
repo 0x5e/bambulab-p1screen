@@ -10,7 +10,7 @@
   >
     <template #reference>
       <div class="tray" @click.stop="handleTrayClick">
-        <div class="remain" :style="{ visibility: isExt || props.tray.remain === -1 ? 'hidden' : 'visible' }">
+        <div class="remain" :style="{ visibility: isExt || !props.tray.remain || props.tray.remain === -1 ? 'hidden' : 'visible' }">
           <div :style="{ backgroundColor: bgColor, width: `${props.tray.remain}%` }"></div>
         </div>
         <div class="filament" :style="{ '--tray-bg': bgColor }"></div>
@@ -94,6 +94,7 @@ const trayEqual = (target: number) => (target === 254 && Number(props.tray.id) =
 
 const handleTrayClick = () => {
   if (!props.tray) return
+  if (!isExt.value && !props.tray.tray_info_idx) return
   showPopover.value = !showPopover.value
 }
 
