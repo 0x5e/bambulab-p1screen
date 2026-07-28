@@ -24,7 +24,7 @@
               <div v-for="slot in ams.tray.length" :key="slot" class="slot">
                 <div
                   :style="{
-                    backgroundColor: ams.tray[slot - 1].tray_color.length > 0 ? `#${ams.tray[slot - 1].tray_color}` : undefined,
+                    backgroundColor: ams.tray[slot - 1].tray_color && ams.tray[slot - 1].tray_color.length > 0 ? `#${ams.tray[slot - 1].tray_color}` : undefined,
                     height: ams.tray[slot - 1].remain !== -1 ? `${ams.tray[slot - 1].remain}%` : undefined,
                   }"
                 ></div>
