@@ -20,16 +20,7 @@
         <div @click="router.replace({ name: ROUTE_NAME.FILAMENT })">
           <template v-for="ams in device.ams.ams.slice(0, 2)" :key="ams.id">
             AMS-{{ amsPrefix(ams.id) }}
-            <div class="ams">
-              <div v-for="slot in ams.tray.length" :key="slot" class="slot">
-                <div
-                  :style="{
-                    backgroundColor: ams.tray[slot - 1].tray_color && ams.tray[slot - 1].tray_color.length > 0 ? `#${ams.tray[slot - 1].tray_color}` : undefined,
-                    height: ams.tray[slot - 1].remain !== -1 ? `${ams.tray[slot - 1].remain}%` : undefined,
-                  }"
-                ></div>
-              </div>
-            </div>
+            <AMSIndicator :ams="ams" />
           </template>
         </div>
       </template>
@@ -182,34 +173,6 @@ const nozzleTemp = computed(() => Math.floor(device.value?.nozzle_temper ?? 0))
   width: 32px;
   height: 32px;
   margin-bottom: 12px;
-}
-
-.ams {
-  height: 24px;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-
-.ams .slot + .slot {
-  margin-left: 4px;
-}
-
-.ams .slot {
-  height: 22px;
-  width: 12px;
-  border-radius: 6px;
-  border: 1px solid var(--van-background-5);
-  background-color: var(--van-background-4);
-  overflow: hidden;
-  display: flex;
-  align-items: end;
-}
-
-.ams .slot > div {
-  width: 100%;
-  height: 100%;
-  border-radius: 6px;
 }
 
 @media (orientation: portrait) {
