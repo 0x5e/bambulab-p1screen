@@ -2,13 +2,16 @@
   <BasePage :title="t('filament')">
     <div class="filament-page" :class="{ 'filament-page-no-ams': device && device.ams.ams.length === 0 }">
       <div>
-        <van-tabs v-if="device && device.ams.ams.length > 1" class="ams-tab" @click-tab="handleClickTab">
+        <van-tabs v-if="device && device.ams.ams.length > 1" class="ams-tab" @click-tab="handleClickTab" shrink>
           <van-tab
             v-for="i in device.ams.ams.length"
             :key="i"
-            :title="`AMS-${amsPrefix(device.ams.ams[i-1].id)}`"
             :name="device.ams.ams[i-1].id"
-          />
+          >
+            <template #title>
+              <AMSIndicator :ams="device.ams.ams[i-1]" type="small" />
+            </template>
+        </van-tab>
         </van-tabs>
       </div>
       <div v-if="device && currentAms" class="ams-card">
@@ -164,18 +167,33 @@ const handleSettingsSelect = (action: PopoverAction) => {
 }
 
 .ams-tab {
-  width: calc(60px * 4 + 18px);
-  margin: 16px;
+  width: fit-content;
+  margin-left: 16px;
   border-radius: 8px;
   overflow: hidden;
 }
 
-:deep(.ams-tab > .van-tabs__wrap) {
-  height: 30px;
+:deep(.ams-tab .van-tabs__nav) {
+  background-color: var(--van-background-2);
 }
 
 :deep(.ams-tab .van-tab) {
-  font-size: 12px;
+  padding: 0;
+}
+
+:deep(.ams-tab .van-tabs__line) {
+  display: none;
+}
+
+:deep(.ams-tab .van-tab__text) {
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 4px;
+}
+
+:deep(.ams-tab .van-tab--active .van-tab__text) {
+  border-color: var(--van-primary-color);
 }
 
 .ams-card, .ext-card {
@@ -267,6 +285,7 @@ const handleSettingsSelect = (action: PopoverAction) => {
 
 @media (orientation: portrait) {
   .filament-page {
+    padding-top: 20px;
     grid-template-rows: 40px 150px 150px;
     grid-template-columns: auto;
     align-content: initial;
