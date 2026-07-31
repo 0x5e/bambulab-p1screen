@@ -11,18 +11,18 @@
 拓竹 P1 系列控制屏软件。
 
 ## 预览图
-<img src="./screenshoot/home-idle.png" alt="主页（空闲）" width="50%" />
-<img src="./screenshoot/home.png" alt="主页" width="50%" />
-<img src="./screenshoot/home-warning.png" alt="主页（警告）" width="50%" />
-<img src="./screenshoot/control.png" alt="控制页" width="50%" />
-<img src="./screenshoot/printspeed.png" alt="打印速度" width="50%" />
-<img src="./screenshoot/motion.png" alt="运动" width="50%" />
-<img src="./screenshoot/nozzle.png" alt="喷嘴和挤出机" width="50%" />
-<img src="./screenshoot/heatbed.png" alt="热床" width="50%" />
-<img src="./screenshoot/filament.png" alt="耗材页" width="50%" />
-<img src="./screenshoot/filament-edit.png" alt="耗材编辑页" width="50%" />
-<img src="./screenshoot/setting.png" alt="设置页" width="50%" />
-<img src="./screenshoot/message.png" alt="消息页" width="50%" />
+<img src="./screenshot/home-idle.png" alt="主页（空闲）" width="50%" />
+<img src="./screenshot/home.png" alt="主页" width="50%" />
+<img src="./screenshot/home-warning.png" alt="主页（警告）" width="50%" />
+<img src="./screenshot/control.png" alt="控制页" width="50%" />
+<img src="./screenshot/printspeed.png" alt="打印速度" width="50%" />
+<img src="./screenshot/motion.png" alt="运动" width="50%" />
+<img src="./screenshot/nozzle.png" alt="喷嘴和挤出机" width="50%" />
+<img src="./screenshot/heatbed.png" alt="热床" width="50%" />
+<img src="./screenshot/filament.png" alt="耗材页" width="50%" />
+<img src="./screenshot/filament-edit.png" alt="耗材编辑页" width="50%" />
+<img src="./screenshot/setting.png" alt="设置页" width="50%" />
+<img src="./screenshot/message.png" alt="消息页" width="50%" />
 
 ## 系统要求
 - 分辨率：>= 568x320（iPhone 5 尺寸）

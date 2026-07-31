@@ -11,18 +11,18 @@
 Control screen software for the Bambu Lab P1 series.
 
 ## Screenshots
-<img src="./screenshoot/home-idle.png" alt="Home Idle" width="50%" />
-<img src="./screenshoot/home.png" alt="Home" width="50%" />
-<img src="./screenshoot/home-warning.png" alt="Home Warning" width="50%" />
-<img src="./screenshoot/control.png" alt="Controls" width="50%" />
-<img src="./screenshoot/printspeed.png" alt="PrintSpeed" width="50%" />
-<img src="./screenshoot/motion.png" alt="Motion" width="50%" />
-<img src="./screenshoot/nozzle.png" alt="Nozzle" width="50%" />
-<img src="./screenshoot/heatbed.png" alt="Heatbed" width="50%" />
-<img src="./screenshoot/filament.png" alt="Filament" width="50%" />
-<img src="./screenshoot/filament-edit.png" alt="FilamentEdit" width="50%" />
-<img src="./screenshoot/setting.png" alt="Settings" width="50%" />
-<img src="./screenshoot/message.png" alt="Message" width="50%" />
+<img src="./screenshot/home-idle.png" alt="Home Idle" width="50%" />
+<img src="./screenshot/home.png" alt="Home" width="50%" />
+<img src="./screenshot/home-warning.png" alt="Home Warning" width="50%" />
+<img src="./screenshot/control.png" alt="Controls" width="50%" />
+<img src="./screenshot/printspeed.png" alt="PrintSpeed" width="50%" />
+<img src="./screenshot/motion.png" alt="Motion" width="50%" />
+<img src="./screenshot/nozzle.png" alt="Nozzle" width="50%" />
+<img src="./screenshot/heatbed.png" alt="Heatbed" width="50%" />
+<img src="./screenshot/filament.png" alt="Filament" width="50%" />
+<img src="./screenshot/filament-edit.png" alt="FilamentEdit" width="50%" />
+<img src="./screenshot/setting.png" alt="Settings" width="50%" />
+<img src="./screenshot/message.png" alt="Message" width="50%" />
 
 ## System Requirements
 - Resolution: >= 568x320 (iPhone 5 screen size)
