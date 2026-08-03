@@ -76,13 +76,15 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { showToast } from 'vant'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { CurrentStage } from '@bambulab-p1screen/printer-api'
-import { client } from '../../printer'
+import { CloudClient, CurrentStage } from '@bambulab-p1screen/printer-api'
+import { CLOUD_BASE_URLS, client, createApiUrl, getPrinterConnectionMode } from '../../printer'
 import { usePrintStatus } from '../../composables/usePrintStatus'
 import { useProjectThumbnail } from '../../composables/useProjectThumbnail'
 import { ROUTE_NAME } from '../../router/routes'
 import { usePrinterStore } from '../../stores/printer'
+import { getCachedThumbnailUrl, setCachedThumbnailUrl } from '../../utils/thumbnail'
 import { hmsIcon, wifiSignalIcon } from '../../utils/icon'
+import { getCloudUser } from '../../utils/user'
 
 import skipIcon from '../../assets/images/print_control_partskip.svg'
 import pauseIcon from '../../assets/images/print_control_pause.svg'
@@ -142,10 +144,56 @@ watch(
   { immediate: true }
 )
 
-useProjectThumbnail(project)
+const thumbnailUrl = ref('')
+const loadCloudThumbnail = async () => {
+  const cacheKey = device.value?.task_id || ''
+
+  if (cacheKey) {
+    const cachedUrl = getCachedThumbnailUrl(cacheKey)
+    if (cachedUrl) {
+      thumbnailUrl.value = cachedUrl
+      return
+    }
+  }
+
+  try {
+    const user = getCloudUser()
+    if (!user) {
+      throw new Error('cloud user is not configured')
+    }
+
+    console.log('[HomePrintingPage] fetching cover image url from bambu cloud')
+    const cloud = new CloudClient({ baseUrl: createApiUrl(CLOUD_BASE_URLS[user.region]) })
+    cloud.authToken = user.accessToken
+    cloud.username = user.username
+
+    const serial = client.connectOptions?.serial
+    const taskData = await cloud.getTaskList()
+    const hits: Array<Record<string, any>> = Array.isArray(taskData?.hits) ? taskData.hits : []
+    const task = serial ? hits.find(item => item.deviceId === serial) : undefined
+    const coverUrl = task?.cover
+    if (!coverUrl) {
+      throw new Error('no cover image found in cloud task list')
+    }
+
+    if (cacheKey) {
+      setCachedThumbnailUrl(cacheKey, coverUrl)
+    }
+    thumbnailUrl.value = coverUrl
+    console.log('[HomePrintingPage] set cloud cover image url:', coverUrl)
+  } catch (error) {
+    console.error('[HomePrintingPage] loadCloudThumbnail error:', error)
+  }
+}
+
+if (getPrinterConnectionMode() === 'cloud') {
+  loadCloudThumbnail()
+} else {
+  useProjectThumbnail(project)
+}
 
 const isRecording = computed(() => project.value?.timelapse)
-const taskThumbnail = computed(() => project.value?.thumbnail_url)
+const taskThumbnail = computed(() => thumbnailUrl.value || project.value?.thumbnail_url || '')
 const taskName = computed(() => device.value?.subtask_name || '')
 const nozzleTemp = computed(() => Math.floor(device.value?.nozzle_temper ?? 0))
 const heatbedTemp = computed(() => Math.floor(device.value?.bed_temper ?? 0))
