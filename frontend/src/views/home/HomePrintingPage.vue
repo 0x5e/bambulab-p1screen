@@ -90,7 +90,7 @@ import skipIcon from '../../assets/images/print_control_partskip.svg'
 import pauseIcon from '../../assets/images/print_control_pause.svg'
 import resumeIcon from '../../assets/images/print_control_resume.svg'
 import stopIcon from '../../assets/images/print_control_stop.svg'
-import loadingThumbnail from '../../assets/images/dev_hms_diag_loading_dark.svg'
+import loadingThumbnail from '../../assets/images/placeholder_image_dark.svg'
 import p1sThumbnail from '../../assets/images/object_22.png'
 import nozzleOffIcon from '../../assets/images/monitor_nozzle_temp.svg'
 import bedOffIcon from '../../assets/images/monitor_bed_temp.svg'
@@ -287,8 +287,7 @@ const handleStop = () => {
 
 .task-loading-thumbnail {
   filter: brightness(1.1);
-  width: 60%;
-  padding-bottom: 10%;
+  width: 100%;
 }
 
 .task-name {
