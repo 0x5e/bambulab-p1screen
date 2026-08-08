@@ -287,7 +287,8 @@ const handleStop = () => {
 
 .task-loading-thumbnail {
   filter: brightness(1.1);
-  width: 100%;
+  width: 95%;
+  padding-bottom: 0%;
 }
 
 .task-name {
