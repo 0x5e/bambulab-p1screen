@@ -92,7 +92,7 @@ import pauseIcon from '../../assets/images/print_control_pause.svg'
 import resumeIcon from '../../assets/images/print_control_resume.svg'
 import stopIcon from '../../assets/images/print_control_stop.svg'
 import loadingThumbnail from '../../assets/images/placeholder_image_dark.svg'
-import brokenThumbnail from '../../assets/images/monitor_brokenimg.png'
+import brokenThumbnail from '../../assets/images/ic_file_broken_dark.svg'
 import p1sThumbnail from '../../assets/images/object_22.png'
 import nozzleOffIcon from '../../assets/images/monitor_nozzle_temp.svg'
 import bedOffIcon from '../../assets/images/monitor_bed_temp.svg'
@@ -397,17 +397,14 @@ const handleStop = () => {
 .task-thumbnail {
   grid-column: 1 / span 2;
   grid-row: 2;
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-  justify-self: center;
+  width: 100%;
+  object-fit: contain;
+  align-self: stretch;
 }
 
 .task-loading-thumbnail {
   filter: brightness(1.1);
   width: 95%;
-  padding-bottom: 0%;
 }
 
 .task-name {
