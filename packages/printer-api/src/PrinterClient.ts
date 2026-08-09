@@ -11,7 +11,7 @@ import {
 export enum PrinterEvent {
   MQTT_STATE_CHANGE = 'mqtt.state_change',
   PRINT_PUSH_STATUS = 'print.push_status',
-  PRINT_PROJECT_FILE = 'print.project_file',
+  // PRINT_PROJECT_FILE = 'print.project_file',
 }
 
 export type PrinterClientConnectOptions = {
@@ -221,9 +221,9 @@ export class PrinterClient {
         case 'print.push_status':
           this.handlePushStatus(params)
           break
-        case 'print.project_file':
-          this.emit(PrinterEvent.PRINT_PROJECT_FILE, params)
-          break
+        // case 'print.project_file':
+        //   this.emit(PrinterEvent.PRINT_PROJECT_FILE, params)
+        //   break
         default:
           const flag = this.resolvePublishResponse(sequenceId, result, reason, params)
           if (!flag) {

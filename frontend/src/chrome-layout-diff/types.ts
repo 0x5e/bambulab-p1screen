@@ -1,4 +1,4 @@
-import type { DevicePrint, Module, Project } from '@bambulab-p1screen/printer-api'
+import type { DevicePrint, Module } from '@bambulab-p1screen/printer-api'
 import type { DeviceRecord } from '../utils/device'
 
 export type ChromeLayoutDiffFixtureName = string
@@ -8,7 +8,6 @@ export type ChromeLayoutDiffFixture = {
   deviceRecord: DeviceRecord | null
   print: DevicePrint | undefined
   modules: Module[] | undefined
-  project: Project | null
 }
 
 export type ChromeLayoutDiffFixturePayload = Partial<Omit<ChromeLayoutDiffFixture, 'name'>> & {

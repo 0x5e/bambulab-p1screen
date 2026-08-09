@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./ftps": "./src/FTPSClient.ts"
   },
   "dependencies": {
     "ipaddr.js": "^1.9.1",

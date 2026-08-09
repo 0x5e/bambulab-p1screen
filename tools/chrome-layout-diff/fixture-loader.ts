@@ -45,10 +45,6 @@ export const validateFixturePayload = (name: FixtureName, payload: FixturePayloa
     errors.push('deviceRecord must be an object or null')
   }
 
-  if ('project' in payload && payload.project !== null && typeof payload.project !== 'object') {
-    errors.push('project must be an object or null')
-  }
-
   if (modules !== undefined && modules !== null && !Array.isArray(modules)) {
     errors.push('module/modules must be an array, null, or omitted')
   }

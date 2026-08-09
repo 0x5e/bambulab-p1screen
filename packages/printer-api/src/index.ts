@@ -1,4 +1,5 @@
 export { PrinterClient, PrinterEvent, type PrinterClientConnectOptions } from './PrinterClient'
+export { FTPSClient, FtpError, type FTPFileInfo } from './FTPSClient'
 export {
   CloudClient,
   CloudError,
@@ -19,4 +20,3 @@ export type {
   DeviceTray,
 } from './device'
 export type { Module } from './module'
-export type { Project } from './project'

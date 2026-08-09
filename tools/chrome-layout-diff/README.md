@@ -27,8 +27,7 @@ Each JSON file may contain:
 ```json
 {
   "print": null,
-  "module": null,
-  "project": null
+  "module": null
 }
 ```
 

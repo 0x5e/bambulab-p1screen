@@ -18,7 +18,13 @@ export const CLOUD_BASE_URLS: Record<ServerRegion, string> = {
 export const createMqttUrl = (host: string) => {
   const upstreamUrl = `mqtts://${host}:8883`
   const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-  return `${wsProtocol}://${window.location.host}/mqtt?url=${encodeURIComponent(upstreamUrl)}`
+  return `${wsProtocol}://${window.location.host}/tls?url=${encodeURIComponent(upstreamUrl)}`
+}
+
+export const createFtpUrl = (host: string) => {
+  const upstreamUrl = `tls://${host}:990`
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
+  return `${wsProtocol}://${window.location.host}/tls?url=${encodeURIComponent(upstreamUrl)}`
 }
 
 export const createApiUrl = (host: string) => {

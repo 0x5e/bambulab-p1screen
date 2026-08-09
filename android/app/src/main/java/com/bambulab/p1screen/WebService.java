@@ -18,14 +18,12 @@ public final class WebService extends NanoWSD {
   private static final String TAG = "WebService";
 
   private final Context appContext;
-  private final FetchHandler fetchHandler;
   private final HttpProxyHandler httpProxyHandler;
   private final DeviceInfoProvider deviceInfoProvider;
 
   public WebService(int port, Context context, DeviceInfoProvider deviceInfoProvider) {
     super(port);
     appContext = context;
-    fetchHandler = new FetchHandler();
     httpProxyHandler = new HttpProxyHandler();
     this.deviceInfoProvider = deviceInfoProvider;
   }
@@ -74,9 +72,6 @@ public final class WebService extends NanoWSD {
       }
     }
 
-    if ("/api/fetch".equals(uri)) {
-      return fetchHandler.handle(session);
-    }
     return serveStatic(session);
   }
 

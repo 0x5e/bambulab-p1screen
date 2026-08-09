@@ -1,11 +1,9 @@
 import { ref } from 'vue'
-import { PrinterEvent, type DevicePrint, type Module, type Project } from '@bambulab-p1screen/printer-api'
+import { PrinterEvent, type DevicePrint, type Module } from '@bambulab-p1screen/printer-api'
 import { client } from '../printer'
-import { getCurrentProject, saveProject } from '../utils/project'
 
 const print = ref<DevicePrint | undefined>(client.device.print)
 const modules = ref<Module[] | undefined>(client.device.module)
-const project = ref<Project | null>(getCurrentProject(client.device.print?.task_id, client.device.print?.subtask_id))
 
 let bound = false
 
@@ -20,10 +18,6 @@ const handleMqttStateChange = () => {
 
 const handlePrintPushStatus = () => {
   syncClientState()
-
-  if (!project.value) {
-    project.value = getCurrentProject(client.device.print?.task_id, client.device.print?.subtask_id)
-  }
 
   // test
   // print.value!.gcode_state = 'IDLE'
@@ -57,20 +51,13 @@ const handlePrintPushStatus = () => {
   // print.value!.ams.ams[0].tray[3].remain = -1
 }
 
-const handleProjectFile = (projectData: Project) => {
-  saveProject(projectData)
-  project.value = projectData
-}
-
 export const bindPrinterClient = () => {
   if (bound) return
   bound = true
   syncClientState()
-  project.value = getCurrentProject(client.device.print?.task_id, client.device.print?.subtask_id)
 
   client.on(PrinterEvent.MQTT_STATE_CHANGE, handleMqttStateChange)
   client.on(PrinterEvent.PRINT_PUSH_STATUS, handlePrintPushStatus)
-  client.on(PrinterEvent.PRINT_PROJECT_FILE, handleProjectFile)
 }
 
 export const unbindPrinterClient = () => {
@@ -79,11 +66,9 @@ export const unbindPrinterClient = () => {
 
   client.off(PrinterEvent.MQTT_STATE_CHANGE, handleMqttStateChange)
   client.off(PrinterEvent.PRINT_PUSH_STATUS, handlePrintPushStatus)
-  client.off(PrinterEvent.PRINT_PROJECT_FILE, handleProjectFile)
 }
 
 export const usePrinterStore = () => ({
   device: print,
   modules,
-  project,
 })

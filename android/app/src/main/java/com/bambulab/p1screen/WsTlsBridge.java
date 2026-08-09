@@ -24,7 +24,6 @@ import javax.net.ssl.X509TrustManager;
 
 public final class WsTlsBridge extends NanoWSD.WebSocket {
   private static final String TAG = "WsTlsBridge";
-  private static final int DEFAULT_MQTTS_PORT = 8883;
 
   private SSLSocket tlsSocket;
   private OutputStream tlsOutput;
@@ -40,15 +39,14 @@ public final class WsTlsBridge extends NanoWSD.WebSocket {
 
     try {
       URI target = parseTargetUri(getHandshakeRequest());
-      int targetPort = target.getPort() > 0 ? target.getPort() : DEFAULT_MQTTS_PORT;
-      Log.d(TAG, "Connecting to TLS target: " + target.getHost() + ":" + targetPort);
+      Log.d(TAG, "Connecting to TLS target: " + target.getHost() + ":" + target.getPort());
       SSLSocketFactory sslSocketFactory = createInsecureTlsSocketFactory();
-      tlsSocket = (SSLSocket) sslSocketFactory.createSocket(target.getHost(), targetPort);
+      tlsSocket = (SSLSocket) sslSocketFactory.createSocket(target.getHost(), target.getPort());
       tlsSocket.startHandshake();
       tlsOutput = tlsSocket.getOutputStream();
       Log.d(TAG, "TLS handshake successful, protocol=" + tlsSocket.getSession().getProtocol());
 
-      Thread upstreamReader = new Thread(() -> pumpTlsToWebSocket(tlsSocket), "mqtt-tls-reader");
+      Thread upstreamReader = new Thread(() -> pumpTlsToWebSocket(tlsSocket), "tls-reader");
       upstreamReader.setDaemon(true);
       upstreamReader.start();
     } catch (Exception e) {
@@ -142,12 +140,14 @@ public final class WsTlsBridge extends NanoWSD.WebSocket {
     }
 
     URI target = new URI(raw);
-    if (!"mqtts".equals(target.getScheme())) {
-      throw new URISyntaxException(raw, "unsupported protocol");
-    }
     if (target.getHost() == null || target.getHost().isEmpty()) {
       throw new URISyntaxException(raw, "missing host");
     }
+
+    if (!Arrays.asList("mqtts", "tls").contains(target.getScheme())) {
+      throw new URISyntaxException(raw, "unsupported protocol");
+    }
+
     return target;
   }
 

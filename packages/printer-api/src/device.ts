@@ -52,6 +52,7 @@ export type DevicePrint = {
   task_id: string
   subtask_id: string
   subtask_name: string
+  gcode_file?: string
   print_error: number
   home_flag: number
   hms: DeviceHMS[]

@@ -13,7 +13,6 @@ export type FixturePayload = {
   print?: unknown
   module?: unknown
   modules?: unknown
-  project?: unknown
 }
 
 export type BrowserTarget = {

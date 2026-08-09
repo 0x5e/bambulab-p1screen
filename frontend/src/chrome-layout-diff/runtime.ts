@@ -1,7 +1,6 @@
 import { client } from '../printer'
 import type { DeviceRecord } from '../utils/device'
 import { CURRENT_DEVICE_KEY, DEVICE_STORAGE_KEY } from '../utils/device'
-import { PROJECTS_STORAGE_KEY } from '../utils/project'
 import type { ChromeLayoutDiffFixture, ChromeLayoutDiffFixtureName, ChromeLayoutDiffFixturePayload } from './types'
 
 const QUERY_PARAM = '__chromeLayoutDiffFixture'
@@ -58,7 +57,6 @@ const normalizeFixture = (name: ChromeLayoutDiffFixtureName, payload: ChromeLayo
   deviceRecord: payload.deviceRecord ?? createFallbackDeviceRecord(payload),
   print: payload.print,
   modules: payload.modules ?? payload.module,
-  project: payload.project ?? null,
 })
 
 export const installChromeLayoutDiffRuntime = () => {
@@ -80,12 +78,6 @@ export const installChromeLayoutDiffRuntime = () => {
   } else {
     window.localStorage.removeItem(DEVICE_STORAGE_KEY)
     window.localStorage.removeItem(CURRENT_DEVICE_KEY)
-  }
-
-  if (fixture.project) {
-    window.localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify([fixture.project]))
-  } else {
-    window.localStorage.removeItem(PROJECTS_STORAGE_KEY)
   }
 
   client.disconnect()

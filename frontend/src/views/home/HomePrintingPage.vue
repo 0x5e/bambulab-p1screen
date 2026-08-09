@@ -1,7 +1,7 @@
 <template>
   <div class="homepage homepage-running">
     <div ref="taskCardRef" class="card task-card" :style="{ width: `${taskCardWidth}px` }">
-      <span v-if="isRecording" class="recording"><i-material-symbols-circle />REC</span>
+      <!-- <span v-if="isRecording" class="recording"><i-material-symbols-circle />REC</span> -->
       <span class="files" @click="showToast({ message: t('developing'), position: 'bottom' })">{{ t('file_link') }}</span>
       <img v-if="taskThumbnail" class="task-thumbnail" :src="taskThumbnail" />
       <img v-else class="task-thumbnail task-loading-thumbnail" :src="loadingThumbnail" />
@@ -76,10 +76,11 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { showToast } from 'vant'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { CloudClient, CurrentStage } from '@bambulab-p1screen/printer-api'
-import { CLOUD_BASE_URLS, client, createApiUrl, getPrinterConnectionMode } from '../../printer'
+import { CloudClient, CurrentStage, FTPSClient } from '@bambulab-p1screen/printer-api'
+import { CLOUD_BASE_URLS, client, createApiUrl, createFtpUrl, getPrinterConnectionMode } from '../../printer'
+import { getCurrentDevice } from '../../utils/device'
 import { usePrintStatus } from '../../composables/usePrintStatus'
-import { useProjectThumbnail } from '../../composables/useProjectThumbnail'
+import { unzipSync } from 'fflate'
 import { ROUTE_NAME } from '../../router/routes'
 import { usePrinterStore } from '../../stores/printer'
 import { getCachedThumbnailUrl, setCachedThumbnailUrl } from '../../utils/thumbnail'
@@ -91,6 +92,7 @@ import pauseIcon from '../../assets/images/print_control_pause.svg'
 import resumeIcon from '../../assets/images/print_control_resume.svg'
 import stopIcon from '../../assets/images/print_control_stop.svg'
 import loadingThumbnail from '../../assets/images/placeholder_image_dark.svg'
+import brokenThumbnail from '../../assets/images/monitor_brokenimg.png'
 import p1sThumbnail from '../../assets/images/object_22.png'
 import nozzleOffIcon from '../../assets/images/monitor_nozzle_temp.svg'
 import bedOffIcon from '../../assets/images/monitor_bed_temp.svg'
@@ -101,7 +103,7 @@ import nozzleOcclusionThumbnail from '../../assets/images/indicator_occlusion_fi
 
 const { t } = useI18n()
 const router = useRouter()
-const { device, project } = usePrinterStore()
+const { device } = usePrinterStore()
 
 const taskCardRef = ref<HTMLElement | null>(null)
 const taskCardWidth = ref(0)
@@ -147,7 +149,6 @@ watch(
 const thumbnailUrl = ref('')
 const loadCloudThumbnail = async () => {
   const cacheKey = device.value?.task_id || ''
-
   if (cacheKey) {
     const cachedUrl = getCachedThumbnailUrl(cacheKey)
     if (cachedUrl) {
@@ -186,14 +187,130 @@ const loadCloudThumbnail = async () => {
   }
 }
 
+/**
+ * Downloads the current print job's .3mf from the local printer, mirroring
+ * ha-bambulab's candidate filename discovery:
+ * - subtask_name first (`name.3mf`, then `name.gcode.3mf`)
+ * - gcode_file second
+ * - fallback: first .3mf found in /cache or / when there is no subtask name
+ */
+const downloadCurrent3mf = async (ftp: FTPSClient) => {
+  const candidates: string[] = []
+  const push = (name?: string) => {
+    if (!name) return
+    if (name.endsWith('.3mf')) {
+      candidates.push(name)
+    } else {
+      candidates.push(`${name}.3mf`)
+      candidates.push(`${name}.gcode.3mf`)
+    }
+  }
+  push(device.value?.subtask_name)
+  if (device.value?.gcode_file && device.value.gcode_file !== device.value?.subtask_name) {
+    push(device.value.gcode_file)
+  }
+
+  for (const filename of candidates) {
+    for (const searchPath of ['/cache/', '/']) {
+      const remotePath = `${searchPath}${filename.replace(/^\//, '')}`
+      try {
+        return await ftp.downloadContent(remotePath)
+      } catch (err: any) {
+        if (err?.code !== 550) {
+          console.warn(`[HomePrintingPage] failed to download ${remotePath}: ${err?.message ?? err}`)
+        }
+      }
+    }
+  }
+
+  if (!device.value?.subtask_name) {
+    for (const searchPath of ['/cache/', '/']) {
+      try {
+        const files = await ftp.list(searchPath)
+        const modelFile = files.find(file => file.name.endsWith('.3mf'))
+        if (modelFile) {
+          return await ftp.downloadContent(`${searchPath}${modelFile.name}`)
+        }
+      } catch (err: any) {
+        console.warn(`[HomePrintingPage] failed to list ${searchPath}: ${err?.message ?? err}`)
+      }
+    }
+  }
+
+  throw new Error('No .3mf file found on printer')
+}
+
+/**
+ * Reads the plate index from the 3mf's slice_info.config, mirroring
+ * ha-bambulab: find `<plate><metadata key="index" value="N"/></plate>`.
+ */
+const parsePlateIndex = (xmlText: string): string | undefined => {
+  try {
+    const doc = new DOMParser().parseFromString(xmlText, 'application/xml')
+    return doc.querySelector('plate metadata[key="index"]')?.getAttribute('value') ?? undefined
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Loads the current project thumbnail from the printer's local .3mf file over
+ * the WebSocket FTP tunnel (LAN mode only).
+ */
+const loadLocalThumbnail = async () => {
+  const cacheKey = device.value?.task_id || ''
+  if (cacheKey) {
+    const cachedUrl = getCachedThumbnailUrl(cacheKey)
+    if (cachedUrl) {
+      thumbnailUrl.value = cachedUrl
+      return
+    }
+  }
+
+  const currentDevice = getCurrentDevice()
+  const ip = currentDevice?.ip ?? ''
+  const code = currentDevice?.code ?? ''
+  if (!ip || !code) return
+
+  const ftp = new FTPSClient()
+  try {
+    console.log('[HomePrintingPage] fetching project 3mf from local')
+    await ftp.connect(createFtpUrl(ip))
+    await ftp.login('bblp', code)
+
+    const data = await downloadCurrent3mf(ftp)
+    const unzipped = unzipSync(data)
+
+    const sliceInfo = unzipped['Metadata/slice_info.config']
+    const plateIndex = sliceInfo
+      ? parsePlateIndex(new TextDecoder().decode(sliceInfo))
+      : undefined
+    const thumbnailData = plateIndex ? unzipped[`Metadata/plate_${plateIndex}.png`] : undefined
+
+    const thumbnailUrlValue = thumbnailData
+      ? `data:image/png;base64,${btoa(String.fromCharCode(...thumbnailData))}`
+      : ''
+    if (cacheKey && thumbnailUrlValue) {
+      setCachedThumbnailUrl(cacheKey, thumbnailUrlValue)
+    }
+    thumbnailUrl.value = thumbnailUrlValue
+
+    console.log('[HomePrintingPage] extracted project thumbnail from .3mf')
+  } catch (error) {
+    console.error('[HomePrintingPage] loadLocalThumbnail error:', error)
+    thumbnailUrl.value = brokenThumbnail
+  } finally {
+    ftp.close()
+  }
+}
+
 if (getPrinterConnectionMode() === 'cloud') {
   loadCloudThumbnail()
 } else {
-  useProjectThumbnail(project)
+  loadLocalThumbnail()
 }
 
-const isRecording = computed(() => project.value?.timelapse)
-const taskThumbnail = computed(() => thumbnailUrl.value || project.value?.thumbnail_url || '')
+const taskThumbnail = computed(() => thumbnailUrl.value || '')
 const taskName = computed(() => device.value?.subtask_name || '')
 const nozzleTemp = computed(() => Math.floor(device.value?.nozzle_temper ?? 0))
 const heatbedTemp = computed(() => Math.floor(device.value?.bed_temper ?? 0))
@@ -247,6 +364,7 @@ const handleStop = () => {
   overflow: hidden;
 }
 
+/* 
 .recording {
   grid-column: 1;
   grid-row: 1;
@@ -265,6 +383,7 @@ const handleStop = () => {
   color: var(--van-red);
   margin-right: 1px;
 }
+*/
 
 .task-card .files {
   grid-column: 2;

@@ -72,34 +72,6 @@ const buildProxyHeaders = (req: express.Request) => {
   return headers
 }
 
-app.get('/api/fetch', async (req, res) => {
-  const url = req.query.url as string
-  if (!url) {
-    res.status(400).send('Missing url parameter')
-    return
-  }
-
-  try {
-    const response = await fetch(url)
-    res.status(response.status)
-    
-    const headersToForward = ['content-type', 'content-length', 'last-modified', 'cache-control']
-    headersToForward.forEach(h => {
-      const val = response.headers.get(h)
-      if (val) res.setHeader(h, val)
-    })
-
-    if (response.body) {
-      Readable.fromWeb(response.body as any).pipe(res)
-    } else {
-      res.end()
-    }
-  } catch (err) {
-    console.error('[server] proxy error:', err)
-    res.status(500).send('Internal Server Error')
-  }
-})
-
 const handleHttpProxy: express.RequestHandler = async (req, res) => {
   let target: URL
   try {
@@ -143,15 +115,15 @@ app.all('/api/https/*', handleHttpProxy)
 app.use('/', express.static(WEB_ROOT))
 
 const server = http.createServer(app)
-const mqttProxy = new WebSocketServer({ server, path: '/mqtt' })
+const tlsProxy = new WebSocketServer({ server, path: '/tls' })
 
-mqttProxy.on('connection', (socket, req) => {
+tlsProxy.on('connection', (socket, req) => {
   const remote = req.socket.remoteAddress + ':' + req.socket.remotePort
   const reqUrl = new URL(req.url ?? '', `http://${req.headers.host ?? 'localhost'}`)
   const encodedTargetUrl = reqUrl.searchParams.get('url')
 
   if (!encodedTargetUrl) {
-    console.error(`[mqtt-proxy][${remote}] missing url query`)
+    console.error(`[tls-proxy][${remote}] missing url query`)
     socket.close()
     return
   }
@@ -160,26 +132,26 @@ mqttProxy.on('connection', (socket, req) => {
   try {
     targetUrl = new URL(encodedTargetUrl)
   } catch {
-    console.error(`[mqtt-proxy][${remote}] invalid url: ${encodedTargetUrl}`)
+    console.error(`[tls-proxy][${remote}] invalid url: ${encodedTargetUrl}`)
     socket.close()
     return
   }
 
-  if (targetUrl.protocol !== 'mqtts:') {
-    console.error(`[mqtt-proxy][${remote}] unsupported protocol: ${targetUrl.protocol}`)
+  if (!['mqtts:', 'tls:'].includes(targetUrl.protocol)) {
+    console.error(`[tls-proxy][${remote}] unsupported protocol: ${targetUrl.protocol}`)
     socket.close()
     return
   }
 
   const targetHost = targetUrl.hostname
-  const targetPort = targetUrl.port ? Number(targetUrl.port) : 8883
+  const targetPort = Number(targetUrl.port)
   if (!targetHost || Number.isNaN(targetPort) || targetPort <= 0 || targetPort > 65535) {
-    console.error(`[mqtt-proxy][${remote}] invalid target: ${targetUrl.toString()}`)
+    console.error(`[tls-proxy][${remote}] invalid target: ${targetUrl.toString()}`)
     socket.close()
     return
   }
 
-  console.info(`[mqtt-proxy][${remote}] connecting to ${targetHost}:${targetPort}`)
+  console.info(`[tls-proxy][${remote}] connecting to ${targetHost}:${targetPort}`)
   const tlsSocket = tls.connect({
     host: targetHost,
     port: targetPort,
@@ -192,7 +164,7 @@ mqttProxy.on('connection', (socket, req) => {
       return
     }
     closed = true
-    console.info(`[mqtt-proxy][${remote}] closing bridge: ${reason}`)
+    console.info(`[tls-proxy][${remote}] closing bridge: ${reason}`)
     if (socket.readyState === socket.OPEN || socket.readyState === socket.CLOSING) {
       socket.close()
     }
@@ -202,7 +174,7 @@ mqttProxy.on('connection', (socket, req) => {
   }
 
   tlsSocket.on('secureConnect', () => {
-    console.info(`[mqtt-proxy][${remote}] tls connected to ${targetHost}:${targetPort}`)
+    console.info(`[tls-proxy][${remote}] tls connected to ${targetHost}:${targetPort}`)
   })
 
   tlsSocket.on('data', (chunk) => {
@@ -212,7 +184,7 @@ mqttProxy.on('connection', (socket, req) => {
     }
     socket.send(chunk, { binary: true }, (err) => {
       if (err) {
-        console.error(`[mqtt-proxy][${remote}] ws send failed: ${err.message}`)
+        console.error(`[tls-proxy][${remote}] ws send failed: ${err.message}`)
         closeBoth('ws send failure')
       }
     })
@@ -227,7 +199,7 @@ mqttProxy.on('connection', (socket, req) => {
   })
 
   tlsSocket.on('error', (err) => {
-    console.error(`[mqtt-proxy][${remote}] tls error: ${err.message}`)
+    console.error(`[tls-proxy][${remote}] tls error: ${err.message}`)
     closeBoth('tls error')
   })
 
@@ -239,7 +211,7 @@ mqttProxy.on('connection', (socket, req) => {
     const chunk = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength)
     tlsSocket.write(chunk, (err) => {
       if (err) {
-        console.error(`[mqtt-proxy][${remote}] tls write failed: ${err.message}`)
+        console.error(`[tls-proxy][${remote}] tls write failed: ${err.message}`)
         closeBoth('tls write failure')
       }
     })
@@ -250,7 +222,7 @@ mqttProxy.on('connection', (socket, req) => {
   })
 
   socket.on('error', (err) => {
-    console.error(`[mqtt-proxy][${remote}] ws error: ${err.message}`)
+    console.error(`[tls-proxy][${remote}] ws error: ${err.message}`)
     closeBoth('ws error')
   })
 })
