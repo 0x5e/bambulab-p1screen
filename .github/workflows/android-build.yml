@@ -63,6 +63,13 @@ jobs:
           TAG_NAME: ${{ github.ref_name }}
           APP_VERSION_NAME: ${{ steps.version.outputs.VERSION }}
 
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-${{ github.ref_name }}
+          path: dist/apk/release/app-release.apk
+          if-no-files-found: error
+
       - name: Create Release and Upload Asset
         if: startsWith(github.ref, 'refs/tags/')
         run: |
