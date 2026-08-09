@@ -397,14 +397,17 @@ const handleStop = () => {
 .task-thumbnail {
   grid-column: 1 / span 2;
   grid-row: 2;
-  width: 95%;
-  height: 95%;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
   justify-self: center;
-  padding-bottom: 0%;
 }
 
 .task-loading-thumbnail {
   filter: brightness(1.1);
+  width: 95%;
+  padding-bottom: 0%;
 }
 
 .task-name {
